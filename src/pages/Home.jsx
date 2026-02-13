@@ -1,16 +1,13 @@
-import { Layout } from "@/components/Layout";
-import { Hero } from "@/components/Hero";
-import { CategoryRail } from "@/components/CategoryRail";
-import { DiscoveryFeed } from "@/components/DiscoveryFeed";
-import { Instructions } from "@/components/Instructions";
+import { useAuth } from "@/context/AuthContext";
+import { AuthenticatedHome } from "@/components/home/AuthenticatedHome";
+import { LandingPage } from "@/components/LandingPage";
 
 export default function Home() {
-    return (
-        <Layout>
-            <Hero />
-            <CategoryRail />
-            <Instructions />
-            <DiscoveryFeed />
-        </Layout>
-    );
+    const { user } = useAuth();
+
+    if (user) {
+        return <AuthenticatedHome />;
+    }
+
+    return <LandingPage />;
 }

@@ -20,7 +20,7 @@ export function CategoryRail() {
             </div>
 
             <div className="w-full">
-                <Link to="/game/f1">
+                <Link to="/schedule">
                     <motion.div
                         whileTap={{ scale: 0.98 }}
                         className="relative w-full aspect-[21/9] rounded-2xl overflow-hidden group shadow-md hover:shadow-xl transition-all cursor-pointer"
