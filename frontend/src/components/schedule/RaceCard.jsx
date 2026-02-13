@@ -29,7 +29,7 @@ export function RaceCard({ race, onClick }) {
             </div>
 
             {/* Content Section */}
-            <div className="flex w-full grow flex-col items-stretch justify-center gap-1 py-6 px-6">
+            <div className="flex w-full grow flex-col items-stretch justify-center gap-1 p-4 md:py-6 md:px-6">
                 <div className="flex justify-between items-start">
                     <p className={`text-sm font-bold uppercase tracking-wider ${isUpcoming || isFinished ? "text-[#9c7349] dark:text-[#cbb094]" : "text-primary"}`}>{round}</p>
                     <div className="flex items-center gap-2 px-3 py-1 bg-background-light dark:bg-background-dark rounded-full">
@@ -42,7 +42,7 @@ export function RaceCard({ race, onClick }) {
                     {title}
                 </p>
 
-                <div className="flex items-end gap-3 justify-between mt-auto">
+                <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between mt-auto">
                     <div className="flex flex-col gap-1">
                         <div className="flex items-center gap-2 text-[#9c7349] dark:text-[#cbb094]">
                             <Calendar size={16} />
@@ -67,33 +67,33 @@ export function RaceCard({ race, onClick }) {
                     </div>
 
                     {/* Action Buttons */}
-                    <div className="flex gap-3">
+                    <div className="grid grid-cols-2 gap-3 w-full md:w-auto md:flex">
                         {isLive && (
                             <>
-                                <button className="flex min-w-[100px] cursor-pointer items-center justify-center rounded-xl h-10 px-5 bg-primary text-white text-sm font-bold shadow-sm hover:brightness-110 transition-all">
+                                <button className="flex cursor-pointer items-center justify-center rounded-xl h-10 px-5 bg-primary text-white text-sm font-bold shadow-sm hover:brightness-110 transition-all">
                                     <span>Enter Round</span>
                                 </button>
-                                <button className="flex min-w-[100px] cursor-pointer items-center justify-center rounded-xl h-10 px-5 bg-[#f4ede7] dark:bg-[#3d2e1f] text-[#1c140d] dark:text-white text-sm font-bold hover:bg-[#e9ded5] dark:hover:bg-[#4d3b2a] transition-all">
+                                <button className="flex cursor-pointer items-center justify-center rounded-xl h-10 px-5 bg-[#f4ede7] dark:bg-[#3d2e1f] text-[#1c140d] dark:text-white text-sm font-bold hover:bg-[#e9ded5] dark:hover:bg-[#4d3b2a] transition-all">
                                     <span>Raceboard</span>
                                 </button>
                             </>
                         )}
                         {isUpcoming && (
                             <>
-                                <button className="flex min-w-[100px] cursor-pointer items-center justify-center rounded-xl h-10 px-5 bg-primary/20 text-primary text-sm font-bold hover:bg-primary/30 transition-all">
+                                <button className="flex cursor-pointer items-center justify-center rounded-xl h-10 px-5 bg-primary/20 text-primary text-sm font-bold hover:bg-primary/30 transition-all">
                                     <span>Register</span>
                                 </button>
-                                <button className="flex min-w-[100px] cursor-pointer items-center justify-center rounded-xl h-10 px-5 bg-[#f4ede7] dark:bg-[#3d2e1f] text-[#1c140d] dark:text-white text-sm font-bold hover:bg-[#e9ded5] dark:hover:bg-[#4d3b2a] transition-all">
+                                <button className="flex cursor-pointer items-center justify-center rounded-xl h-10 px-5 bg-[#f4ede7] dark:bg-[#3d2e1f] text-[#1c140d] dark:text-white text-sm font-bold hover:bg-[#e9ded5] dark:hover:bg-[#4d3b2a] transition-all">
                                     <span>Details</span>
                                 </button>
                             </>
                         )}
                         {isFinished && (
                             <>
-                                <button className="flex min-w-[100px] cursor-pointer items-center justify-center rounded-xl h-10 px-5 bg-[#f4ede7] dark:bg-[#3d2e1f] text-[#1c140d] dark:text-white text-sm font-bold hover:bg-[#e9ded5] dark:hover:bg-[#4d3b2a] transition-all">
+                                <button className="flex cursor-pointer items-center justify-center rounded-xl h-10 px-5 bg-[#f4ede7] dark:bg-[#3d2e1f] text-[#1c140d] dark:text-white text-sm font-bold hover:bg-[#e9ded5] dark:hover:bg-[#4d3b2a] transition-all">
                                     <span>Watch Replay</span>
                                 </button>
-                                <button className="flex min-w-[100px] cursor-pointer items-center justify-center rounded-xl h-10 px-5 bg-primary/10 text-primary text-sm font-bold hover:bg-primary/20 transition-all">
+                                <button className="flex cursor-pointer items-center justify-center rounded-xl h-10 px-5 bg-primary/10 text-primary text-sm font-bold hover:bg-primary/20 transition-all">
                                     <span>Standings</span>
                                 </button>
                             </>

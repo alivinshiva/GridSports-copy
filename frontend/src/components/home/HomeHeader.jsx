@@ -18,7 +18,9 @@ export function HomeHeader() {
                         <span className="material-symbols-outlined text-[24px]">notifications</span>
                         <span className="absolute top-2 right-2.5 size-2 bg-primary rounded-full border-2 border-background-light"></span>
                     </button>
-                    <div className="size-10 rounded-full bg-cover bg-center border-2 border-primary" data-alt="User profile avatar with orange border" style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuCc4Y1XBf6f-biRM87-e-Kkw7QScj9DgkT3fN395NkKVPZ-Js9aScP6jVRPNbYbxyFPARUOeRwPCHTiK9Iyp9LP5i1WSaPwzGlpZ_wATUf2RYVhrYrBbBTPVZO--afW_Gy0q-jnBycflAR6fFWBDP4VcKaY7C5BOo7bf84z99q9hGH_ZXMI4hShD-y9v_qvhHVuftJkC4VyFjQ1FlNBSxTJBMciDY-HaLEl79KHOjyqrZb091JFyFgaOVnD333FB9j1nFAuXPlmyZ0')" }}></div>
+                    <Link to="/profile">
+                        <div className="size-10 rounded-full bg-cover bg-center border-2 border-primary" data-alt="User profile avatar with orange border" style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuCc4Y1XBf6f-biRM87-e-Kkw7QScj9DgkT3fN395NkKVPZ-Js9aScP6jVRPNbYbxyFPARUOeRwPCHTiK9Iyp9LP5i1WSaPwzGlpZ_wATUf2RYVhrYrBbBTPVZO--afW_Gy0q-jnBycflAR6fFWBDP4VcKaY7C5BOo7bf84z99q9hGH_ZXMI4hShD-y9v_qvhHVuftJkC4VyFjQ1FlNBSxTJBMciDY-HaLEl79KHOjyqrZb091JFyFgaOVnD333FB9j1nFAuXPlmyZ0')" }}></div>
+                    </Link>
                 </div>
             </div>
         </header>
