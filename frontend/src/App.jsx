@@ -9,8 +9,10 @@ import SeasonSchedule from "@/pages/SeasonSchedule";
 import { GamePage } from "@/pages/GamePage";
 import { SignupPage } from "@/pages/SignupPage";
 import { LoginPage } from "@/pages/LoginPage";
+import { ForgotPasswordPage } from "@/pages/ForgotPasswordPage";
 import { OTPPage } from "@/pages/OTPPage";
 import { TribePage } from "@/pages/TribePage";
+import { ChallengeEntries } from "@/pages/ChallengeEntries";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 
 // Protects routes: must be logged in AND have chosen a tribe
@@ -41,6 +43,7 @@ function App() {
         <Routes>
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/otp" element={<OTPPage />} />
           <Route path="/tribe" element={<ProtectedRoute><TribePage /></ProtectedRoute>} />
           <Route path="/" element={<Home />} />
@@ -51,7 +54,9 @@ function App() {
           <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
           <Route path="/profile/edit" element={<ProtectedRoute><EditProfile /></ProtectedRoute>} />
           <Route path="/game/f1" element={<ProtectedRoute><GamePage /></ProtectedRoute>} />
+
           {/* Catch-all: redirect unknown routes to home (which is protected) */}
+          <Route path="/challenge/entries" element={<ProtectedRoute><ChallengeEntries /></ProtectedRoute>} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Router>

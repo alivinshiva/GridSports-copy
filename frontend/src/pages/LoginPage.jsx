@@ -92,6 +92,16 @@ export function LoginPage() {
                             </div>
                         </div>
 
+                        {/* Forgot Password Link */}
+                        <div className="flex justify-end mt-2">
+                            <Link
+                                to="/forgot-password"
+                                className="text-sm text-racing-orange hover:text-amber-500 transition-colors"
+                            >
+                                Forgot Password?
+                            </Link>
+                        </div>
+
                         {/* Error */}
                         {error && (
                             <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-red-400 text-sm text-center bg-red-400/10 py-2 rounded-lg">

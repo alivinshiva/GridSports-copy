@@ -8,15 +8,13 @@ export function BottomNav() {
                 <Home size={24} />
                 <span className="text-[10px] uppercase font-bold tracking-wider">Home</span>
             </Link>
-            <button className="flex flex-col items-center justify-center gap-1 text-[#1c140d] dark:text-[#fcfaf8] opacity-60 hover:opacity-100 transition-opacity">
+            <Link to="/challenge/entries" className="flex flex-col items-center justify-center gap-1 text-[#1c140d] dark:text-[#fcfaf8] opacity-60 hover:opacity-100 transition-opacity">
                 <span className="material-symbols-outlined">sports_score</span>
-                <span className="text-[10px] font-bold uppercase tracking-widest">Compete</span>
-            </button>
-            <div className="relative -top-6">
-                <button className="size-14 bg-primary text-white rounded-full flex items-center justify-center shadow-lg shadow-primary/40 border-4 border-background-light dark:border-background-dark">
-                    <span className="material-symbols-outlined text-[32px]">add</span>
-                </button>
-            </div>
+                <span className="text-[10px] font-bold uppercase tracking-widest">Completed</span>
+            </Link>
+            <Link to="/schedule" className="relative -top-6 size-14 bg-primary text-white rounded-full flex items-center justify-center shadow-lg shadow-primary/40 border-4 border-background-light dark:border-background-dark">
+                <span className="material-symbols-outlined text-[32px]">add</span>
+            </Link>
             <button className="flex flex-col items-center justify-center gap-1 text-[#1c140d] dark:text-[#fcfaf8] opacity-60 hover:opacity-100 transition-opacity">
                 <span className="material-symbols-outlined">leaderboard</span>
                 <span className="text-[10px] font-bold uppercase tracking-widest">Rank</span>
