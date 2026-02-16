@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Upload, Video, Info, X, Circle, Square, RotateCcw, Check } from "lucide-react";
 
 export default function UploadChallenge() {
@@ -11,6 +11,24 @@ export default function UploadChallenge() {
     const [isRecording, setIsRecording] = useState(false);
     const [previewUrl, setPreviewUrl] = useState(null);
     const [mode, setMode] = useState("select"); // 'select', 'record', 'preview'
+
+    const { challengeId } = useParams();
+    const [challenge, setChallenge] = useState(null);
+
+    useEffect(() => {
+        const fetchChallenge = async () => {
+            try {
+                const response = await fetch(`http://localhost:7000/api/v1/public/challenge/${challengeId}`);
+                const data = await response.json();
+                if (data.success) {
+                    setChallenge(data.data);
+                }
+            } catch (error) {
+                console.error("Error fetching challenge", error);
+            }
+        };
+        if (challengeId) fetchChallenge();
+    }, [challengeId]);
 
     const handleGalleryClick = () => {
         fileInputRef.current?.click();
@@ -93,7 +111,7 @@ export default function UploadChallenge() {
                             <path clipRule="evenodd" d="M24 4H42V17.3333V30.6667H24V44H6V30.6667V17.3333H24V4Z" fillRule="evenodd"></path>
                         </svg>
                     </div>
-                    <h2 className="text-lg font-bold leading-tight tracking-[-0.015em]">Race Start Reaction</h2>
+                    <h2 className="text-lg font-bold leading-tight tracking-[-0.015em]">{challenge ? challenge.title : "Challenge Upload"}</h2>
                 </div>
                 <button
                     onClick={() => navigate(-1)}
@@ -124,8 +142,15 @@ export default function UploadChallenge() {
                     {/* Headline & Intro Section */}
                     {mode === 'select' && (
                         <div className="text-center">
-                            <h1 className="text-[32px] font-bold leading-tight pb-3 pt-6">Upload to Race Start Reaction</h1>
-                            <p className="text-base font-normal leading-normal opacity-80">Record your face when the race starts!</p>
+                            <h1 className="text-[32px] font-bold leading-tight pb-3 pt-6">{challenge ? challenge.title : "Loading..."}</h1>
+                            <p className="text-base font-normal leading-normal opacity-80 mb-4">{challenge ? challenge.description : "Preparing challenge..."}</p>
+
+                            {challenge && challenge.rules && (
+                                <div className="bg-[#f4ede7] dark:bg-[#2d2218] p-4 rounded-xl text-left border border-[#e8dbce] dark:border-[#3d2e1f] max-w-2xl mx-auto">
+                                    <h3 className="font-bold text-sm uppercase tracking-wider text-[#9c7349] mb-2">Rules & Instructions</h3>
+                                    <p className="text-sm whitespace-pre-line">{challenge.rules}</p>
+                                </div>
+                            )}
                         </div>
                     )}
 

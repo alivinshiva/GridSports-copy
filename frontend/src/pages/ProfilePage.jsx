@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useAuth } from "../context/AuthContext";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 import { useNavigate } from "react-router-dom";
 import {
@@ -18,9 +19,40 @@ import {
 
 export default function ProfilePage() {
     const navigate = useNavigate();
+    const { fetchProfile } = useAuth(); // Assuming fetchProfile is available from useAuth
     const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+    const [profileData, setProfileData] = useState(null);
+    const [loading, setLoading] = useState(true);
 
-    const profileImage = "https://lh3.googleusercontent.com/aida-public/AB6AXuARfjDdlsL5nnhugURpNI_ONjt8HvlFRzHIjof85Au2Jm5CYSFu5JCyPTCnaNrJr4qYtkfEbaSxPGnIbX4QG6dZnzB9rkyAACcs1ePO5A6Ea4f6fx6HpF5GBCzDIpULkSXmLZd4fFCsA2DiVSWZg9ndMbKhTUiIkIkh_HH4OYT7Q9Em5JNjZ91LE9HDknQe70cTDHZgb4SiuoStAcFNnE-KlBeYnNLUXTIuL0h4DY-pI9pNcZHRs_IgZ2zPywZ9KnjhG-wjK74sijs";
+    useEffect(() => {
+        const loadProfile = async () => {
+            const data = await fetchProfile();
+            if (data) {
+                setProfileData(data);
+            }
+            setLoading(false);
+        };
+        loadProfile();
+    }, [fetchProfile]);
+
+    const profileImage = profileData?.imageUrl || "https://lh3.googleusercontent.com/aida-public/AB6AXuARfjDdlsL5nnhugURpNI_ONjt8HvlFRzHIjof85Au2Jm5CYSFu5JCyPTCnaNrJr4qYtkfEbaSxPGnIbX4QG6dZnzB9rkyAACcs1ePO5A6Ea4f6fx6HpF5GBCzDIpULkSXmLZd4fFCsA2DiVSWZg9ndMbKhTUiIkIkh_HH4OYT7Q9Em5JNjZ91LE9HDknQe70cTDHZgb4SiuoStAcFNnE-KlBeYnNLUXTIuL0h4DY-pI9pNcZHRs_IgZ2zPywZ9KnjhG-wjK74sijs";
+
+    // Map backend tribe IDs to display names if needed, or just use the ID/Name from backend
+    // The backend returns tribe enum like "IRON TRIBE". Let's format it.
+    const formatTribeName = (tribe) => {
+        if (!tribe) return "No Tribe";
+        return tribe.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ');
+    };
+
+    if (loading) {
+        return (
+            <AuthenticatedLayout>
+                <div className="flex flex-1 justify-center py-8 items-center min-h-[50vh]">
+                    <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
+                </div>
+            </AuthenticatedLayout>
+        );
+    }
 
     return (
         <AuthenticatedLayout>
@@ -63,10 +95,14 @@ export default function ProfilePage() {
                                     style={{ backgroundImage: `url("${profileImage}")` }}
                                 ></div>
                                 <div className="flex flex-col items-center md:items-start justify-center gap-2">
-                                    <p className="text-[#1c140d] dark:text-white text-xl md:text-3xl font-bold leading-tight tracking-[-0.015em]">Racing User</p>
+                                    <p className="text-[#1c140d] dark:text-white text-xl md:text-3xl font-bold leading-tight tracking-[-0.015em]">
+                                        {profileData?.user?.name || "Racing User"}
+                                    </p>
                                     <div className="flex items-center gap-2 text-primary">
                                         <LayoutGrid size={18} />
-                                        <span className="text-sm font-bold uppercase tracking-wider">Red Grid</span>
+                                        <span className="text-sm font-bold uppercase tracking-wider">
+                                            {formatTribeName(profileData?.tribe || "Red Grid")}
+                                        </span>
                                     </div>
                                 </div>
                             </div>

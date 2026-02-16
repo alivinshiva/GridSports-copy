@@ -11,6 +11,7 @@ export function AuthProvider({ children }) {
         const savedUser = localStorage.getItem("gridsports_user");
         if (savedUser) {
             setUser(JSON.parse(savedUser));
+            fetchProfile();
         }
         setIsLoading(false);
     }, []);
@@ -33,19 +34,50 @@ export function AuthProvider({ children }) {
         }
     };
 
+    const fetchProfile = async () => {
+        try {
+            const response = await fetch("http://localhost:7000/api/v1/profile/profile-details", {
+                credentials: "include",
+            });
+            const data = await response.json();
+            if (data.success && data.data) {
+                if (data.data.tribe) {
+                    localStorage.setItem("gridsports_tribe", data.data.tribe);
+                }
+                // Update user state with isAdmin if present in profile.user
+                if (data.data.user) {
+                    setUser(prev => {
+                        const updated = { ...prev, isAdmin: data.data.user.isAdmin };
+                        localStorage.setItem("gridsports_user", JSON.stringify(updated));
+                        return updated;
+                    });
+                }
+                return data.data;
+            }
+        } catch (error) {
+            console.error("Fetch Profile Error:", error);
+        }
+        return null;
+    };
+
     const login = async (phone, password) => {
         try {
             const response = await fetch("http://localhost:7000/api/v1/user/login-phone", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ phoneNumber: phone, password }),
+                credentials: "include",
             });
             const data = await response.json();
 
             if (data.success) {
-                const userObj = { name: data.name, phone: phone };
+                const userObj = { name: data.name, phone: phone, isAdmin: data.role };
                 setUser(userObj);
                 localStorage.setItem("gridsports_user", JSON.stringify(userObj));
+
+                // Check if user has a tribe
+                await fetchProfile();
+
                 return { success: true };
             }
             return { success: false, message: data.message };
@@ -60,13 +92,19 @@ export function AuthProvider({ children }) {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ code: otp }),
+                credentials: "include",
             });
             const data = await response.json();
 
             if (data.success) {
                 const userObj = { name: userData.name, phone: userData.phone };
+                // Fetch profile to get role and other details
                 setUser(userObj);
                 localStorage.setItem("gridsports_user", JSON.stringify(userObj));
+
+                // Check if user has a tribe
+                await fetchProfile();
+
                 return true;
             }
             return false;
@@ -78,7 +116,10 @@ export function AuthProvider({ children }) {
 
     const logout = async () => {
         try {
-            await fetch("http://localhost:7000/api/v1/user/logout", { method: "POST" });
+            await fetch("http://localhost:7000/api/v1/user/logout", {
+                method: "POST",
+                credentials: "include"
+            });
         } catch (error) {
             console.error("Logout failed", error);
         }
@@ -88,7 +129,7 @@ export function AuthProvider({ children }) {
     };
 
     return (
-        <AuthContext.Provider value={{ user, isLoading, signup, login, verifyOTP, logout }}>
+        <AuthContext.Provider value={{ user, isLoading, signup, login, verifyOTP, logout, fetchProfile }}>
             {children}
         </AuthContext.Provider>
     );

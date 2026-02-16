@@ -101,6 +101,16 @@ export default function UploadSuccess() {
                         </button>
                     </div>
 
+                    <div className="fixed bottom-20 right-4 md:static md:mt-4 z-50">
+                        <button
+                            className="bg-white text-black font-bold py-3 px-6 rounded-full shadow-lg flex items-center gap-2 hover:bg-gray-200 transition-colors"
+                            onClick={() => alert("Share with Stamp feature coming soon! (Download image with overlay)")}
+                        >
+                            <span className="material-symbols-outlined">ios_share</span>
+                            Share with Stamp
+                        </button>
+                    </div>
+
                     <p className="mt-10 text-white/40 text-sm">
                         Ready to see how you rank? Keep an eye on the leaderboard.
                     </p>

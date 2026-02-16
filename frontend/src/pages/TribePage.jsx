@@ -4,16 +4,16 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Check, ArrowRight, ChevronLeft, Globe, Share2, HelpCircle, X } from "lucide-react";
 
 const tribes = [
-    { id: "red", name: "Red Grid", letter: "R", subtitle: "Passion and fire", color: "#DC2626", bg: "linear-gradient(135deg, #DC2626 0%, #991B1B 100%)" },
-    { id: "blue", name: "Blue Grid", letter: "B", subtitle: "Calm and precision", color: "#2563EB", bg: "linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%)" },
-    { id: "silver", name: "Silver Grid", letter: "S", subtitle: "Speed and tech", color: "#9CA3AF", bg: "linear-gradient(135deg, #D1D5DB 0%, #6B7280 100%)" },
-    { id: "orange", name: "Orange Grid", letter: "O", subtitle: "Energy and drive", color: "#EA580C", bg: "linear-gradient(135deg, #F97316 0%, #C2410C 100%)" },
-    { id: "green", name: "Green Grid", letter: "G", subtitle: "Growth and endurance", color: "#059669", bg: "linear-gradient(135deg, #10B981 0%, #047857 100%)" },
-    { id: "purple", name: "Purple Grid", letter: "P", subtitle: "Creativity and wisdom", color: "#7C3AED", bg: "linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%)" },
-    { id: "yellow", name: "Yellow Grid", letter: "Y", subtitle: "Optimism and light", color: "#CA8A04", bg: "linear-gradient(135deg, #FACC15 0%, #CA8A04 100%)" },
-    { id: "teal", name: "Teal Grid", letter: "T", subtitle: "Balance and clarity", color: "#0D9488", bg: "linear-gradient(135deg, #14B8A6 0%, #0F766E 100%)" },
-    { id: "pink", name: "Pink Grid", letter: "P", subtitle: "Playful and bold", color: "#DB2777", bg: "linear-gradient(135deg, #EC4899 0%, #BE185D 100%)" },
-    { id: "black", name: "Black Grid", letter: "B", subtitle: "Power and stealth", color: "#1F2937", bg: "linear-gradient(135deg, #374151 0%, #111827 100%)" },
+    { id: "IRON TRIBE", name: "Iron Tribe", letter: "I", subtitle: "Strength and resilience", color: "#4B5563", bg: "linear-gradient(135deg, #4B5563 0%, #1F2937 100%)" },
+    { id: "ROYAL TRIBE", name: "Royal Tribe", letter: "R", subtitle: "Nobility and leadership", color: "#7C3AED", bg: "linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%)" },
+    { id: "INDIGO TRIBE", name: "Indigo Tribe", letter: "I", subtitle: "Intuition and depth", color: "#4338CA", bg: "linear-gradient(135deg, #6366F1 0%, #312E81 100%)" },
+    { id: "EMERALD TRIBE", name: "Emerald Tribe", letter: "E", subtitle: "Growth and harmony", color: "#059669", bg: "linear-gradient(135deg, #10B981 0%, #047857 100%)" },
+    { id: "ORANGE TRIBE", name: "Orange Tribe", letter: "O", subtitle: "Energy and enthusiasm", color: "#EA580C", bg: "linear-gradient(135deg, #F97316 0%, #C2410C 100%)" },
+    { id: "SCARLET TRIBE", name: "Scarlet Tribe", letter: "S", subtitle: "Passion and courage", color: "#DC2626", bg: "linear-gradient(135deg, #EF4444 0%, #991B1B 100%)" },
+    { id: "CRIMSON TRIBE", name: "Crimson Tribe", letter: "C", subtitle: "Power and determination", color: "#9F1239", bg: "linear-gradient(135deg, #BE123C 0%, #881337 100%)" },
+    { id: "PLATINUM TRIBE", name: "Platinum Tribe", letter: "P", subtitle: "Prestige and durability", color: "#94A3B8", bg: "linear-gradient(135deg, #CBD5E1 0%, #64748B 100%)" },
+    { id: "TITANIUM TRIBE", name: "Titanium Tribe", letter: "T", subtitle: "Innovation and future", color: "#374151", bg: "linear-gradient(135deg, #4B5563 0%, #111827 100%)" },
+    { id: "AZURE TRIBE", name: "Azure Tribe", letter: "A", subtitle: "Freedom and vastness", color: "#0EA5E9", bg: "linear-gradient(135deg, #38BDF8 0%, #0369A1 100%)" },
 ];
 
 export function TribePage() {
@@ -31,11 +31,30 @@ export function TribePage() {
     const buttonColor = hoveredTribe?.color || activeTribe?.color || "#EA580C";
     const buttonLabel = activeTribe ? `Join ${activeTribe.name.replace(" Grid", "")} Tribe` : "Select a Tribe";
 
-    const handleJoin = () => {
+    const handleJoin = async () => {
         if (!activeTribe) return;
-        // Save tribe choice to localStorage
-        localStorage.setItem("gridsports_tribe", JSON.stringify(activeTribe));
-        navigate(redirectTo);
+
+        try {
+            const response = await fetch("http://localhost:7000/api/v1/profile/create-tribe", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ tribe: activeTribe.id }),
+                credentials: "include",
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                // Save tribe choice to localStorage
+                localStorage.setItem("gridsports_tribe", activeTribe.id);
+                navigate(redirectTo);
+            } else {
+                alert(data.message || "Failed to join tribe");
+            }
+        } catch (error) {
+            console.error("Join Tribe Error:", error);
+            alert("Something went wrong. Please try again.");
+        }
     };
 
     const handleSaveExit = () => {

@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import Home from "@/pages/Home";
+import WeekendPage from "@/pages/WeekendPage";
 import RaceDetails from "@/pages/RaceDetails";
 import UploadChallenge from "@/pages/UploadChallenge";
 import UploadSuccess from "@/pages/UploadSuccess";
@@ -54,6 +55,7 @@ function App() {
           <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
           <Route path="/profile/edit" element={<ProtectedRoute><EditProfile /></ProtectedRoute>} />
           <Route path="/game/f1" element={<ProtectedRoute><GamePage /></ProtectedRoute>} />
+          <Route path="/weekend/:weekendId" element={<ProtectedRoute><WeekendPage /></ProtectedRoute>} />
 
           {/* Catch-all: redirect unknown routes to home (which is protected) */}
           <Route path="/challenge/entries" element={<ProtectedRoute><ChallengeEntries /></ProtectedRoute>} />

@@ -34,7 +34,7 @@ export function ChallengeCard({ challenge }) {
 
                 <div className="flex gap-3 mt-2">
                     <button
-                        onClick={() => window.location.href = `/upload/${challenge.id || 'default'}`}
+                        onClick={() => window.location.href = `/upload/${challenge.challengeId || challenge._id}`}
                         className="flex-1 bg-primary text-white font-bold py-2.5 rounded-xl hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
                     >
                         <Upload size={20} />
