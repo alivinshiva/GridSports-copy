@@ -56,19 +56,19 @@ export function OTPPage() {
         }
     };
 
-    const handleVerify = () => {
+    const handleVerify = async () => {
         const otpString = otp.join("");
         if (otpString.length < 4) {
             setError("Please enter all 4 digits");
             return;
         }
 
-        const isValid = verifyOTP(otpString, userData);
+        const isValid = await verifyOTP(otpString, userData);
         if (isValid) {
             setSuccess(true);
             setTimeout(() => navigate("/tribe", { state: { from: userData.redirectTo || "/" } }), 1500);
         } else {
-            setError("Invalid OTP. Demo code is 0000");
+            setError("Invalid OTP or expired.");
             setOtp(["", "", "", ""]);
             inputRefs.current[0]?.focus();
         }
@@ -169,9 +169,7 @@ export function OTPPage() {
                 </div>
 
                 {/* Demo Hint */}
-                <p className="text-center text-gray-600 text-xs mt-6">
-                    Demo OTP: <span className="text-gray-400 font-mono font-bold">0000</span>
-                </p>
+                {/* Demo Hint Removed */}
             </motion.div>
         </div>
     );

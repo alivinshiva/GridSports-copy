@@ -15,15 +15,15 @@ export function SignupPage() {
     const { signup } = useAuth();
     const redirectTo = location.state?.from || "/";
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         setError("");
 
         if (!name.trim()) return setError("Name is required");
         if (phone.length < 10) return setError("Enter a valid phone number");
-        if (password.length < 6) return setError("Password must be at least 6 characters");
+        if (password.length < 8) return setError("Password must be at least 8 characters");
 
-        const result = signup(name, phone, password);
+        const result = await signup(name, `+91${phone}`, password);
         if (result.success) {
             navigate("/otp", { state: { phone: result.phone, name, from: "signup", redirectTo } });
         } else {
@@ -73,12 +73,15 @@ export function SignupPage() {
                             <label className="text-sm font-medium text-gray-300 block mb-2">Phone Number</label>
                             <div className="relative">
                                 <Phone size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" />
+                                <span className="absolute left-11 top-1/2 -translate-y-1/2 text-gray-400 font-medium border-r border-white/10 pr-3 h-5 flex items-center">
+                                    +91
+                                </span>
                                 <input
                                     type="tel"
                                     value={phone}
                                     onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
                                     placeholder="9876543210"
-                                    className="w-full bg-white/5 border border-white/10 rounded-xl pl-12 pr-4 py-3.5 text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-racing-orange/50 focus:border-racing-orange/50 transition-all"
+                                    className="w-full bg-white/5 border border-white/10 rounded-xl pl-[5.5rem] pr-4 py-3.5 text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-racing-orange/50 focus:border-racing-orange/50 transition-all"
                                 />
                             </div>
                         </div>
@@ -92,7 +95,7 @@ export function SignupPage() {
                                     type={showPassword ? "text" : "password"}
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    placeholder="Min 6 characters"
+                                    placeholder="Min 8 characters"
                                     className="w-full bg-white/5 border border-white/10 rounded-xl pl-12 pr-12 py-3.5 text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-racing-orange/50 focus:border-racing-orange/50 transition-all"
                                 />
                                 <button
@@ -132,9 +135,7 @@ export function SignupPage() {
                 </div>
 
                 {/* Demo Hint */}
-                <p className="text-center text-gray-600 text-xs mt-6">
-                    Demo OTP: <span className="text-gray-400 font-mono font-bold">0000</span>
-                </p>
+                {/* Demo Hint Removed */}
             </motion.div>
         </div>
     );

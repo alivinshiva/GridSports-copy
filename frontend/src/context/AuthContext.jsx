@@ -15,45 +15,76 @@ export function AuthProvider({ children }) {
         setIsLoading(false);
     }, []);
 
-    const signup = (name, phone, password) => {
-        // Demo: save user to localStorage
-        const users = JSON.parse(localStorage.getItem("gridsports_users") || "[]");
-        const existing = users.find((u) => u.phone === phone);
-        if (existing) {
-            return { success: false, message: "Phone number already registered" };
+    const signup = async (name, phone, password) => {
+        try {
+            const response = await fetch("http://localhost:7000/api/v1/user/signup", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name, phoneNumber: phone, password }),
+            });
+            const data = await response.json();
+
+            if (data.success) {
+                return { success: true, phone, name };
+            }
+            return { success: false, message: data.message };
+        } catch (error) {
+            return { success: false, message: "Network error. Please try again." };
         }
-        users.push({ name, phone, password });
-        localStorage.setItem("gridsports_users", JSON.stringify(users));
-        return { success: true, phone };
     };
 
-    const login = (phone, password) => {
-        const users = JSON.parse(localStorage.getItem("gridsports_users") || "[]");
-        const found = users.find((u) => u.phone === phone && u.password === password);
-        if (found) {
-            // Direct login — set user session immediately (no OTP)
-            const userObj = { name: found.name, phone: found.phone };
-            setUser(userObj);
-            localStorage.setItem("gridsports_user", JSON.stringify(userObj));
-            return { success: true };
+    const login = async (phone, password) => {
+        try {
+            const response = await fetch("http://localhost:7000/api/v1/user/login-phone", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ phoneNumber: phone, password }),
+            });
+            const data = await response.json();
+
+            if (data.success) {
+                const userObj = { name: data.name, phone: phone };
+                setUser(userObj);
+                localStorage.setItem("gridsports_user", JSON.stringify(userObj));
+                return { success: true };
+            }
+            return { success: false, message: data.message };
+        } catch (error) {
+            return { success: false, message: "Network error. Please try again." };
         }
-        return { success: false, message: "Invalid phone number or password" };
     };
 
-    const verifyOTP = (otp, userData) => {
-        // Demo OTP: 0000
-        if (otp === "0000") {
-            const userObj = { name: userData.name, phone: userData.phone };
-            setUser(userObj);
-            localStorage.setItem("gridsports_user", JSON.stringify(userObj));
-            return true;
+    const verifyOTP = async (otp, userData) => {
+        try {
+            const response = await fetch("http://localhost:7000/api/v1/user/verify-phone", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ code: otp }),
+            });
+            const data = await response.json();
+
+            if (data.success) {
+                const userObj = { name: userData.name, phone: userData.phone };
+                setUser(userObj);
+                localStorage.setItem("gridsports_user", JSON.stringify(userObj));
+                return true;
+            }
+            return false;
+        } catch (error) {
+            console.error("OTP Verification Error:", error);
+            return false;
         }
-        return false;
     };
 
-    const logout = () => {
+    const logout = async () => {
+        try {
+            await fetch("http://localhost:7000/api/v1/user/logout", { method: "POST" });
+        } catch (error) {
+            console.error("Logout failed", error);
+        }
         setUser(null);
         localStorage.removeItem("gridsports_user");
+        localStorage.removeItem("gridsports_tribe");
     };
 
     return (
