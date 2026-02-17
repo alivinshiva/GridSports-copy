@@ -10,29 +10,29 @@ function App() {
 
   // Weekend Form State
   const [weekendForm, setWeekendForm] = useState({
-    name: "Australian Grand Prix",
-    slug: "australian-grand-prix",
+    name: "",
+    slug: "",
     startDate: "",
     endDate: "",
-    round: "Round 01",
+    round: "",
     image: null
   });
 
   // Race Form State
   const [raceForm, setRaceForm] = useState({
-    name: "Melbourne Weekend",
-    round: "Round 01",
+    name: "",
+    round: "",
     weekendId: "",
     practiceDate: "",
     qualifyingDate: "",
     raceDate: "",
-    slug: "melbourne-weekend-r01",
+    slug: "",
     image: null
   });
 
   // Challenge Form State
   const [challengeForm, setChallengeForm] = useState({
-    challengeId: "AUS_R01_C01",
+    challengeId: "",
     raceId: "",
     title: "",
     description: "",
@@ -214,41 +214,51 @@ function App() {
         {message && <div className="mb-4 p-4 bg-blue-900/50 text-blue-200 rounded border border-blue-800">{message}</div>}
 
         {/* Create Weekend Form */}
+        {/* Create Weekend Form */}
         {activeTab === "create-weekend" && (
           <form onSubmit={handleCreateWeekend} className="space-y-4 bg-gray-900 p-6 rounded-xl border border-gray-800">
-            <h2 className="text-xl font-bold">Create New Weekend</h2>
+            <h2 className="text-xl font-bold mb-4">Create New Weekend</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <input
-                type="text"
-                placeholder="Weekend Name (e.g. Australian Grand Prix)"
-                value={weekendForm.name}
-                onChange={e => setWeekendForm({ ...weekendForm, name: e.target.value })}
-                className="p-3 rounded border bg-black border-gray-700 focus:border-red-600 outline-none"
-                required
-              />
-              <input
-                type="text"
-                placeholder="Slug (e.g. australian-grand-prix)"
-                value={weekendForm.slug}
-                onChange={e => setWeekendForm({ ...weekendForm, slug: e.target.value })}
-                className="p-3 rounded border bg-black border-gray-700 focus:border-red-600 outline-none"
-                required
-              />
-              <input
-                type="text"
-                placeholder="Round (e.g. Round 01)"
-                value={weekendForm.round}
-                onChange={e => setWeekendForm({ ...weekendForm, round: e.target.value })}
-                className="p-3 rounded border bg-black border-gray-700 focus:border-red-600 outline-none"
-                required
-              />
-              <input
-                type="file"
-                accept="image/*"
-                onChange={e => setWeekendForm({ ...weekendForm, image: e.target.files[0] })}
-                className="p-3 rounded border bg-black border-gray-700 focus:border-red-600 outline-none"
-                required
-              />
+              <div>
+                <label className="block text-sm text-gray-400 mb-1">Weekend Name</label>
+                <input
+                  type="text"
+                  value={weekendForm.name}
+                  onChange={e => setWeekendForm({ ...weekendForm, name: e.target.value })}
+                  className="w-full p-3 rounded border bg-black border-gray-700 focus:border-red-600 outline-none"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-gray-400 mb-1">Slug</label>
+                <input
+                  type="text"
+                  value={weekendForm.slug}
+                  onChange={e => setWeekendForm({ ...weekendForm, slug: e.target.value })}
+                  className="w-full p-3 rounded border bg-black border-gray-700 focus:border-red-600 outline-none"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-gray-400 mb-1">Round</label>
+                <input
+                  type="text"
+                  value={weekendForm.round}
+                  onChange={e => setWeekendForm({ ...weekendForm, round: e.target.value })}
+                  className="w-full p-3 rounded border bg-black border-gray-700 focus:border-red-600 outline-none"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-gray-400 mb-1">Cover Image</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={e => setWeekendForm({ ...weekendForm, image: e.target.files[0] })}
+                  className="w-full p-3 rounded border bg-black border-gray-700 focus:border-red-600 outline-none"
+                  required
+                />
+              </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -257,7 +267,9 @@ function App() {
                   type="date"
                   value={weekendForm.startDate}
                   onChange={e => setWeekendForm({ ...weekendForm, startDate: e.target.value })}
-                  className="w-full p-3 rounded border bg-black border-gray-700 focus:border-red-600 outline-none"
+                  onClick={(e) => e.target.showPicker && e.target.showPicker()}
+                  style={{ colorScheme: "dark" }}
+                  className="w-full p-3 rounded border bg-black border-gray-700 focus:border-red-600 outline-none cursor-pointer"
                   required
                 />
               </div>
@@ -267,7 +279,9 @@ function App() {
                   type="date"
                   value={weekendForm.endDate}
                   onChange={e => setWeekendForm({ ...weekendForm, endDate: e.target.value })}
-                  className="w-full p-3 rounded border bg-black border-gray-700 focus:border-red-600 outline-none"
+                  onClick={(e) => e.target.showPicker && e.target.showPicker()}
+                  style={{ colorScheme: "dark" }}
+                  className="w-full p-3 rounded border bg-black border-gray-700 focus:border-red-600 outline-none cursor-pointer"
                   required
                 />
               </div>
@@ -281,50 +295,62 @@ function App() {
         {/* Create Race Form */}
         {activeTab === "create-race" && (
           <form onSubmit={handleCreateRace} className="space-y-4 bg-gray-900 p-6 rounded-xl border border-gray-800">
-            <h2 className="text-xl font-bold">Create New Race</h2>
+            <h2 className="text-xl font-bold mb-4">Create New Race</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <select
-                value={raceForm.weekendId}
-                onChange={e => setRaceForm({ ...raceForm, weekendId: e.target.value })}
-                className="p-3 rounded border bg-black border-gray-700 focus:border-red-600 outline-none"
-                required
-              >
-                <option value="">Select Weekend</option>
-                {weekends.map(weekend => (
-                  <option key={weekend._id} value={weekend._id}>{weekend.name} ({weekend.round})</option>
-                ))}
-              </select>
-              <input
-                type="text"
-                placeholder="Race Name (e.g. Melbourne Weekend)"
-                value={raceForm.name}
-                onChange={e => setRaceForm({ ...raceForm, name: e.target.value })}
-                className="p-3 rounded border bg-black border-gray-700 focus:border-red-600 outline-none"
-                required
-              />
-              <input
-                type="text"
-                placeholder="Round (e.g. Round 01)"
-                value={raceForm.round}
-                onChange={e => setRaceForm({ ...raceForm, round: e.target.value })}
-                className="p-3 rounded border bg-black border-gray-700 focus:border-red-600 outline-none"
-                required
-              />
-              <input
-                type="text"
-                placeholder="Slug (e.g. melbourne-weekend-r01)"
-                value={raceForm.slug}
-                onChange={e => setRaceForm({ ...raceForm, slug: e.target.value })}
-                className="p-3 rounded border bg-black border-gray-700 focus:border-red-600 outline-none"
-                required
-              />
-              <input
-                type="file"
-                accept="image/*"
-                onChange={e => setRaceForm({ ...raceForm, image: e.target.files[0] })}
-                className="p-3 rounded border bg-black border-gray-700 focus:border-red-600 outline-none"
-                required
-              />
+              <div>
+                <label className="block text-sm text-gray-400 mb-1">Select Weekend</label>
+                <select
+                  value={raceForm.weekendId}
+                  onChange={e => setRaceForm({ ...raceForm, weekendId: e.target.value })}
+                  className="w-full p-3 rounded border bg-black border-gray-700 focus:border-red-600 outline-none"
+                  required
+                >
+                  <option value="">-- Choose Weekend --</option>
+                  {weekends.map(weekend => (
+                    <option key={weekend._id} value={weekend._id}>{weekend.name} ({weekend.round})</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm text-gray-400 mb-1">Race Name</label>
+                <input
+                  type="text"
+                  value={raceForm.name}
+                  onChange={e => setRaceForm({ ...raceForm, name: e.target.value })}
+                  className="w-full p-3 rounded border bg-black border-gray-700 focus:border-red-600 outline-none"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-gray-400 mb-1">Round</label>
+                <input
+                  type="text"
+                  value={raceForm.round}
+                  onChange={e => setRaceForm({ ...raceForm, round: e.target.value })}
+                  className="w-full p-3 rounded border bg-black border-gray-700 focus:border-red-600 outline-none"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-gray-400 mb-1">Slug</label>
+                <input
+                  type="text"
+                  value={raceForm.slug}
+                  onChange={e => setRaceForm({ ...raceForm, slug: e.target.value })}
+                  className="w-full p-3 rounded border bg-black border-gray-700 focus:border-red-600 outline-none"
+                  required
+                />
+              </div>
+              <div className="md:col-span-2">
+                <label className="block text-sm text-gray-400 mb-1">Cover Image</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={e => setRaceForm({ ...raceForm, image: e.target.files[0] })}
+                  className="w-full p-3 rounded border bg-black border-gray-700 focus:border-red-600 outline-none"
+                  required
+                />
+              </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
@@ -333,7 +359,9 @@ function App() {
                   type="datetime-local"
                   value={raceForm.practiceDate}
                   onChange={e => setRaceForm({ ...raceForm, practiceDate: e.target.value })}
-                  className="w-full p-3 rounded border bg-black border-gray-700 focus:border-red-600 outline-none"
+                  onClick={(e) => e.target.showPicker && e.target.showPicker()}
+                  style={{ colorScheme: "dark" }}
+                  className="w-full p-3 rounded border bg-black border-gray-700 focus:border-red-600 outline-none cursor-pointer"
                   required
                 />
               </div>
@@ -343,7 +371,9 @@ function App() {
                   type="datetime-local"
                   value={raceForm.qualifyingDate}
                   onChange={e => setRaceForm({ ...raceForm, qualifyingDate: e.target.value })}
-                  className="w-full p-3 rounded border bg-black border-gray-700 focus:border-red-600 outline-none"
+                  onClick={(e) => e.target.showPicker && e.target.showPicker()}
+                  style={{ colorScheme: "dark" }}
+                  className="w-full p-3 rounded border bg-black border-gray-700 focus:border-red-600 outline-none cursor-pointer"
                   required
                 />
               </div>
@@ -353,7 +383,9 @@ function App() {
                   type="datetime-local"
                   value={raceForm.raceDate}
                   onChange={e => setRaceForm({ ...raceForm, raceDate: e.target.value })}
-                  className="w-full p-3 rounded border bg-black border-gray-700 focus:border-red-600 outline-none"
+                  onClick={(e) => e.target.showPicker && e.target.showPicker()}
+                  style={{ colorScheme: "dark" }}
+                  className="w-full p-3 rounded border bg-black border-gray-700 focus:border-red-600 outline-none cursor-pointer"
                   required
                 />
               </div>
@@ -367,66 +399,80 @@ function App() {
         {/* Create Challenge Form */}
         {activeTab === "create-challenge" && (
           <form onSubmit={handleCreateChallenge} className="space-y-4 bg-gray-900 p-6 rounded-xl border border-gray-800">
-            <h2 className="text-xl font-bold">Create New Challenge</h2>
+            <h2 className="text-xl font-bold mb-4">Create New Challenge</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <select
-                value={challengeForm.raceId}
-                onChange={e => setChallengeForm({ ...challengeForm, raceId: e.target.value })}
-                className="p-3 rounded border bg-black border-gray-700 focus:border-red-600 outline-none"
-                required
-              >
-                <option value="">Select Race</option>
-                {races.map(race => (
-                  <option key={race._id} value={race._id}>{race.name} ({race.round})</option>
-                ))}
-              </select>
-              <input
-                type="text"
-                placeholder="Challenge ID (e.g. AUS_R01_C01)"
-                value={challengeForm.challengeId}
-                onChange={e => setChallengeForm({ ...challengeForm, challengeId: e.target.value })}
-                className="p-3 rounded border bg-black border-gray-700 focus:border-red-600 outline-none"
-                required
-              />
-              <input
-                type="text"
-                placeholder="Title (e.g. Melbourne Vibe Poster)"
-                value={challengeForm.title}
-                onChange={e => setChallengeForm({ ...challengeForm, title: e.target.value })}
-                className="p-3 rounded border bg-black border-gray-700 focus:border-red-600 outline-none"
-                required
-              />
-              <select
-                value={challengeForm.type}
-                onChange={e => setChallengeForm({ ...challengeForm, type: e.target.value })}
-                className="p-3 rounded border bg-black border-gray-700 focus:border-red-600 outline-none"
-                required
-              >
-                <option value="Photo">Photo</option>
-                <option value="Video">Video</option>
-                <option value="Mixed">Mixed</option>
-                <option value="Photo + text">Photo + text</option>
-                <option value="Video (max 8s)">Video (max 8s)</option>
-                <option value="Video (20–30s)">Video (20–30s)</option>
-                <option value="Photo template (Top 10) or 10s video">Photo template (Top 10) or 10s video</option>
-                <option value="Video (7–12s)">Video (7–12s)</option>
-                <option value="Video (12–18s)">Video (12–18s)</option>
-              </select>
+              <div>
+                <label className="block text-sm text-gray-400 mb-1">Select Race</label>
+                <select
+                  value={challengeForm.raceId}
+                  onChange={e => setChallengeForm({ ...challengeForm, raceId: e.target.value })}
+                  className="w-full p-3 rounded border bg-black border-gray-700 focus:border-red-600 outline-none"
+                  required
+                >
+                  <option value="">-- Choose Race --</option>
+                  {races.map(race => (
+                    <option key={race._id} value={race._id}>{race.name} ({race.round})</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm text-gray-400 mb-1">Challenge ID</label>
+                <input
+                  type="text"
+                  value={challengeForm.challengeId}
+                  onChange={e => setChallengeForm({ ...challengeForm, challengeId: e.target.value })}
+                  className="w-full p-3 rounded border bg-black border-gray-700 focus:border-red-600 outline-none"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-gray-400 mb-1">Title</label>
+                <input
+                  type="text"
+                  value={challengeForm.title}
+                  onChange={e => setChallengeForm({ ...challengeForm, title: e.target.value })}
+                  className="w-full p-3 rounded border bg-black border-gray-700 focus:border-red-600 outline-none"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-gray-400 mb-1">Type</label>
+                <select
+                  value={challengeForm.type}
+                  onChange={e => setChallengeForm({ ...challengeForm, type: e.target.value })}
+                  className="w-full p-3 rounded border bg-black border-gray-700 focus:border-red-600 outline-none"
+                  required
+                >
+                  <option value="Photo (1) or Video (max 8s)">Photo (1) or Video (max 8s)</option>
+                  <option value="Video (20–30s)">Video (20–30s)</option>
+                  <option value="Photo template (Top 10) or 10s video">Photo template (Top 10) or 10s video</option>
+                  <option value="Video (7–12s)">Video (7–12s)</option>
+                  <option value="Video (12–18s)">Video (12–18s)</option>
+                  <option value="Photo + text (≤10 words) OR 6–8s video">Photo + text (≤10 words) OR 6–8s video</option>
+                  <option value="Photo">Photo</option>
+                  <option value="Video">Video</option>
+                  <option value="Mixed">Mixed</option>
+                </select>
+              </div>
             </div>
-            <textarea
-              placeholder="Description / Prompt"
-              value={challengeForm.description}
-              onChange={e => setChallengeForm({ ...challengeForm, description: e.target.value })}
-              className="w-full p-3 rounded border bg-black border-gray-700 focus:border-red-600 outline-none h-24"
-              required
-            />
-            <textarea
-              placeholder="Rules & Timing Instructions"
-              value={challengeForm.rules}
-              onChange={e => setChallengeForm({ ...challengeForm, rules: e.target.value })}
-              className="w-full p-3 rounded border bg-black border-gray-700 focus:border-red-600 outline-none h-24"
-              required
-            />
+            <div>
+              <label className="block text-sm text-gray-400 mb-1">Description / Prompt</label>
+              <textarea
+                value={challengeForm.description}
+                onChange={e => setChallengeForm({ ...challengeForm, description: e.target.value })}
+                className="w-full p-3 rounded border bg-black border-gray-700 focus:border-red-600 outline-none h-24"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm text-gray-400 mb-1">Rules & Timing Instructions</label>
+              <textarea
+                value={challengeForm.rules}
+                onChange={e => setChallengeForm({ ...challengeForm, rules: e.target.value })}
+                className="w-full p-3 rounded border bg-black border-gray-700 focus:border-red-600 outline-none h-24"
+                required
+              />
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm text-gray-400 mb-1">Open Time</label>
@@ -434,7 +480,9 @@ function App() {
                   type="datetime-local"
                   value={challengeForm.openTime}
                   onChange={e => setChallengeForm({ ...challengeForm, openTime: e.target.value })}
-                  className="w-full p-3 rounded border bg-black border-gray-700 focus:border-red-600 outline-none"
+                  onClick={(e) => e.target.showPicker && e.target.showPicker()}
+                  style={{ colorScheme: "dark" }}
+                  className="w-full p-3 rounded border bg-black border-gray-700 focus:border-red-600 outline-none cursor-pointer"
                   required
                 />
               </div>
@@ -444,33 +492,44 @@ function App() {
                   type="datetime-local"
                   value={challengeForm.closeTime}
                   onChange={e => setChallengeForm({ ...challengeForm, closeTime: e.target.value })}
-                  className="w-full p-3 rounded border bg-black border-gray-700 focus:border-red-600 outline-none"
+                  onClick={(e) => e.target.showPicker && e.target.showPicker()}
+                  style={{ colorScheme: "dark" }}
+                  className="w-full p-3 rounded border bg-black border-gray-700 focus:border-red-600 outline-none cursor-pointer"
                   required
                 />
               </div>
             </div>
-            <input
-              type="text"
-              placeholder="Rater Tags (comma separated, e.g. Vibe, Authentic)"
-              value={challengeForm.raterTags}
-              onChange={e => setChallengeForm({ ...challengeForm, raterTags: e.target.value })}
-              className="w-full p-3 rounded border bg-black border-gray-700 focus:border-red-600 outline-none"
-              required
-            />
-            <input
-              type="text"
-              placeholder="Share Hook"
-              value={challengeForm.shareHook}
-              onChange={e => setChallengeForm({ ...challengeForm, shareHook: e.target.value })}
-              className="w-full p-3 rounded border bg-black border-gray-700 focus:border-red-600 outline-none"
-            />
-            <input
-              type="file"
-              accept="image/*"
-              onChange={e => setChallengeForm({ ...challengeForm, image: e.target.files[0] })}
-              className="w-full p-3 rounded border bg-black border-gray-700 focus:border-red-600 outline-none"
-              required
-            />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm text-gray-400 mb-1">Rater Tags (comma separated)</label>
+                <input
+                  type="text"
+                  value={challengeForm.raterTags}
+                  onChange={e => setChallengeForm({ ...challengeForm, raterTags: e.target.value })}
+                  className="w-full p-3 rounded border bg-black border-gray-700 focus:border-red-600 outline-none"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-gray-400 mb-1">Share Hook</label>
+                <input
+                  type="text"
+                  value={challengeForm.shareHook}
+                  onChange={e => setChallengeForm({ ...challengeForm, shareHook: e.target.value })}
+                  className="w-full p-3 rounded border bg-black border-gray-700 focus:border-red-600 outline-none"
+                />
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm text-gray-400 mb-1">Cover Image</label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={e => setChallengeForm({ ...challengeForm, image: e.target.files[0] })}
+                className="w-full p-3 rounded border bg-black border-gray-700 focus:border-red-600 outline-none"
+                required
+              />
+            </div>
             <button type="submit" disabled={loading} className="px-6 py-2 bg-red-600 text-white font-bold rounded hover:bg-red-700 transition-colors">
               {loading ? "Creating..." : "Create Challenge"}
             </button>

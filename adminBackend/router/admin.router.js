@@ -8,7 +8,7 @@ import {
     getAllWeekendsController
 } from "../controller/admin.controller.js";
 
-import upload from "../middleware/upload.js";
+import { upload } from "../middleware/multer.middleware.js";
 
 const adminRouter = express.Router();
 

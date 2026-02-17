@@ -140,6 +140,15 @@ export const createChallengeController = async (req, res) => {
             return res.status(400).json({ success: false, message: "Challenge ID already exists" });
         }
 
+        // Validate Race ID
+        if (!mongoose.Types.ObjectId.isValid(raceId)) {
+            return res.status(400).json({ success: false, message: "Invalid Race ID format" });
+        }
+        const existingRace = await raceModel.findById(raceId);
+        if (!existingRace) {
+            return res.status(404).json({ success: false, message: "Race not found" });
+        }
+
         const newChallenge = new challengeModel({
             challengeId,
             raceId,
