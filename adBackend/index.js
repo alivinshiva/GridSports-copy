@@ -4,6 +4,8 @@ import cors from "cors";
 import bodyParser from "body-parser";
 import { connectDb } from "./config/db.connect.js";
 import weekendRouter from "./router/weekend.router.js";
+import challengeRouter from "./router/challenge.router.js";
+import submissionRouter from "./router/submission.router.js";
 
 dotenv.config();
 
@@ -12,11 +14,9 @@ const PORT = process.env.PORT || 9000;
 
 connectDb();
 
-
 app.use(bodyParser.json());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
 
 app.use(cors({
     origin: ["http://localhost:5173", "http://localhost:5174"],
@@ -24,14 +24,13 @@ app.use(cors({
     allowedHeaders: ["Content-Type", "Authorization"]
 }));
 
-
 app.get("/", (req, res) => {
     res.send("Admin Server Working");
 });
 
-
 app.use("/api/v1/weekend", weekendRouter);
-
+app.use("/api/v1/challenge", challengeRouter);
+app.use("/api/v1/submission", submissionRouter);
 
 
 app.listen(PORT, () => {

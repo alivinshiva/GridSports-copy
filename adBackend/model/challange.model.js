@@ -14,7 +14,11 @@ const challengeSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    image: {
+    imageUrl: {
+        type: String,
+        required: true
+    },
+    imageId: {
         type: String,
         required: true
     },
@@ -36,6 +40,10 @@ const challengeSchema = new mongoose.Schema({
             trim: true
         }
     ],
+    season: {
+        type: String,
+        required: true
+    },
     type: {
         type: String,
         enum: ["PHOTO", "VIDEO", "TEXT", "MIXED"],

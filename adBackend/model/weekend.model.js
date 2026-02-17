@@ -36,6 +36,10 @@ const weekendSchema = new mongoose.Schema({
         type: String,
         enum: ["UPCOMING", "ACTIVE", "COMPLETED"],
         default: "UPCOMING"
+    },
+    count: {
+        type: Number,
+        default: 0
     }
 }, { timestamps: true });
 
