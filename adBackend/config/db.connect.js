@@ -9,3 +9,6 @@ export const connectDb = async (req, res) => {
         return res.status(500).json({ success: false, message: "Internal Server Error", error: error.message });
     };
 };
+// mongoose.connection.on("connected", () => {
+//     console.log("Mongoose connected to DB");
+// }   
