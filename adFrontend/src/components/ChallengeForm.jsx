@@ -1,0 +1,303 @@
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { createChallenge } from '../services/challengeService';
+import { getAllWeekends } from '../services/weekendService';
+import { Upload, Trophy, Plus, Trash2, X } from 'lucide-react';
+
+const ChallengeForm = () => {
+    const navigate = useNavigate();
+    const [weekends, setWeekends] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [formData, setFormData] = useState({
+        weekend: '',
+        season: '',
+        name: '',
+        description: '',
+        startAt: '',
+        endAt: '',
+        round: '',
+        type: 'PHOTO',
+        status: 'UPCOMING',
+    });
+    const [rules, setRules] = useState([]);
+    const [currentRule, setCurrentRule] = useState('');
+    const [ruleError, setRuleError] = useState('');
+    const [image, setImage] = useState(null);
+    const [preview, setPreview] = useState(null);
+
+    useEffect(() => {
+        const fetchWeekends = async () => {
+            try {
+                const response = await getAllWeekends();
+                if (response.success) {
+                    setWeekends(response.data);
+                }
+            } catch (error) {
+                console.error("Failed to fetch weekends", error);
+            }
+        };
+        fetchWeekends();
+    }, []);
+
+    const handleChange = (e) => {
+        if (e.target.name === 'weekend') {
+            const selectedWeekend = weekends.find(w => w._id === e.target.value);
+            setFormData({
+                ...formData,
+                weekend: e.target.value,
+                season: selectedWeekend ? selectedWeekend.season : ''
+            });
+        } else {
+            setFormData({ ...formData, [e.target.name]: e.target.value });
+        }
+    };
+
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setImage(file);
+            setPreview(URL.createObjectURL(file));
+        }
+    };
+
+    const removeImage = () => {
+        setImage(null);
+        setPreview(null);
+    };
+
+    // Rules Management
+    const handleAddRule = () => {
+        if (currentRule.trim() !== "") {
+            setRules([...rules, currentRule.trim()]);
+            setCurrentRule("");
+            setRuleError("");
+        } else {
+            setRuleError("Rule cannot be empty");
+            setTimeout(() => setRuleError(""), 3000);
+        }
+    };
+
+    const handleRemoveRule = (index) => {
+        setRules(rules.filter((_, i) => i !== index));
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+
+        const data = new FormData();
+        Object.keys(formData).forEach(key => {
+            data.append(key, formData[key]);
+        });
+
+        // Append Rules
+        rules.forEach(rule => data.append('rules', rule));
+
+        if (image) {
+            data.append('image', image);
+        }
+
+        try {
+            const response = await createChallenge(data);
+            if (response.success) {
+                navigate('/challenges'); // Redirect to Challenges list
+            } else {
+                alert("Failed to create challenge: " + response.message);
+            }
+        } catch (error) {
+            console.error("Error creating challenge", error);
+            alert("An error occurred");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <div className="max-w-2xl mx-auto mt-10 bg-white p-8 rounded-lg shadow-md mb-10">
+            <h2 className="text-2xl font-bold mb-6 text-gray-800 flex items-center">
+                <Trophy className="mr-2 text-yellow-600" /> Create New Challenge
+            </h2>
+            <form onSubmit={handleSubmit} className="space-y-6">
+
+                {/* Image Upload */}
+                <div className="mb-6">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Challenge Image</label>
+
+                    {!preview ? (
+                        <div
+                            onClick={() => document.getElementById('fileInput').click()}
+                            className="w-full h-48 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-colors bg-gray-50"
+                        >
+                            <Upload className="w-10 h-10 text-gray-400 mb-2" />
+                            <p className="text-sm text-gray-600 font-medium">Click to upload image</p>
+                            <p className="text-xs text-gray-400 mt-1">SVG, PNG, JPG or GIF (max. 800x400px)</p>
+                            <input
+                                id="fileInput"
+                                type="file"
+                                onChange={handleImageChange}
+                                className="hidden"
+                                accept="image/*"
+                                required
+                            />
+                        </div>
+                    ) : (
+                        <div className="relative w-full h-64 bg-gray-100 rounded-lg overflow-hidden border border-gray-200 group">
+                            <img
+                                src={preview}
+                                alt="Preview"
+                                className="w-full h-full object-cover"
+                            />
+                            <div className="absolute inset-0 bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                <button
+                                    type="button"
+                                    onClick={removeImage}
+                                    className="bg-red-600 text-white p-2 rounded-full hover:bg-red-700 transition-colors shadow-lg transform hover:scale-110"
+                                >
+                                    <X size={24} />
+                                </button>
+                            </div>
+                        </div>
+                    )}
+                </div>
+
+                {/* Weekend Selection */}
+                <div>
+                    <label className="block text-sm font-medium text-gray-700">Select Weekend</label>
+                    <select
+                        name="weekend"
+                        value={formData.weekend}
+                        onChange={handleChange}
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border"
+                        required
+                    >
+                        <option value="">-- Select a Weekend --</option>
+                        {weekends.map(w => (
+                            <option key={w._id} value={w._id}>{w.title}</option>
+                        ))}
+                    </select>
+                </div>
+
+                {/* Season (Read-Only) */}
+                <div>
+                    <label className="block text-sm font-medium text-gray-700">Season</label>
+                    <input
+                        type="text"
+                        name="season"
+                        value={formData.season}
+                        readOnly
+                        className="mt-1 block w-full rounded-md border-gray-300 bg-gray-100 shadow-sm p-2 border text-gray-500 cursor-not-allowed"
+                    />
+                </div>
+
+                {/* Name & Round */}
+                <div className="grid grid-cols-2 gap-4">
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700">Challenge Name</label>
+                        <input type="text" name="name" value={formData.name} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border" required />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700">Round No.</label>
+                        <input type="number" name="round" value={formData.round} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border" required />
+                    </div>
+                </div>
+
+                {/* Description */}
+                <div>
+                    <label className="block text-sm font-medium text-gray-700">Description</label>
+                    <textarea name="description" value={formData.description} onChange={handleChange} rows="3" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border" required></textarea>
+                </div>
+
+                {/* Dates */}
+                <div className="grid grid-cols-2 gap-4">
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700">Start Date & Time</label>
+                        <input type="datetime-local" name="startAt" value={formData.startAt} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border" required />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700">End Date & Time</label>
+                        <input type="datetime-local" name="endAt" value={formData.endAt} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border" required />
+                    </div>
+                </div>
+
+                {/* Type & Status */}
+                <div className="grid grid-cols-2 gap-4">
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700">Type</label>
+                        <select name="type" value={formData.type} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border">
+                            <option value="PHOTO">PHOTO</option>
+                            <option value="VIDEO">VIDEO</option>
+                            <option value="TEXT">TEXT</option>
+                            <option value="MIXED">MIXED</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700">Status</label>
+                        <select name="status" value={formData.status} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border">
+                            <option value="UPCOMING">UPCOMING</option>
+                            <option value="ACTIVE">ACTIVE</option>
+                            <option value="CLOSED">CLOSED</option>
+                        </select>
+                    </div>
+                </div>
+
+                {/* Dynamic Rules Input */}
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Rules</label>
+                    <div className="flex gap-2 mb-3">
+                        <input
+                            type="text"
+                            value={currentRule}
+                            onChange={(e) => setCurrentRule(e.target.value)}
+                            placeholder="Add a new rule..."
+                            className="flex-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border"
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                    e.preventDefault();
+                                    handleAddRule();
+                                }
+                            }}
+                        />
+                        <button
+                            type="button"
+                            onClick={handleAddRule}
+                            className="bg-blue-600 text-white p-2 rounded-md hover:bg-blue-700 transition-colors"
+                        >
+                            <Plus size={20} />
+                        </button>
+                    </div>
+                    {ruleError && <p className="text-red-500 text-sm mb-2">{ruleError}</p>}
+
+                    {rules.length > 0 && (
+                        <ul className="space-y-2 bg-gray-50 p-4 rounded-md border border-gray-200">
+                            {rules.map((rule, index) => (
+                                <li key={index} className="flex items-center justify-between text-gray-700 text-sm bg-white p-2 rounded border border-gray-100 shadow-sm">
+                                    <span className="flex items-start">
+                                        <span className="font-bold mr-2 text-blue-500">{index + 1}.</span>
+                                        {rule}
+                                    </span>
+                                    <button
+                                        type="button"
+                                        onClick={() => handleRemoveRule(index)}
+                                        className="text-red-500 hover:text-red-700 ml-2"
+                                        title="Remove Rule"
+                                    >
+                                        <Trash2 size={16} />
+                                    </button>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                </div>
+
+                <div className="flex justify-end pt-4">
+                    <button type="button" onClick={() => navigate('/')} className="mr-4 bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-6 rounded">Cancel</button>
+                    <button type="submit" disabled={loading} className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded shadow-lg transform active:scale-95 transition-transform">
+                        {loading ? 'Creating...' : 'Create Challenge'}
+                    </button>
+                </div>
+            </form>
+        </div>
+    );
+};
+
+export default ChallengeForm;

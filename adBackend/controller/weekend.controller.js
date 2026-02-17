@@ -12,6 +12,7 @@ export const createWeekendController = async (req, res) => {
         const image = req.file;
 
         if (!image) {
+            console.log("Image missing");
             return res.status(400).json({ success: false, message: "Image is required" });
         };
 
@@ -92,4 +93,29 @@ export const updateWeekendController = async (req, res) => {
     } catch (error) {
         return res.status(500).json({ success: false, message: "Internal Server Error", error: error.message });
     }
-}
+};
+
+
+
+// description : delete weekend
+// method : DELETE
+// url : /api/v1/weekend/delete/:id
+// access : private
+
+export const deleteWeekendController = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const weekendExist = await weekendModel.findById(id);
+
+        if (!weekendExist) {
+            return res.status(404).json({ success: false, message: "Weekend Not Found" });
+        };
+
+        await weekendModel.findByIdAndDelete(id);
+
+        return res.status(200).json({ success: true, message: "Weekend Deleted Successfully" });
+
+    } catch (error) {
+        return res.status(500).json({ success: false, message: "Internal Server Error", error: error.message });
+    }
+};

@@ -6,6 +6,7 @@ import dotenv from "dotenv";
 import { connectDb } from "./config/db.connect.js";
 import userRouter from "./router/user.router.js";
 import profileRouter from "./router/profile.router.js";
+import adminRouter from "./router/admin.router.js";
 
 dotenv.config();
 
@@ -22,7 +23,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use(cors({
-    origin: "http://localhost:5173",
+    origin: ["http://localhost:5173", "http://localhost:5174"],
     credentials: true,
     methods: "GET,POST,PUT,DELETE",
     allowedHeaders: ["Content-Type", "Authorization"]
@@ -33,13 +34,10 @@ app.get("/", (req, res) => {
     res.send("Server Working");
 });
 
-import publicRouter from "./router/public.router.js";
-
-// ... existing code ...
 
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/profile", profileRouter);
-app.use("/api/v1/public", publicRouter);
+app.use("/api/v1/admin", adminRouter);
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
