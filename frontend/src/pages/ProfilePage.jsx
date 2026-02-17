@@ -35,7 +35,7 @@ export default function ProfilePage() {
         loadProfile();
     }, [fetchProfile]);
 
-    const profileImage = profileData?.imageUrl || "https://lh3.googleusercontent.com/aida-public/AB6AXuARfjDdlsL5nnhugURpNI_ONjt8HvlFRzHIjof85Au2Jm5CYSFu5JCyPTCnaNrJr4qYtkfEbaSxPGnIbX4QG6dZnzB9rkyAACcs1ePO5A6Ea4f6fx6HpF5GBCzDIpULkSXmLZd4fFCsA2DiVSWZg9ndMbKhTUiIkIkh_HH4OYT7Q9Em5JNjZ91LE9HDknQe70cTDHZgb4SiuoStAcFNnE-KlBeYnNLUXTIuL0h4DY-pI9pNcZHRs_IgZ2zPywZ9KnjhG-wjK74sijs";
+    const profileImage = profileData?.imageUrl;
 
     // Map backend tribe IDs to display names if needed, or just use the ID/Name from backend
     // The backend returns tribe enum like "IRON TRIBE". Let's format it.
@@ -92,8 +92,10 @@ export default function ProfilePage() {
                                 <div
                                     className="bg-center bg-no-repeat aspect-square bg-cover rounded-full min-h-32 w-32 md:min-h-32 md:w-32 border-4 border-primary cursor-pointer hover:opacity-90 transition-opacity"
                                     onClick={() => setIsImageModalOpen(true)}
-                                    style={{ backgroundImage: `url("${profileImage}")` }}
-                                ></div>
+                                    style={{ backgroundImage: profileImage ? `url("${profileImage}")` : "none" }}
+                                >
+                                    {!profileImage && <div className="h-full w-full flex items-center justify-center bg-gray-200 dark:bg-gray-800 rounded-full text-gray-400 text-xs">No Image</div>}
+                                </div>
                                 <div className="flex flex-col items-center md:items-start justify-center gap-2">
                                     <p className="text-[#1c140d] dark:text-white text-xl md:text-3xl font-bold leading-tight tracking-[-0.015em]">
                                         {profileData?.user?.name || "Racing User"}

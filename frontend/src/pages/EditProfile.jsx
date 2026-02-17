@@ -1,16 +1,36 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
-import { ArrowLeft, Camera, Lock, Save, LayoutGrid } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
+import { ArrowLeft, Lock, Save, LayoutGrid, Loader2, Trash2, LogOut } from "lucide-react";
 
 export default function EditProfile() {
+    const { user, fetchProfile, logout } = useAuth();
     const navigate = useNavigate();
-    const [name, setName] = useState("Racing User");
-    const [avatar, setAvatar] = useState("https://lh3.googleusercontent.com/aida-public/AB6AXuARfjDdlsL5nnhugURpNI_ONjt8HvlFRzHIjof85Au2Jm5CYSFu5JCyPTCnaNrJr4qYtkfEbaSxPGnIbX4QG6dZnzB9rkyAACcs1ePO5A6Ea4f6fx6HpF5GBCzDIpULkSXmLZd4fFCsA2DiVSWZg9ndMbKhTUiIkIkh_HH4OYT7Q9Em5JNjZ91LE9HDknQe70cTDHZgb4SiuoStAcFNnE-KlBeYnNLUXTIuL0h4DY-pI9pNcZHRs_IgZ2zPywZ9KnjhG-wjK74sijs");
+    const [name, setName] = useState(user?.name || "");
+    const [avatar, setAvatar] = useState(user?.profile?.imageUrl || null);
+    const [tribe, setTribe] = useState(null);
+    const [selectedFile, setSelectedFile] = useState(null);
+    const [isUploading, setIsUploading] = useState(false);
+
+    // Update state when user data loads/changes
+    useEffect(() => {
+        if (user) {
+            setName(user.name);
+            // Fetch profile details if not already available in user object or recent fetch
+            fetchProfile().then(data => {
+                if (data) {
+                    if (data.imageUrl) setAvatar(data.imageUrl);
+                    if (data.tribe) setTribe(data.tribe);
+                }
+            });
+        }
+    }, [user, fetchProfile]);
 
     const handleAvatarChange = (e) => {
         const file = e.target.files[0];
         if (file) {
+            setSelectedFile(file);
             const reader = new FileReader();
             reader.onloadend = () => {
                 setAvatar(reader.result);
@@ -19,10 +39,61 @@ export default function EditProfile() {
         }
     };
 
-    const handleSave = () => {
-        // Here you would typically save to backend
-        console.log("Saving profile...", { name, avatar });
-        navigate("/profile");
+    const handleSave = async () => {
+        if (!selectedFile) {
+            // No new file selected, just navigate back (or show message)
+            navigate("/profile");
+            return;
+        }
+
+        setIsUploading(true);
+        const formData = new FormData();
+        formData.append("image", selectedFile);
+
+        try {
+            const response = await fetch("http://localhost:7000/api/v1/profile/upload-image", {
+                method: "PUT",
+                body: formData,
+                credentials: "include", // Important for cookies
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                await fetchProfile(); // Refresh profile context
+                navigate("/profile");
+            } else {
+                alert(data.message || "Failed to upload image");
+            }
+        } catch (error) {
+            console.error("Upload error:", error);
+            alert("An error occurred while uploading. Please try again.");
+        } finally {
+            setIsUploading(false);
+        }
+    };
+
+    const handleDeleteImage = async () => {
+        if (!window.confirm("Are you sure you want to delete your profile image?")) return;
+
+        try {
+            const response = await fetch("http://localhost:7000/api/v1/profile/delete-image", {
+                method: "DELETE",
+                credentials: "include",
+            });
+            const data = await response.json();
+            if (data.success) {
+                // Reset to default or update from backend
+                await fetchProfile();
+                setAvatar(null); // Fallback
+                setSelectedFile(null); // Clear any selected file
+            } else {
+                alert(data.message || "Failed to delete image");
+            }
+        } catch (error) {
+            console.error("Delete error:", error);
+            alert("Error deleting image.");
+        }
     };
 
     return (
@@ -45,13 +116,14 @@ export default function EditProfile() {
 
                         {/* Avatar Section */}
                         <div className="flex flex-col items-center gap-4">
-                            <div className="relative group cursor-pointer">
-                                <div
-                                    className="size-32 rounded-full bg-cover bg-center border-4 border-primary shadow-xl"
-                                    style={{ backgroundImage: `url("${avatar}")` }}
-                                ></div>
-                                <label className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
-                                    <Camera className="text-white" size={32} />
+                            <div className="relative group">
+                                <label className="cursor-pointer block relative">
+                                    <div
+                                        className="size-32 rounded-full bg-cover bg-center border-4 border-primary shadow-xl hover:opacity-90 transition-opacity bg-gray-200 dark:bg-gray-800"
+                                        style={{ backgroundImage: avatar ? `url("${avatar}")` : "none" }}
+                                    >
+                                        {!avatar && <div className="h-full w-full flex items-center justify-center text-gray-400">No Image</div>}
+                                    </div>
                                     <input
                                         type="file"
                                         accept="image/*"
@@ -59,11 +131,15 @@ export default function EditProfile() {
                                         onChange={handleAvatarChange}
                                     />
                                 </label>
-                                <div className="absolute bottom-0 right-0 bg-primary text-white p-2 rounded-full shadow-lg pointer-events-none">
-                                    <Camera size={16} />
-                                </div>
+                                <button
+                                    onClick={handleDeleteImage}
+                                    className="absolute bottom-0 right-0 bg-red-500 text-white p-2.5 rounded-full shadow-lg hover:bg-red-600 transition-colors z-10"
+                                    title="Delete Profile Image"
+                                >
+                                    <Trash2 size={16} />
+                                </button>
                             </div>
-                            <p className="text-[#9c7349] dark:text-[#c4a17d] text-sm font-medium">Tap to change profile photo</p>
+                            <p className="text-[#9c7349] dark:text-[#c4a17d] text-sm font-medium">Tap image to change</p>
                         </div>
 
                         {/* Name Input */}
@@ -72,9 +148,8 @@ export default function EditProfile() {
                             <input
                                 type="text"
                                 value={name}
-                                onChange={(e) => setName(e.target.value)}
-                                className="w-full px-4 py-3 rounded-xl bg-[#f4ede7] dark:bg-white/10 border-transparent focus:border-primary focus:ring-0 text-[#1c140d] dark:text-white font-medium transition-all"
-                                placeholder="Enter your display name"
+                                readOnly
+                                className="w-full px-4 py-3 rounded-xl bg-[#f4ede7]/50 dark:bg-white/5 border border-transparent text-[#1c140d]/70 dark:text-white/70 font-medium cursor-not-allowed select-none focus:outline-none"
                             />
                         </div>
 
@@ -82,23 +157,16 @@ export default function EditProfile() {
                         <div className="flex flex-col gap-2 opacity-80">
                             <label className="text-[#1c140d] dark:text-white text-sm font-bold flex items-center justify-between">
                                 <span>Tribe</span>
-                                <span className="flex items-center gap-1 text-xs font-normal text-[#9c7349] dark:text-[#c4a17d]">
-                                    <Lock size={12} />
-                                    Locked for 284 days
-                                </span>
                             </label>
                             <div className="w-full px-4 py-3 rounded-xl bg-[#f4ede7]/50 dark:bg-white/5 border border-dashed border-[#9c7349]/30 dark:border-white/20 flex items-center justify-between cursor-not-allowed">
                                 <div className="flex items-center gap-3">
                                     <div className="size-8 rounded-lg bg-primary/20 flex items-center justify-center text-primary">
                                         <LayoutGrid size={18} />
                                     </div>
-                                    <span className="text-[#1c140d] dark:text-white font-bold">Red Grid</span>
+                                    <span className="text-[#1c140d] dark:text-white font-bold">{tribe || "Loading..."}</span>
                                 </div>
                                 <span className="sr-only">Locked</span>
                             </div>
-                            <p className="text-xs text-[#9c7349] dark:text-[#c4a17d] px-1">
-                                You can switch tribes once per season (every 365 days).
-                            </p>
                         </div>
 
                     </div>
@@ -113,10 +181,22 @@ export default function EditProfile() {
                         </button>
                         <button
                             onClick={handleSave}
-                            className="flex-1 py-3.5 rounded-xl font-bold bg-primary text-white shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all flex items-center justify-center gap-2"
+                            className="flex-1 py-3.5 rounded-xl font-bold bg-primary text-white shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+                            disabled={isUploading}
                         >
-                            <Save size={18} />
-                            Save Changes
+                            {isUploading ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
+                            {isUploading ? "Uploading..." : "Save Changes"}
+                        </button>
+                    </div>
+
+                    {/* Logout Button */}
+                    <div className="mt-8 pt-8 border-t border-[#e8dbce] dark:border-white/10 flex justify-center">
+                        <button
+                            onClick={logout}
+                            className="flex items-center gap-2 text-red-500 hover:text-red-600 font-bold transition-colors"
+                        >
+                            <LogOut size={18} />
+                            Log Out
                         </button>
                     </div>
 

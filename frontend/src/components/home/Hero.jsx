@@ -21,9 +21,9 @@ export function Hero() {
                         <Link to="/schedule" className="w-full py-3 bg-primary hover:bg-primary/90 text-white font-bold rounded-xl transition-all shadow-lg shadow-primary/20 flex items-center justify-center">
                             Enter Race
                         </Link>
-                        <button className="w-full py-3 bg-[#f4ede7] dark:bg-[#3d2e21] text-[#1c140d] dark:text-white font-bold rounded-xl transition-all hover:bg-[#ebe2d9]">
+                        <Link to="/raceboard" className="w-full py-3 bg-[#f4ede7] dark:bg-[#3d2e21] text-[#1c140d] dark:text-white font-bold rounded-xl transition-all hover:bg-[#ebe2d9] flex items-center justify-center">
                             See Raceboard
-                        </button>
+                        </Link>
                     </div>
                 </div>
             </div>

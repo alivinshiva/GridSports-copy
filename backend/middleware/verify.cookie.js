@@ -4,7 +4,7 @@ import jwt from "jsonwebtoken";
 export const verifyCookies = async (req, res, next) => {
     try {
         const token = req.cookies.TrIWOoeGridSports;
-        console.log(token);
+        // console.log(token);
 
         if (!token) {
             return res

@@ -14,6 +14,8 @@ import { ForgotPasswordPage } from "@/pages/ForgotPasswordPage";
 import { OTPPage } from "@/pages/OTPPage";
 import { TribePage } from "@/pages/TribePage";
 import { ChallengeEntries } from "@/pages/ChallengeEntries";
+import Raceboard from "@/pages/Raceboard"; // Import Raceboard
+import Tribes from "@/pages/Tribes"; // Import Tribes
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 
 // Protects routes: must be logged in AND have chosen a tribe
@@ -56,6 +58,8 @@ function App() {
           <Route path="/profile/edit" element={<ProtectedRoute><EditProfile /></ProtectedRoute>} />
           <Route path="/game/f1" element={<ProtectedRoute><GamePage /></ProtectedRoute>} />
           <Route path="/weekend/:weekendId" element={<ProtectedRoute><WeekendPage /></ProtectedRoute>} />
+          <Route path="/raceboard" element={<ProtectedRoute><Raceboard /></ProtectedRoute>} />
+          <Route path="/tribes" element={<ProtectedRoute><Tribes /></ProtectedRoute>} />
 
           {/* Catch-all: redirect unknown routes to home (which is protected) */}
           <Route path="/challenge/entries" element={<ProtectedRoute><ChallengeEntries /></ProtectedRoute>} />
