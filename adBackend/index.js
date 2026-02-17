@@ -29,7 +29,6 @@ app.get("/", (req, res) => {
     res.send("Admin Server Working");
 });
 
-
 app.use("/api/v1/weekend", weekendRouter);
 
 

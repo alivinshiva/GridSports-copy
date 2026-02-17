@@ -3,7 +3,7 @@ import weekendModel from "../model/weekend.model.js";
 // description : create weekend
 // method : POST
 // url : /api/v1/weekend/add
-// access : private
+// access : protected
 
 export const createWeekendController = async (req, res) => {
     try {
