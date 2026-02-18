@@ -12,6 +12,7 @@ import ChallengeForm from './components/ChallengeForm';
 import Welcome from './components/Welcome';
 import AllWeekends from './components/AllWeekends';
 import SubmissionForm from './components/SubmissionForm';
+import ChallengeDetails from './components/ChallengeDetails';
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
           <Route path="/update/:id" element={<WeekendUpdate />} />
           <Route path="/users" element={<Users />} />
           <Route path="/challenges" element={<Challenges />} />
+          <Route path="/challenge-details/:id" element={<ChallengeDetails />} />
         </Routes>
       </Layout>
     </BrowserRouter>

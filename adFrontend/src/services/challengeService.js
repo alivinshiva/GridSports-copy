@@ -25,3 +25,33 @@ export const createChallenge = async (challengeData) => {
         throw error;
     }
 };
+
+export const getChallengeById = async (id) => {
+    try {
+        const response = await axios.get(`${API_URL}/details/${id}`);
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching challenge details:", error);
+        throw error;
+    }
+};
+
+export const updateChallenge = async (id, data) => {
+    try {
+        const response = await axios.put(`${API_URL}/update/${id}`, data);
+        return response.data;
+    } catch (error) {
+        console.error("Error updating challenge:", error);
+        throw error;
+    }
+};
+
+export const deleteChallenge = async (id) => {
+    try {
+        const response = await axios.delete(`${API_URL}/delete/${id}`);
+        return response.data;
+    } catch (error) {
+        console.error("Error deleting challenge:", error);
+        throw error;
+    }
+};

@@ -60,12 +60,12 @@ const Challenges = () => {
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {challenges.map((challenge) => (
-                        <div key={challenge._id} className="bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-100 dark:border-gray-700 overflow-hidden hover:shadow-lg transition-shadow duration-300">
-                            <div className="h-32 bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center relative">
-                                {challenge.image ? (
-                                    <img src={challenge.image} alt={challenge.name} className="w-full h-full object-cover opacity-50" />
+                        <div key={challenge._id} onClick={() => navigate(`/challenge-details/${challenge._id}`)} className="cursor-pointer bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-100 dark:border-gray-700 overflow-hidden hover:shadow-lg transition-shadow duration-300">
+                            <div className="h-56 bg-gray-200 flex items-center justify-center relative">
+                                {challenge.imageUrl ? (
+                                    <img src={challenge.imageUrl} alt={challenge.name} className="w-full h-full object-cover" />
                                 ) : (
-                                    <Trophy size={48} className="text-white opacity-80" />
+                                    <Trophy size={48} className="text-gray-400 opacity-80" />
                                 )}
                                 <div className="absolute top-2 right-2">
                                     <span className={`px-2 py-1 rounded-full text-xs font-bold ${getStatusColor(challenge.status)}`}>
@@ -85,6 +85,10 @@ const Challenges = () => {
                                     </div>
                                     <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
                                         <MapPin size={16} className="mr-2 text-gray-400" />
+                                        {challenge.weekend?.location || "N/A"}
+                                    </div>
+                                    <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
+                                        <Trophy size={16} className="mr-2 text-gray-400" />
                                         Round: {challenge.round}
                                     </div>
                                 </div>

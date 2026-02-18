@@ -9,10 +9,12 @@ import weekendModel from "../model/weekend.model.js";
 // access private
 
 export const createChallangeController = async (req, res) => {
+    // console.log(req.body);
     try {
         const { weekend, name, description, startAt, endAt, round, rules, type, status, season } = req.body;
 
         const image = req.file;
+        // console.log("Uploaded File:", image);
 
         if (!image) {
             return res.status(400).json({ success: false, message: "Image is required" });
@@ -38,10 +40,9 @@ export const createChallangeController = async (req, res) => {
             rules,
             type,
             status,
-            image: image.path,
-            imageId: image.public_id,
-            count: weekendExist.count + 1,
-            season: weekendExist.season
+            imageUrl: image.path,
+            imageId: image.filename,
+            season: season || String(weekendExist.season)
         });
 
         const savedWeekend = await newChallange.save();
@@ -49,6 +50,7 @@ export const createChallangeController = async (req, res) => {
         return res.status(201).json({ success: true, message: "Challenge Created Successfully", data: savedWeekend });
 
     } catch (error) {
+        // console.error("Error creating challenge:", error);
         return res.status(500).json({ success: false, message: "Internal Server Error", error: error.message });
     };
 };
@@ -60,7 +62,7 @@ export const createChallangeController = async (req, res) => {
 // access public
 export const getAllChallengesController = async (req, res) => {
     try {
-        const challenges = await challangeModel.find({});
+        const challenges = await challangeModel.find({}).populate("weekend", "location");
         return res.status(200).json({ success: true, message: "Challenges Fetched Successfully", data: challenges });
     } catch (error) {
         return res.status(500).json({ success: false, message: "Internal Server Error", error: error.message });
@@ -80,7 +82,8 @@ export const getSingleChallengeController = async (req, res) => {
             return res.status(400).json({ success: false, message: "Challenge ID is required" });
         };
 
-        const challenge = await challangeModel.findById(id);
+        const challenge = await challangeModel.findById(id).populate("weekend", "title location startDate endDate");
+        // console.log(challenge);
 
         if (!challenge) {
             return res.status(404).json({ success: false, message: "Challenge Not Found" });
