@@ -13,6 +13,7 @@ import { LoginPage } from "@/pages/LoginPage";
 import { ForgotPasswordPage } from "@/pages/ForgotPasswordPage";
 import { OTPPage } from "@/pages/OTPPage";
 import { TribePage } from "@/pages/TribePage";
+import ChallengeDetails from "@/pages/ChallengeDetails";
 import { ChallengeEntries } from "@/pages/ChallengeEntries";
 import Raceboard from "@/pages/Raceboard"; // Import Raceboard
 import Tribes from "@/pages/Tribes"; // Import Tribes
@@ -58,6 +59,7 @@ function App() {
           <Route path="/profile/edit" element={<ProtectedRoute><EditProfile /></ProtectedRoute>} />
           <Route path="/game/f1" element={<ProtectedRoute><GamePage /></ProtectedRoute>} />
           <Route path="/weekend/:weekendId" element={<ProtectedRoute><WeekendPage /></ProtectedRoute>} />
+          <Route path="/challenge-details/:challengeId" element={<ProtectedRoute><ChallengeDetails /></ProtectedRoute>} />
           <Route path="/raceboard" element={<ProtectedRoute><Raceboard /></ProtectedRoute>} />
           <Route path="/tribes" element={<ProtectedRoute><Tribes /></ProtectedRoute>} />
 

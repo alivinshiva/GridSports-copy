@@ -42,7 +42,8 @@ export const createChallangeController = async (req, res) => {
             status,
             imageUrl: image.path,
             imageId: image.filename,
-            season: season || String(weekendExist.season)
+            season: season || String(weekendExist.season),
+            count: weekendExist.count + 1
         });
 
         const savedWeekend = await newChallange.save();
@@ -154,4 +155,27 @@ export const deleteChallengeController = async (req, res) => {
     } catch (error) {
         return res.status(500).json({ success: false, message: "Internal Server Error", error: error.message });
     };
+};
+
+
+// desc get challenges by weekend id
+// method GET
+// path /api/v1/challenge/weekend/:weekendId
+// access public
+export const getChallengesByWeekendIdController = async (req, res) => {
+    try {
+        const { weekendId } = req.params;
+
+        if (!weekendId) {
+            return res.status(400).json({ success: false, message: "Weekend ID is required" });
+        }
+
+        const challenges = await challangeModel.find({ weekend: weekendId }).populate("weekend", "title location imageUrl season startDate endDate");
+        console.log("Weekend Id Challanges")
+        console.log(challenges)
+        return res.status(200).json({ success: true, message: "Challenges Fetched Successfully", data: challenges });
+
+    } catch (error) {
+        return res.status(500).json({ success: false, message: "Internal Server Error", error: error.message });
+    }
 };

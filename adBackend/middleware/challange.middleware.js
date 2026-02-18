@@ -28,7 +28,7 @@ export const createChallengeMiddleware = async (req, res, next) => {
             startAt: joi.date().required(),
             endAt: joi.date().greater(joi.ref("startAt")).required(),
             round: joi.number().integer().greater(0).required(),
-            rules: joi.array().items(joi.string().trim()).required(),
+            rules: joi.array().items(joi.string().trim().required()).required(),
             type: joi.string().valid("PHOTO", "VIDEO", "TEXT", "MIXED").required(),
             status: joi.string().valid("UPCOMING", "ACTIVE", "CLOSED").required(),
             season: joi.string().required()

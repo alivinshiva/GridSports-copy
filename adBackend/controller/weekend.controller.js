@@ -12,7 +12,7 @@ export const createWeekendController = async (req, res) => {
         const image = req.file;
 
         if (!image) {
-            console.log("Image missing");
+            // console.log("Image missing");
             return res.status(400).json({ success: false, message: "Image is required" });
         };
 
@@ -119,3 +119,13 @@ export const deleteWeekendController = async (req, res) => {
         return res.status(500).json({ success: false, message: "Internal Server Error", error: error.message });
     }
 };
+
+
+export const getAllActiveWeekendController = async (req, res) => {
+    try {
+        const weekends = await weekendModel.find({ status: "ACTIVE" });
+        return res.status(200).json({ success: true, message: "Active Weekends Fetched Successfully", data: weekends });
+    } catch (error) {
+        return res.status(500).json({ success: false, message: "Internal Server Error", error: error.message });
+    }
+}

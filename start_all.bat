@@ -1,0 +1,16 @@
+@echo off
+echo Starting all servers...
+
+echo Starting Ad Backend...
+start "Ad Backend" /D "adBackend" cmd /k "npm run dev"
+
+echo Starting Ad Frontend...
+start "Ad Frontend" /D "adFrontend" cmd /k "npm run dev"
+
+echo Starting Backend...
+start "Backend" /D "backend" cmd /k "npm run dev"
+
+echo Starting Frontend...
+start "Frontend" /D "frontend" cmd /k "npm run dev"
+
+echo All servers started.

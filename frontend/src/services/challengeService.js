@@ -1,0 +1,43 @@
+import axios from 'axios';
+
+const API_URL = 'http://localhost:9000/api/v1/challenge';
+
+export const getAllChallenges = async () => {
+    try {
+        const response = await axios.get(`${API_URL}/all`);
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching challenges:", error);
+        throw error;
+    }
+};
+
+export const deleteChallenge = async (id) => {
+    try {
+        const response = await axios.delete(`${API_URL}/delete/${id}`);
+        return response.data;
+    } catch (error) {
+        console.error("Error deleting challenge:", error);
+        throw error;
+    }
+};
+
+export const getChallengesByWeekendId = async (weekendId) => {
+    try {
+        const response = await axios.get(`${API_URL}/weekend/${weekendId}`);
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching challenges by weekend:", error);
+        throw error;
+    }
+};
+
+export const getChallengeById = async (id) => {
+    try {
+        const response = await axios.get(`${API_URL}/details/${id}`);
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching challenge details:", error);
+        throw error;
+    }
+};
