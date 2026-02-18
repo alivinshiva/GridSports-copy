@@ -1,5 +1,5 @@
 import express from "express";
-import { createChallangeController, getAllChallengesController, getSingleChallengeController, updateChallengeController, deleteChallengeController, getChallengesByWeekendIdController } from "../controller/challenge.controller.js";
+import { createChallangeController, getAllChallengesController, getSingleChallengeController, updateChallengeController, deleteChallengeController, getChallengesByWeekendIdController, getAllActiveChallangesController, getAllClosedChallangesController, getAllUpcomingChallangesController } from "../controller/challenge.controller.js";
 import { createChallengeMiddleware, updateChallengeMiddleware } from "../middleware/challange.middleware.js";
 import { upload } from "../middleware/multer.middleware.js";
 
@@ -11,5 +11,9 @@ challengeRouter.route("/details/:id").get(getSingleChallengeController);
 challengeRouter.route("/update/:id").put(updateChallengeMiddleware, updateChallengeController);
 challengeRouter.route("/delete/:id").delete(deleteChallengeController);
 challengeRouter.route("/weekend/:weekendId").get(getChallengesByWeekendIdController);
+
+challengeRouter.route("/active").get(getAllActiveChallangesController);
+challengeRouter.route("/closed").get(getAllClosedChallangesController);
+challengeRouter.route("/upcoming").get(getAllUpcomingChallangesController);
 
 export default challengeRouter;

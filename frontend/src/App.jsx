@@ -6,7 +6,7 @@ import UploadChallenge from "@/pages/UploadChallenge";
 import UploadSuccess from "@/pages/UploadSuccess";
 import EditProfile from "@/pages/EditProfile";
 import ProfilePage from "@/pages/ProfilePage";
-import SeasonSchedule from "@/pages/SeasonSchedule";
+
 import { GamePage } from "@/pages/GamePage";
 import { SignupPage } from "@/pages/SignupPage";
 import { LoginPage } from "@/pages/LoginPage";
@@ -51,7 +51,7 @@ function App() {
           <Route path="/otp" element={<OTPPage />} />
           <Route path="/tribe" element={<ProtectedRoute><TribePage /></ProtectedRoute>} />
           <Route path="/" element={<Home />} />
-          <Route path="/schedule" element={<ProtectedRoute><SeasonSchedule /></ProtectedRoute>} />
+
           <Route path="/race/:raceId" element={<ProtectedRoute><RaceDetails /></ProtectedRoute>} />
           <Route path="/upload/:challengeId" element={<ProtectedRoute><UploadChallenge /></ProtectedRoute>} />
           <Route path="/upload/success" element={<ProtectedRoute><UploadSuccess /></ProtectedRoute>} />

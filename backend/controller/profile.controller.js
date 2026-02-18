@@ -7,6 +7,7 @@ import profileModel from "../models/profile.model.js";
 // path: POST / api/v1/profile/create-tribe
 // access: Private
 
+// bugs available not check the db directly update th ui totally depended on the frontend logic
 export const createTribeController = async (req, res) => {
     try {
         const loggedInUser = req.user._id;
@@ -153,6 +154,7 @@ export const getLoggedProfileController = async (req, res) => {
         const loggedInUser = req.user._id;
 
         const profile = await profileModel.findOne({ user: loggedInUser }).populate("user", "name isAdmin");
+        // console.log("This is a profile", profile);
 
         if (!profile) {
             return res.status(404).json({ success: false, message: "Profile Not Found" });

@@ -1,6 +1,6 @@
 import challangeModel from "../model/challange.model.js";
 import weekendModel from "../model/weekend.model.js";
-
+import submissionModel from "../model/submission.model.js";
 
 
 // desc create challenge
@@ -75,22 +75,29 @@ export const getAllChallengesController = async (req, res) => {
 // method GET
 // path /api/v1/challenge/details/:id
 // access public
+
 export const getSingleChallengeController = async (req, res) => {
     try {
         const { id } = req.params;
+        console.log(id)
 
         if (!id) {
             return res.status(400).json({ success: false, message: "Challenge ID is required" });
         };
 
-        const challenge = await challangeModel.findById(id).populate("weekend", "title location startDate endDate");
-        // console.log(challenge);
+        const challenge = await challangeModel.findById(id).populate("weekend", "title location startDate endDate season imageUrl status");
 
         if (!challenge) {
             return res.status(404).json({ success: false, message: "Challenge Not Found" });
         };
 
-        return res.status(200).json({ success: true, message: "Challenge Fetched Successfully", data: challenge });
+        const submissionCount = await submissionModel.countDocuments({ challenge: id });
+
+        return res.status(200).json({
+            success: true,
+            message: "Challenge Fetched Successfully",
+            data: { ...challenge.toObject(), submissionCount }
+        });
 
     } catch (error) {
         return res.status(500).json({ success: false, message: "Internal Server Error", error: error.message });
@@ -161,20 +168,61 @@ export const deleteChallengeController = async (req, res) => {
 // desc get challenges by weekend id
 // method GET
 // path /api/v1/challenge/weekend/:weekendId
-// access public
+// access private
 export const getChallengesByWeekendIdController = async (req, res) => {
     try {
         const { weekendId } = req.params;
 
         if (!weekendId) {
             return res.status(400).json({ success: false, message: "Weekend ID is required" });
-        }
+        };
 
         const challenges = await challangeModel.find({ weekend: weekendId }).populate("weekend", "title location imageUrl season startDate endDate");
-        console.log("Weekend Id Challanges")
-        console.log(challenges)
+
         return res.status(200).json({ success: true, message: "Challenges Fetched Successfully", data: challenges });
 
+    } catch (error) {
+        return res.status(500).json({ success: false, message: "Internal Server Error", error: error.message });
+    }
+};
+
+
+// desc get all active challanges controller
+// method GET
+// path /api/v1/challenge/active
+// access private
+export const getAllActiveChallangesController = async (req, res) => {
+    try {
+        const challenges = await challangeModel.find({ status: "ACTIVE" });
+        return res.status(200).json({ success: true, message: "Challenges Fetched Successfully", data: challenges });
+    } catch (error) {
+        return res.status(500).json({ success: false, message: "Internal Server Error", error: error.message });
+    }
+};
+
+
+// desc get all closed challanges controller
+// method GET
+// path /api/v1/challenge/closed
+// access private
+export const getAllClosedChallangesController = async (req, res) => {
+    try {
+        const challenges = await challangeModel.find({ status: "CLOSED" });
+        return res.status(200).json({ success: true, message: "Challenges Fetched Successfully", data: challenges });
+    } catch (error) {
+        return res.status(500).json({ success: false, message: "Internal Server Error", error: error.message });
+    }
+};
+
+
+// desc get all upcoming challanges controller
+// method GET
+// path /api/v1/challenge/upcoming
+// access private
+export const getAllUpcomingChallangesController = async (req, res) => {
+    try {
+        const challenges = await challangeModel.find({ status: "UPCOMING" });
+        return res.status(200).json({ success: true, message: "Challenges Fetched Successfully", data: challenges });
     } catch (error) {
         return res.status(500).json({ success: false, message: "Internal Server Error", error: error.message });
     }

@@ -110,7 +110,7 @@ export default function UploadChallenge() {
     };
 
     const handleUpload = async () => {
-        if (!selectedFile || !challengeId) return;
+        if (!selectedFile || !challengeId || !challenge) return;
 
         setIsUploading(true);
         const formData = new FormData();
@@ -122,7 +122,13 @@ export default function UploadChallenge() {
             if (response.success) {
                 setShowSuccess(true);
                 setTimeout(() => {
-                    navigate('/upload/success');
+                    navigate('/upload/success', {
+                        state: {
+                            location: challenge.weekend?.location || "Unknown Location",
+                            challengeName: challenge.name,
+                            endTime: challenge.endAt
+                        }
+                    });
                 }, 2000);
             } else {
                 alert("Upload failed: " + response.message);
@@ -158,7 +164,7 @@ export default function UploadChallenge() {
                             <path clipRule="evenodd" d="M24 4H42V17.3333V30.6667H24V44H6V30.6667V17.3333H24V4Z" fillRule="evenodd"></path>
                         </svg>
                     </div>
-                    <h2 className="text-lg font-bold leading-tight tracking-[-0.015em]">{challenge ? challenge.title : "Challenge Upload"}</h2>
+                    <h2 className="text-lg font-bold leading-tight tracking-[-0.015em]">{challenge ? challenge.name : "Challenge Upload"}</h2>
                 </div>
                 <button
                     onClick={() => navigate(-1)}
@@ -189,7 +195,7 @@ export default function UploadChallenge() {
                     {/* Headline & Intro Section */}
                     {mode === 'select' && (
                         <div className="text-center">
-                            <h1 className="text-[32px] font-bold leading-tight pb-3 pt-6">{challenge ? challenge.title : "Loading..."}</h1>
+                            <h1 className="text-[32px] font-bold leading-tight pb-3 pt-6">{challenge ? challenge.name : "Loading..."}</h1>
                             <p className="text-base font-normal leading-normal opacity-80 mb-4">{challenge ? challenge.description : "Preparing challenge..."}</p>
 
                             {challenge && challenge.rules && (
