@@ -12,7 +12,7 @@ export const sendCookies = async (userId, res) => {
             maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days in millisecond
             httpOnly: true, // prevent from XSS attacks cross-site scripting attacks
             // sameSite: "None", // CSRF attacks cross-site request forgery attacks
-            sameSite: "Strict", // for development
+            sameSite: "Lax", // for development
             secure: process.env.NODE_ENV !== "development" // for development
             // secure: true
         });

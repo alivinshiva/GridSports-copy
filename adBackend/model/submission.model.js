@@ -10,6 +10,19 @@ const submissionSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "user",
         required: true
+    },
+    mediaUrl: {
+        type: String,
+        required: true
+    },
+    mediaId: {
+        type: String,
+        required: true
+    },
+    mediaType: {
+        type: String,
+        enum: ['image', 'video'],
+        required: true
     }
 }, { timestamps: true });
 

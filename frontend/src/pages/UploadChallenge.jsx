@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Upload, Video, Info, X, Circle, Square, RotateCcw, Check } from "lucide-react";
+import { addSubmission } from "@/services/submissionService";
+import { getChallengeById } from "@/services/challengeService";
 
 export default function UploadChallenge() {
     const navigate = useNavigate();
@@ -11,6 +13,9 @@ export default function UploadChallenge() {
     const [isRecording, setIsRecording] = useState(false);
     const [previewUrl, setPreviewUrl] = useState(null);
     const [mode, setMode] = useState("select"); // 'select', 'record', 'preview'
+    const [selectedFile, setSelectedFile] = useState(null);
+    const [isUploading, setIsUploading] = useState(false);
+    const [showSuccess, setShowSuccess] = useState(false);
 
     const { challengeId } = useParams();
     const [challenge, setChallenge] = useState(null);
@@ -18,10 +23,9 @@ export default function UploadChallenge() {
     useEffect(() => {
         const fetchChallenge = async () => {
             try {
-                const response = await fetch(`http://localhost:7000/api/v1/public/challenge/${challengeId}`);
-                const data = await response.json();
-                if (data.success) {
-                    setChallenge(data.data);
+                const response = await getChallengeById(challengeId);
+                if (response.success) {
+                    setChallenge(response.data);
                 }
             } catch (error) {
                 console.error("Error fetching challenge", error);
@@ -39,6 +43,7 @@ export default function UploadChallenge() {
         if (file) {
             const url = URL.createObjectURL(file);
             setPreviewUrl(url);
+            setSelectedFile(file);
             setMode("preview");
         }
     };
@@ -73,8 +78,10 @@ export default function UploadChallenge() {
 
         mediaRecorder.onstop = () => {
             const blob = new Blob(localChunks, { type: "video/webm" });
+            const file = new File([blob], "recorded-video.webm", { type: "video/webm" });
             const url = URL.createObjectURL(blob);
             setPreviewUrl(url);
+            setSelectedFile(file);
             setMode("preview");
             setChunks([]);
 
@@ -93,6 +100,7 @@ export default function UploadChallenge() {
 
     const reset = () => {
         setPreviewUrl(null);
+        setSelectedFile(null);
         setMode("select");
         setIsRecording(false);
         setChunks([]);
@@ -101,8 +109,47 @@ export default function UploadChallenge() {
         }
     };
 
+    const handleUpload = async () => {
+        if (!selectedFile || !challengeId) return;
+
+        setIsUploading(true);
+        const formData = new FormData();
+        formData.append("challenge", challengeId);
+        formData.append("image", selectedFile);
+
+        try {
+            const response = await addSubmission(formData);
+            if (response.success) {
+                setShowSuccess(true);
+                setTimeout(() => {
+                    navigate('/upload/success');
+                }, 2000);
+            } else {
+                alert("Upload failed: " + response.message);
+            }
+        } catch (error) {
+            console.error("Upload error:", error);
+            alert("Upload failed. Please try again.");
+        } finally {
+            setIsUploading(false);
+        }
+    };
+
     return (
-        <div className="bg-background-light dark:bg-background-dark min-h-screen text-[#1c140d] dark:text-white transition-colors duration-200 flex flex-col">
+        <div className="bg-background-light dark:bg-background-dark min-h-screen text-[#1c140d] dark:text-white transition-colors duration-200 flex flex-col relative">
+            {/* Success Popup Modal */}
+            {showSuccess && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-300">
+                    <div className="bg-white dark:bg-[#2d2218] rounded-2xl p-8 flex flex-col items-center gap-4 shadow-xl border border-primary/20 max-w-sm w-full mx-4 animate-in zoom-in-95 duration-300">
+                        <div className="size-16 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-2">
+                            <Check size={32} strokeWidth={3} />
+                        </div>
+                        <h3 className="text-xl font-bold text-center">Uploaded Successfully!</h3>
+                        <p className="text-center text-sm opacity-70">Redirecting to success page...</p>
+                    </div>
+                </div>
+            )}
+
             {/* Top Navigation Bar */}
             <header className="flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[#f4ede7] dark:border-b-[#3d2e1f] px-10 py-3 bg-background-light dark:bg-background-dark sticky top-0 z-50">
                 <div className="flex items-center gap-4">
@@ -191,7 +238,7 @@ export default function UploadChallenge() {
                                 </button>
                                 <input
                                     type="file"
-                                    accept="video/*"
+                                    accept="video/*,image/*"
                                     ref={fileInputRef}
                                     onChange={handleFileChange}
                                     hidden
@@ -249,24 +296,38 @@ export default function UploadChallenge() {
                     {/* MODE: PREVIEW */}
                     {mode === 'preview' && (
                         <div className="flex flex-col items-center gap-6">
-                            <div className="w-full aspect-video bg-black rounded-2xl overflow-hidden shadow-lg border-2 border-[#f4ede7] dark:border-[#3d2e1f]">
-                                <video src={previewUrl} controls className="w-full h-full object-contain" />
-                            </div>
+                            {previewUrl && (
+                                <div className="w-full aspect-video bg-black rounded-2xl overflow-hidden shadow-lg border-2 border-[#f4ede7] dark:border-[#3d2e1f]">
+                                    {selectedFile?.type.startsWith('video') ? (
+                                        <video src={previewUrl} controls className="w-full h-full object-contain" />
+                                    ) : (
+                                        <img src={previewUrl} alt="Preview" className="w-full h-full object-contain" />
+                                    )}
+                                </div>
+                            )}
 
                             <div className="flex gap-4 w-full max-w-md">
                                 <button
                                     onClick={reset}
-                                    className="flex-1 flex items-center justify-center gap-2 py-3 px-6 rounded-xl border border-[#e8dbce] dark:border-[#3d2e1f] bg-white dark:bg-[#2d2218] font-bold text-[#1c140d] dark:text-white hover:bg-[#f4ede7] dark:hover:bg-[#3d2e21] transition-colors"
+                                    disabled={isUploading}
+                                    className="flex-1 flex items-center justify-center gap-2 py-3 px-6 rounded-xl border border-[#e8dbce] dark:border-[#3d2e1f] bg-white dark:bg-[#2d2218] font-bold text-[#1c140d] dark:text-white hover:bg-[#f4ede7] dark:hover:bg-[#3d2e21] transition-colors disabled:opacity-50"
                                 >
                                     <RotateCcw size={20} />
                                     Retake
                                 </button>
                                 <button
-                                    onClick={() => navigate('/upload/success')}
-                                    className="flex-1 flex items-center justify-center gap-2 py-3 px-6 rounded-xl bg-primary text-white font-bold shadow-sm hover:brightness-110 transition-all"
+                                    onClick={handleUpload}
+                                    disabled={isUploading}
+                                    className="flex-1 flex items-center justify-center gap-2 py-3 px-6 rounded-xl bg-primary text-white font-bold shadow-sm hover:brightness-110 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
-                                    <Check size={20} />
-                                    Confirm Upload
+                                    {isUploading ? (
+                                        <span>Uploading...</span>
+                                    ) : (
+                                        <>
+                                            <Check size={20} />
+                                            Confirm Upload
+                                        </>
+                                    )}
                                 </button>
                             </div>
                         </div>

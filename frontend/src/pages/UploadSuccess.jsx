@@ -93,10 +93,14 @@ export default function UploadSuccess() {
 
                     {/* Action Hub */}
                     <div className="fixed bottom-0 left-0 w-full p-4 bg-[#221910] border-t border-white/10 md:static md:bg-transparent md:border-0 md:p-0 md:mt-8 flex flex-row gap-4 z-50">
-                        <button className="flex-1 flex cursor-pointer items-center justify-center overflow-hidden rounded-xl h-14 bg-white/10 text-white hover:bg-white/15 transition-all text-base font-bold leading-normal tracking-wide px-6 border border-white/10">
+                        <button
+                            onClick={() => navigate('/')}
+                            className="flex-1 flex cursor-pointer items-center justify-center overflow-hidden rounded-xl h-14 bg-white/10 text-white hover:bg-white/15 transition-all text-base font-bold leading-normal tracking-wide px-6 border border-white/10">
                             View your entry
                         </button>
-                        <button className="flex-1 flex cursor-pointer items-center justify-center overflow-hidden rounded-xl h-14 bg-primary text-white hover:bg-primary/90 transition-all text-base font-bold leading-normal tracking-wide px-6 shadow-lg shadow-primary/20">
+                        <button
+                            onClick={() => navigate('/')}
+                            className="flex-1 flex cursor-pointer items-center justify-center overflow-hidden rounded-xl h-14 bg-primary text-white hover:bg-primary/90 transition-all text-base font-bold leading-normal tracking-wide px-6 shadow-lg shadow-primary/20">
                             Rate other fans
                         </button>
                     </div>

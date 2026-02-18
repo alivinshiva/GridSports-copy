@@ -2,6 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import bodyParser from "body-parser";
+import cookieParser from "cookie-parser";
 import { connectDb } from "./config/db.connect.js";
 import weekendRouter from "./router/weekend.router.js";
 import challengeRouter from "./router/challenge.router.js";
@@ -14,6 +15,7 @@ const PORT = process.env.PORT || 9000;
 
 connectDb();
 
+app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -21,6 +23,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors({
     origin: ["http://localhost:5173", "http://localhost:5174"],
     methods: "GET,POST,PUT,DELETE",
+    credentials: true,
     allowedHeaders: ["Content-Type", "Authorization"]
 }));
 
