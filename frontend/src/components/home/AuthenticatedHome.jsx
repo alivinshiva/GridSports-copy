@@ -3,6 +3,7 @@ import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 import { Hero } from "@/components/home/Hero";
 import { WeekendChallenges } from "@/components/home/WeekendChallenges";
 import { DiscoveryFeed } from "@/components/home/DiscoveryFeed";
+import { ChallengeStatusSection } from "@/components/home/ChallengeStatusSection";
 import { getAllActiveWeekends } from "@/services/weekendService";
 
 export function AuthenticatedHome() {
@@ -28,6 +29,7 @@ export function AuthenticatedHome() {
         <AuthenticatedLayout>
             <Hero weekends={weekends || []} />
             <WeekendChallenges />
+            <ChallengeStatusSection />
             <DiscoveryFeed />
         </AuthenticatedLayout>
     );

@@ -34,3 +34,14 @@ export const addSubmission = async (formData) => {
         throw error.response?.data || error.message;
     }
 };
+
+export const getAllRandomSubmissions = async (limit = 15) => {
+    try {
+        const response = await axios.get(`${API_URL}/all-random?limit=${limit}`, {
+            withCredentials: true,
+        });
+        return response.data;
+    } catch (error) {
+        throw error.response?.data || error.message;
+    }
+};

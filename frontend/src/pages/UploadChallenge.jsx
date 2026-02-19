@@ -1,8 +1,9 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Upload, Video, Info, X, Circle, Square, RotateCcw, Check } from "lucide-react";
+import { Upload, Video, Info, X, Circle, Square, RotateCcw, Check, Camera, Image as ImageIcon } from "lucide-react";
 import { addSubmission } from "@/services/submissionService";
 import { getChallengeById } from "@/services/challengeService";
+import { motion } from "framer-motion";
 
 export default function UploadChallenge() {
     const navigate = useNavigate();
@@ -16,6 +17,7 @@ export default function UploadChallenge() {
     const [selectedFile, setSelectedFile] = useState(null);
     const [isUploading, setIsUploading] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
+    const [errorMsg, setErrorMsg] = useState("");
 
     const { challengeId } = useParams();
     const [challenge, setChallenge] = useState(null);
@@ -38,6 +40,32 @@ export default function UploadChallenge() {
         fileInputRef.current?.click();
     };
 
+    const takePhoto = () => {
+        if (!videoRef.current) return;
+
+        const canvas = document.createElement("canvas");
+        canvas.width = videoRef.current.videoWidth;
+        canvas.height = videoRef.current.videoHeight;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(videoRef.current, 0, 0);
+
+        canvas.toBlob((blob) => {
+            const file = new File([blob], "captured-photo.jpg", { type: "image/jpeg" });
+            const url = URL.createObjectURL(blob);
+            setPreviewUrl(url);
+            setSelectedFile(file);
+            setMode("preview");
+
+            // Stop camera
+            const stream = videoRef.current?.srcObject;
+            stream?.getTracks().forEach(track => track.stop());
+        }, "image/jpeg");
+    };
+
+    const handleCameraClick = () => {
+        startCamera();
+    };
+
     const handleFileChange = (event) => {
         const file = event.target.files[0];
         if (file) {
@@ -48,10 +76,12 @@ export default function UploadChallenge() {
         }
     };
 
+    const isPhotoChallenge = challenge?.type === 'PHOTO';
+
     const startCamera = async () => {
         setMode("record");
         try {
-            const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: !isPhotoChallenge });
             if (videoRef.current) {
                 videoRef.current.srcObject = stream;
             }
@@ -131,15 +161,24 @@ export default function UploadChallenge() {
                     });
                 }, 2000);
             } else {
-                alert("Upload failed: " + response.message);
+                // Handle failure (e.g. duplicate submission)
+                setErrorMsg(response.message || "Upload failed");
+                setTimeout(() => {
+                    navigate(-1); // Go back after 3 seconds
+                }, 3000);
             }
         } catch (error) {
             console.error("Upload error:", error);
-            alert("Upload failed. Please try again.");
+            setErrorMsg(error.message || "Upload failed. Please try again.");
+            setTimeout(() => {
+                navigate(-1);
+            }, 3000);
         } finally {
             setIsUploading(false);
         }
     };
+
+    const rulesList = challenge?.rules ? (Array.isArray(challenge.rules) ? challenge.rules : challenge.rules.split('\n').filter(r => r.trim())) : [];
 
     return (
         <div className="bg-background-light dark:bg-background-dark min-h-screen text-[#1c140d] dark:text-white transition-colors duration-200 flex flex-col relative">
@@ -152,6 +191,20 @@ export default function UploadChallenge() {
                         </div>
                         <h3 className="text-xl font-bold text-center">Uploaded Successfully!</h3>
                         <p className="text-center text-sm opacity-70">Redirecting to success page...</p>
+                    </div>
+                </div>
+            )}
+
+            {/* Error Popup Modal */}
+            {errorMsg && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-300">
+                    <div className="bg-white dark:bg-[#2d2218] rounded-2xl p-8 flex flex-col items-center gap-4 shadow-xl border border-red-500/20 max-w-sm w-full mx-4 animate-in zoom-in-95 duration-300">
+                        <div className="size-16 rounded-full bg-red-100 dark:bg-red-900/20 flex items-center justify-center text-red-500 mb-2">
+                            <X size={32} strokeWidth={3} />
+                        </div>
+                        <h3 className="text-xl font-bold text-center text-red-600 dark:text-red-400">Upload Failed</h3>
+                        <p className="text-center text-sm opacity-70 px-4">{errorMsg}</p>
+                        <p className="text-xs text-center opacity-50 mt-2">Redirecting back...</p>
                     </div>
                 </div>
             )}
@@ -177,93 +230,133 @@ export default function UploadChallenge() {
             <main className="flex-1 flex flex-col items-center py-10 px-4">
                 <div className="max-w-[800px] w-full flex flex-col gap-8">
 
-                    {/* Progress Bar - Only allow if not in preview (or keep consistent) */}
+                    {/* Progress Bar */}
                     <div className="flex flex-col gap-3">
                         <div className="flex gap-6 justify-between items-end">
                             <p className="text-base font-medium leading-normal">
                                 {mode === 'select' ? 'Choosing Format' : mode === 'record' ? 'Recording' : 'Review'}
                             </p>
                             <p className="text-sm font-normal leading-normal opacity-70">
-                                {mode === 'select' ? 'Step 1 of 4' : mode === 'record' ? 'Step 2 of 4' : 'Step 3 of 4'}
+                                {mode === 'select' ? 'Step 1 of 3' : mode === 'record' ? 'Step 2 of 3' : 'Step 3 of 3'}
                             </p>
                         </div>
                         <div className="rounded-full bg-[#e8dbce] dark:bg-[#3d2e1f] h-2 w-full overflow-hidden">
-                            <div className="h-full bg-primary" style={{ width: mode === 'select' ? "25%" : mode === 'record' ? "50%" : "75%" }}></div>
+                            <div className="h-full bg-primary transition-all duration-500" style={{ width: mode === 'select' ? "33%" : mode === 'record' ? "66%" : "100%" }}></div>
                         </div>
                     </div>
 
                     {/* Headline & Intro Section */}
                     {mode === 'select' && (
-                        <div className="text-center">
-                            <h1 className="text-[32px] font-bold leading-tight pb-3 pt-6">{challenge ? challenge.name : "Loading..."}</h1>
-                            <p className="text-base font-normal leading-normal opacity-80 mb-4">{challenge ? challenge.description : "Preparing challenge..."}</p>
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="text-center"
+                        >
+                            <h1 className="text-4xl md:text-5xl font-black leading-tight pb-4 pt-4 tracking-tight">{challenge ? challenge.name : "Loading..."}</h1>
+                            <p className="text-lg font-medium opacity-70 mb-8 max-w-2xl mx-auto leading-relaxed">{challenge ? challenge.description : "Preparing challenge..."}</p>
 
-                            {challenge && challenge.rules && (
-                                <div className="bg-[#f4ede7] dark:bg-[#2d2218] p-4 rounded-xl text-left border border-[#e8dbce] dark:border-[#3d2e1f] max-w-2xl mx-auto">
-                                    <h3 className="font-bold text-sm uppercase tracking-wider text-[#9c7349] mb-2">Rules & Instructions</h3>
-                                    <p className="text-sm whitespace-pre-line">{challenge.rules}</p>
+                            {rulesList.length > 0 && (
+                                <div className="bg-primary/5 dark:bg-primary/10 p-6 rounded-2xl text-left border-l-4 border-primary max-w-2xl mx-auto shadow-sm">
+                                    <h3 className="font-bold text-sm uppercase tracking-widest text-primary mb-4 flex items-center gap-2">
+                                        <Info size={18} />
+                                        Rules & Instructions
+                                    </h3>
+                                    <ul className="flex flex-col gap-3">
+                                        {rulesList.map((rule, index) => (
+                                            <motion.li
+                                                key={index}
+                                                initial={{ opacity: 0, x: -10 }}
+                                                animate={{ opacity: 1, x: 0 }}
+                                                transition={{ delay: index * 0.15 }}
+                                                className="flex items-start gap-3 text-sm font-bold opacity-90 text-[#1c140d] dark:text-gray-100"
+                                            >
+                                                <span className="mt-1.5 size-1.5 rounded-full bg-primary shrink-0" />
+                                                {rule}
+                                            </motion.li>
+                                        ))}
+                                    </ul>
                                 </div>
                             )}
-                        </div>
+                        </motion.div>
                     )}
 
                     {/* MODE: SELECT */}
                     {mode === 'select' && (
                         <>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 py-4">
-                                {/* Record Video Card */}
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.3 }}
+                                className="grid grid-cols-1 md:grid-cols-2 gap-6 py-4"
+                            >
+                                {/* Camera / Record Button */}
                                 <button
-                                    onClick={startCamera}
-                                    className="group flex flex-col items-center gap-6 p-10 rounded-xl border-2 border-transparent bg-white dark:bg-[#2d2218] shadow-sm hover:border-primary hover:shadow-lg transition-all text-center"
+                                    onClick={handleCameraClick}
+                                    className="group flex flex-col items-center gap-6 p-10 rounded-2xl border-2 border-dashed border-[#e8dbce] dark:border-[#3d2e1f] bg-white dark:bg-[#2d2218] hover:border-primary hover:bg-primary/5 transition-all text-center relative overflow-hidden"
                                 >
-                                    <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
-                                        <Video size={48} />
+                                    <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+
+                                    <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center text-primary group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300 relative z-10">
+                                        {isPhotoChallenge ? <Camera size={48} /> : <Video size={48} />}
                                     </div>
-                                    <div>
-                                        <p className="text-xl font-bold leading-normal mb-2">Record Video</p>
-                                        <p className="text-[#9c7349] dark:text-[#c4a484] text-sm font-normal leading-relaxed">
-                                            Use your webcam to capture the moment live
+                                    <div className="relative z-10">
+                                        <p className="text-xl font-bold leading-normal mb-2">
+                                            {isPhotoChallenge ? "Take Photo" : "Record Video"}
+                                        </p>
+                                        <p className="text-[#9c7349] dark:text-[#c4a484] text-sm font-medium leading-relaxed">
+                                            {isPhotoChallenge ? "Capture the moment now" : "Record a clip directly"}
                                         </p>
                                     </div>
                                 </button>
 
-                                {/* Upload Gallery Card */}
+                                {/* Upload Gallery Button */}
                                 <button
                                     onClick={handleGalleryClick}
-                                    className="group flex flex-col items-center gap-6 p-10 rounded-xl border-2 border-transparent bg-white dark:bg-[#2d2218] shadow-sm hover:border-primary hover:shadow-lg transition-all text-center"
+                                    className="group flex flex-col items-center gap-6 p-10 rounded-2xl border-2 border-dashed border-[#e8dbce] dark:border-[#3d2e1f] bg-white dark:bg-[#2d2218] hover:border-primary hover:bg-primary/5 transition-all text-center relative overflow-hidden"
                                 >
-                                    <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
-                                        <Upload size={48} />
+                                    <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+
+                                    <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center text-primary group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-300 relative z-10">
+                                        {isPhotoChallenge ? <ImageIcon size={48} /> : <Upload size={48} />}
                                     </div>
-                                    <div>
-                                        <p className="text-xl font-bold leading-normal mb-2">Upload from Gallery</p>
-                                        <p className="text-[#9c7349] dark:text-[#c4a484] text-sm font-normal leading-relaxed">
-                                            Select a pre-recorded video from your computer
+                                    <div className="relative z-10">
+                                        <p className="text-xl font-bold leading-normal mb-2">
+                                            {isPhotoChallenge ? "Upload Photo" : "Upload Video"}
+                                        </p>
+                                        <p className="text-[#9c7349] dark:text-[#c4a484] text-sm font-medium leading-relaxed">
+                                            Select from your gallery
                                         </p>
                                     </div>
                                 </button>
+
+                                {/* Hidden Inputs */}
                                 <input
                                     type="file"
-                                    accept="video/*,image/*"
+                                    accept="image/*,video/*"
                                     ref={fileInputRef}
                                     onChange={handleFileChange}
                                     hidden
                                 />
-                            </div>
+                            </motion.div>
 
-                            {/* Bottom Constraint Note */}
-                            <div className="flex flex-col items-center gap-4 mt-8">
-                                <div className="flex items-center gap-2 px-4 py-2 bg-primary/5 rounded-full border border-primary/20">
-                                    <Info size={16} className="text-primary" />
-                                    <p className="text-sm font-medium text-[#1c140d] dark:text-white">
-                                        Videos up to 45s. Keep it fun and authentic!
+                            {/* Bottom Note */}
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                transition={{ delay: 0.5 }}
+                                className="flex flex-col items-center gap-4 mt-8"
+                            >
+                                <div className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-white/5 rounded-full">
+                                    <Info size={16} className="text-gray-500" />
+                                    <p className="text-sm font-medium text-gray-500">
+                                        {isPhotoChallenge ? "Photos can be PNG or JPG." : "Videos up to 45s."} Keep it fun!
                                     </p>
                                 </div>
-                            </div>
+                            </motion.div>
                         </>
                     )}
 
-                    {/* MODE: RECORD */}
+                    {/* MODE: RECORD (Only for Video) */}
                     {mode === 'record' && (
                         <div className="flex flex-col items-center gap-6">
                             <div className="relative w-full aspect-video bg-black rounded-2xl overflow-hidden shadow-lg border-2 border-[#f4ede7] dark:border-[#3d2e1f]">
@@ -277,23 +370,32 @@ export default function UploadChallenge() {
                             </div>
 
                             <div className="flex gap-6 items-center">
-                                {!isRecording ? (
+                                {isPhotoChallenge ? (
                                     <button
-                                        onClick={startRecording}
-                                        className="size-16 rounded-full bg-red-600 border-4 border-white dark:border-[#2d2218] shadow-lg flex items-center justify-center hover:scale-105 transition-transform"
+                                        onClick={takePhoto}
+                                        className="size-20 rounded-full bg-white dark:bg-[#e8dbce] border-4 border-primary shadow-xl flex items-center justify-center hover:scale-105 transition-transform active:scale-95"
                                     >
-                                        <Circle className="text-white fill-current" size={24} />
+                                        <div className="size-16 rounded-full bg-primary" />
                                     </button>
                                 ) : (
-                                    <button
-                                        onClick={stopRecording}
-                                        className="size-16 rounded-full bg-white dark:bg-[#e8dbce] border-4 border-red-600 shadow-lg flex items-center justify-center hover:scale-105 transition-transform"
-                                    >
-                                        <Square className="text-red-600 fill-current" size={24} />
-                                    </button>
+                                    !isRecording ? (
+                                        <button
+                                            onClick={startRecording}
+                                            className="size-20 rounded-full bg-red-600 border-4 border-white dark:border-[#2d2218] shadow-xl flex items-center justify-center hover:scale-105 transition-transform"
+                                        >
+                                            <Circle className="text-white fill-current" size={32} />
+                                        </button>
+                                    ) : (
+                                        <button
+                                            onClick={stopRecording}
+                                            className="size-20 rounded-full bg-white dark:bg-[#e8dbce] border-4 border-red-600 shadow-xl flex items-center justify-center hover:scale-105 transition-transform"
+                                        >
+                                            <Square className="text-red-600 fill-current" size={32} />
+                                        </button>
+                                    )
                                 )}
                             </div>
-                            <button onClick={reset} className="text-[#9c7349] dark:text-[#c4a484] hover:underline text-sm font-medium">
+                            <button onClick={reset} className="text-[#9c7349] dark:text-[#c4a484] hover:underline text-sm font-bold tracking-wide uppercase">
                                 Cancel & Return
                             </button>
                         </div>
@@ -303,7 +405,7 @@ export default function UploadChallenge() {
                     {mode === 'preview' && (
                         <div className="flex flex-col items-center gap-6">
                             {previewUrl && (
-                                <div className="w-full aspect-video bg-black rounded-2xl overflow-hidden shadow-lg border-2 border-[#f4ede7] dark:border-[#3d2e1f]">
+                                <div className="w-full aspect-[4/3] md:aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl border-2 border-[#f4ede7] dark:border-[#3d2e1f]">
                                     {selectedFile?.type.startsWith('video') ? (
                                         <video src={previewUrl} controls className="w-full h-full object-contain" />
                                     ) : (
@@ -316,7 +418,7 @@ export default function UploadChallenge() {
                                 <button
                                     onClick={reset}
                                     disabled={isUploading}
-                                    className="flex-1 flex items-center justify-center gap-2 py-3 px-6 rounded-xl border border-[#e8dbce] dark:border-[#3d2e1f] bg-white dark:bg-[#2d2218] font-bold text-[#1c140d] dark:text-white hover:bg-[#f4ede7] dark:hover:bg-[#3d2e21] transition-colors disabled:opacity-50"
+                                    className="flex-1 flex items-center justify-center gap-2 py-4 px-6 rounded-xl border border-[#e8dbce] dark:border-[#3d2e1f] bg-white dark:bg-[#2d2218] font-bold text-[#1c140d] dark:text-white hover:bg-[#f4ede7] dark:hover:bg-[#3d2e21] transition-colors disabled:opacity-50"
                                 >
                                     <RotateCcw size={20} />
                                     Retake
@@ -324,7 +426,7 @@ export default function UploadChallenge() {
                                 <button
                                     onClick={handleUpload}
                                     disabled={isUploading}
-                                    className="flex-1 flex items-center justify-center gap-2 py-3 px-6 rounded-xl bg-primary text-white font-bold shadow-sm hover:brightness-110 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="flex-1 flex items-center justify-center gap-2 py-4 px-6 rounded-xl bg-primary text-white font-bold shadow-lg shadow-primary/25 hover:brightness-110 hover:translate-y-[-2px] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     {isUploading ? (
                                         <span>Uploading...</span>

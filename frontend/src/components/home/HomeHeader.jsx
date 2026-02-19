@@ -1,6 +1,12 @@
 import { Link } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 
 export function HomeHeader() {
+    const { user } = useAuth();
+
+    // Default avatar if no image or error
+    const defaultAvatar = "https://lh3.googleusercontent.com/aida-public/AB6AXuCc4Y1XBf6f-biRM87-e-Kkw7QScj9DgkT3fN395NkKVPZ-Js9aScP6jVRPNbYbxyFPARUOeRwPCHTiK9Iyp9LP5i1WSaPwzGlpZ_wATUf2RYVhrYrBbBTPVZO--afW_Gy0q-jnBycflAR6fFWBDP4VcKaY7C5BOo7bf84z99q9hGH_ZXMI4hShD-y9v_qvhHVuftJkC4VyFjQ1FlNBSxTJBMciDY-HaLEl79KHOjyqrZb091JFyFgaOVnD333FB9j1nFAuXPlmyZ0";
+
     return (
         <header className="sticky top-0 z-50 w-full bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-[#f4ede7] dark:border-[#3d2e21]">
             <div className="max-w-[1200px] mx-auto px-6 h-16 flex items-center justify-between">
@@ -19,7 +25,11 @@ export function HomeHeader() {
                         <span className="absolute top-2 right-2.5 size-2 bg-primary rounded-full border-2 border-background-light"></span>
                     </button>
                     <Link to="/profile">
-                        <div className="size-10 rounded-full bg-cover bg-center border-2 border-primary" data-alt="User profile avatar with orange border" style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuCc4Y1XBf6f-biRM87-e-Kkw7QScj9DgkT3fN395NkKVPZ-Js9aScP6jVRPNbYbxyFPARUOeRwPCHTiK9Iyp9LP5i1WSaPwzGlpZ_wATUf2RYVhrYrBbBTPVZO--afW_Gy0q-jnBycflAR6fFWBDP4VcKaY7C5BOo7bf84z99q9hGH_ZXMI4hShD-y9v_qvhHVuftJkC4VyFjQ1FlNBSxTJBMciDY-HaLEl79KHOjyqrZb091JFyFgaOVnD333FB9j1nFAuXPlmyZ0')" }}></div>
+                        <div
+                            className="size-10 rounded-full bg-cover bg-center border-2 border-primary bg-gray-200"
+                            data-alt="User profile avatar"
+                            style={{ backgroundImage: `url('${user?.imageUrl || defaultAvatar}')` }}
+                        ></div>
                     </Link>
                 </div>
             </div>

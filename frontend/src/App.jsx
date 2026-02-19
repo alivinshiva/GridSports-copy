@@ -17,6 +17,7 @@ import ChallengeDetails from "@/pages/ChallengeDetails";
 import { ChallengeEntries } from "@/pages/ChallengeEntries";
 import Raceboard from "@/pages/Raceboard"; // Import Raceboard
 import Tribes from "@/pages/Tribes"; // Import Tribes
+import SubmissionFeed from "@/pages/SubmissionFeed";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 
 // Protects routes: must be logged in AND have chosen a tribe
@@ -65,6 +66,7 @@ function App() {
 
           {/* Catch-all: redirect unknown routes to home (which is protected) */}
           <Route path="/challenge/entries" element={<ProtectedRoute><ChallengeEntries /></ProtectedRoute>} />
+          <Route path="/challenge/feed" element={<ProtectedRoute><SubmissionFeed /></ProtectedRoute>} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Router>

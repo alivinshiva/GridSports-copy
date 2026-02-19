@@ -7,12 +7,18 @@ import profileModel from "../models/profile.model.js";
 // path: POST / api/v1/profile/create-tribe
 // access: Private
 
-// bugs available not check the db directly update th ui totally depended on the frontend logic
+// bugs available not check the db directly update th ui totally depended on the frontend logic - fix the issue 
 export const createTribeController = async (req, res) => {
     try {
         const loggedInUser = req.user._id;
 
         const { tribe } = req.body;
+
+        const alreadyTribeMember = await profileModel.findOne({ user: loggedInUser });
+
+        if (alreadyTribeMember.tribe !== undefined || alreadyTribeMember.tribe !== null) {
+            return res.status(400).json({ success: false, message: "You are already a tribe member" });
+        };
 
         const newTribe = new profileModel({
             user: loggedInUser,
@@ -166,3 +172,6 @@ export const getLoggedProfileController = async (req, res) => {
         return res.status(500).json({ success: false, message: "Internal Server Error", error: error.message });
     };
 };
+
+
+

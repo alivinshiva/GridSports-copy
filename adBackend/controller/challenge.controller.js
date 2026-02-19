@@ -193,7 +193,7 @@ export const getChallengesByWeekendIdController = async (req, res) => {
 // access private
 export const getAllActiveChallangesController = async (req, res) => {
     try {
-        const challenges = await challangeModel.find({ status: "ACTIVE" });
+        const challenges = await challangeModel.find({ status: "ACTIVE" }).populate("weekend", "title location");
         return res.status(200).json({ success: true, message: "Challenges Fetched Successfully", data: challenges });
     } catch (error) {
         return res.status(500).json({ success: false, message: "Internal Server Error", error: error.message });
@@ -207,7 +207,7 @@ export const getAllActiveChallangesController = async (req, res) => {
 // access private
 export const getAllClosedChallangesController = async (req, res) => {
     try {
-        const challenges = await challangeModel.find({ status: "CLOSED" });
+        const challenges = await challangeModel.find({ status: "CLOSED" }).populate("weekend", "title location");
         return res.status(200).json({ success: true, message: "Challenges Fetched Successfully", data: challenges });
     } catch (error) {
         return res.status(500).json({ success: false, message: "Internal Server Error", error: error.message });
@@ -221,7 +221,7 @@ export const getAllClosedChallangesController = async (req, res) => {
 // access private
 export const getAllUpcomingChallangesController = async (req, res) => {
     try {
-        const challenges = await challangeModel.find({ status: "UPCOMING" });
+        const challenges = await challangeModel.find({ status: "UPCOMING" }).populate("weekend", "title location");
         return res.status(200).json({ success: true, message: "Challenges Fetched Successfully", data: challenges });
     } catch (error) {
         return res.status(500).json({ success: false, message: "Internal Server Error", error: error.message });

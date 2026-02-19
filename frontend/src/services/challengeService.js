@@ -41,3 +41,13 @@ export const getChallengeById = async (id) => {
         throw error;
     }
 };
+
+export const getChallengesByStatus = async (status) => {
+    try {
+        const response = await axios.get(`${API_URL}/${status}`);
+        return response.data;
+    } catch (error) {
+        console.error(`Error fetching ${status} challenges:`, error);
+        throw error;
+    }
+};

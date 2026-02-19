@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect, useCallback } from "react";
 
 const AuthContext = createContext(null);
 
@@ -34,7 +34,7 @@ export function AuthProvider({ children }) {
         }
     };
 
-    const fetchProfile = async () => {
+    const fetchProfile = useCallback(async () => {
         try {
             const response = await fetch("http://localhost:7000/api/v1/profile/profile-details", {
                 credentials: "include",
@@ -44,10 +44,17 @@ export function AuthProvider({ children }) {
                 if (data.data.tribe) {
                     localStorage.setItem("gridsports_tribe", data.data.tribe);
                 }
-                // Update user state with isAdmin if present in profile.user
+                // Update user state with isAdmin and imageUrl if present
                 if (data.data.user) {
                     setUser(prev => {
-                        const updated = { ...prev, isAdmin: data.data.user.isAdmin };
+                        // Prevent unnecessary state updates if critical data hasn't changed
+                        if (prev?.isAdmin === data.data.user.isAdmin && prev?.imageUrl === data.data.imageUrl) return prev;
+
+                        const updated = {
+                            ...prev,
+                            isAdmin: data.data.user.isAdmin,
+                            imageUrl: data.data.imageUrl
+                        };
                         localStorage.setItem("gridsports_user", JSON.stringify(updated));
                         return updated;
                     });
@@ -57,8 +64,8 @@ export function AuthProvider({ children }) {
         } catch (error) {
             console.error("Fetch Profile Error:", error);
         }
-        return null;
-    };
+        return null; // Return null on error/no-data
+    }, []);
 
     const login = async (phone, password) => {
         try {

@@ -34,7 +34,7 @@ export default function ChallengeDetails() {
     return (
         <AuthenticatedLayout>
             {/* Main Container - Removed custom background decoration */}
-            <div className="min-h-screen py-8 flex items-center justify-center relative p-4">
+            <div className="w-full py-12 flex justify-center relative p-4">
 
                 {/* Unified "One Box" Card - Cleaner, No Zoom, No Harsh Shadows */}
                 <div className="relative z-10 w-full max-w-5xl bg-white dark:bg-[#18181b] rounded-2xl shadow-xl overflow-hidden border border-gray-100 dark:border-white/5 flex flex-col md:flex-row min-h-[500px]">
@@ -62,7 +62,8 @@ export default function ChallengeDetails() {
                                         <span className="material-symbols-outlined text-sm">flag</span>
                                         <span>{challenge.weekend.location}</span>
                                         <span className="text-gray-300 dark:text-gray-700 mx-1">•</span>
-                                        <span>{challenge.weekend.season} Season</span>
+                                        <span className="material-symbols-outlined text-sm">calendar_month</span>
+                                        <span>{challenge.weekend.season}<span className="hidden md:inline"> Season</span></span>
                                     </div>
                                 )}
 
@@ -138,20 +139,42 @@ export default function ChallengeDetails() {
 
                         {/* Actions - Sticky Floating */}
                         <div className="mt-6 pt-6 border-t border-gray-100 dark:border-white/5 flex gap-3 sticky bottom-0 bg-white/80 dark:bg-[#18181b]/95 backdrop-blur-sm -mb-2 pb-2">
-                            <Link
-                                to={`/challenge/entries`}
-                                className="flex-1 h-12 flex items-center justify-center gap-2 rounded-xl font-bold text-gray-700 dark:text-white bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 transition-all text-sm"
-                            >
-                                <span className="material-symbols-outlined text-lg">visibility</span>
-                                <span className="hidden md:inline">View Entries</span>
-                            </Link>
-                            <Link
-                                to={`/upload/${challenge._id}`}
-                                className="flex-1 h-12 flex items-center justify-center gap-2 rounded-xl font-bold text-white bg-primary hover:bg-primary/90 shadow-lg shadow-primary/25 transition-all text-sm active:scale-[0.98]"
-                            >
-                                <span className="material-symbols-outlined text-lg">upload</span>
-                                <span className="hidden md:inline">Upload Entry</span>
-                            </Link>
+                            {challenge.status === 'UPCOMING' ? (
+                                <button
+                                    disabled
+                                    className="flex-1 h-12 flex items-center justify-center gap-2 rounded-xl font-bold text-gray-400 bg-gray-200 dark:bg-white/5 cursor-not-allowed transition-all text-sm"
+                                >
+                                    <span className="material-symbols-outlined text-lg">lock</span>
+                                    <span className="hidden md:inline">Entries Locked</span>
+                                </button>
+                            ) : (
+                                <Link
+                                    to={`/challenge/entries`}
+                                    className="flex-1 h-12 flex items-center justify-center gap-2 rounded-xl font-bold text-gray-700 dark:text-white bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 transition-all text-sm"
+                                >
+                                    <span className="material-symbols-outlined text-lg">visibility</span>
+                                    <span className="hidden md:inline">View Entries</span>
+                                </Link>
+                            )}
+                            {challenge.status === 'ACTIVE' ? (
+                                <Link
+                                    to={`/upload/${challenge._id}`}
+                                    className="flex-1 h-12 flex items-center justify-center gap-2 rounded-xl font-bold text-white bg-primary hover:bg-primary/90 shadow-lg shadow-primary/25 transition-all text-sm active:scale-[0.98]"
+                                >
+                                    <span className="material-symbols-outlined text-lg">upload</span>
+                                    <span className="hidden md:inline">Upload Entry</span>
+                                </Link>
+                            ) : (
+                                <button
+                                    disabled
+                                    className="flex-1 h-12 flex items-center justify-center gap-2 rounded-xl font-bold text-gray-400 bg-gray-200 dark:bg-white/5 cursor-not-allowed transition-all text-sm"
+                                >
+                                    <span className="material-symbols-outlined text-lg">lock</span>
+                                    <span className="hidden md:inline">
+                                        {challenge.status === 'UPCOMING' ? 'Opens Soon' : 'Closed'}
+                                    </span>
+                                </button>
+                            )}
                         </div>
                     </div>
                 </div>

@@ -1,18 +1,19 @@
 import { useEffect, useState, useRef } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { getAllSubmissions } from "@/services/submissionService";
 import { motion, AnimatePresence } from "framer-motion";
 
-const VideoItem = ({ src, inLightbox = false }) => {
+const VideoItem = ({ src }) => {
     const videoRef = useRef(null);
 
     const handleMouseEnter = () => {
-        if (!inLightbox && videoRef.current) {
+        if (videoRef.current) {
             videoRef.current.play();
         }
     };
 
     const handleMouseLeave = () => {
-        if (!inLightbox && videoRef.current) {
+        if (videoRef.current) {
             videoRef.current.pause();
             videoRef.current.currentTime = 0;
         }
@@ -20,26 +21,22 @@ const VideoItem = ({ src, inLightbox = false }) => {
 
     return (
         <div
-            className={`w-full relative ${inLightbox ? 'h-full flex items-center justify-center' : ''}`}
+            className="w-full relative"
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
         >
             <video
                 ref={videoRef}
                 src={src}
-                className={inLightbox ? "max-w-full max-h-[90vh] object-contain rounded-lg" : "w-full h-auto block rounded-xl"}
-                loop={!inLightbox} // Loop in feed, maybe not in lightbox? User didn't specify, keeping consistent.
-                muted={!inLightbox} // Muted in feed, Sound ON in lightbox potentially? Let's keep muted by default to avoid blasting.
-                controls={inLightbox} // Controls ONLY in lightbox
+                className="w-full h-auto block rounded-xl"
+                loop
+                muted
                 playsInline
-                autoPlay={inLightbox}
             />
-            {/* Play icon overlay - Hidden when playing/hovered in feed, hidden in lightbox */}
-            {!inLightbox && (
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none group-hover:opacity-0 transition-opacity">
-                    <span className="material-symbols-outlined text-white/80 text-4xl drop-shadow-md">play_circle</span>
-                </div>
-            )}
+            {/* Play icon overlay - Hidden when playing/hovered */}
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none group-hover:opacity-0 transition-opacity">
+                <span className="material-symbols-outlined text-white/80 text-4xl drop-shadow-md">play_circle</span>
+            </div>
         </div>
     );
 };
@@ -47,7 +44,9 @@ const VideoItem = ({ src, inLightbox = false }) => {
 export function DiscoveryFeed() {
     const [submissions, setSubmissions] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [selectedItem, setSelectedItem] = useState(null);
+    const [columns, setColumns] = useState([]);
+    const [columnCount, setColumnCount] = useState(1); // Default to 1
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchSubmissions = async () => {
@@ -66,17 +65,31 @@ export function DiscoveryFeed() {
         fetchSubmissions();
     }, []);
 
-    // Lock body scroll when lightbox is open
+    // Determine column count based on window width
     useEffect(() => {
-        if (selectedItem) {
-            document.body.style.overflow = 'hidden';
-        } else {
-            document.body.style.overflow = 'unset';
-        }
-        return () => {
-            document.body.style.overflow = 'unset';
+        const handleResize = () => {
+            const width = window.innerWidth;
+            if (width < 640) setColumnCount(1);
+            else if (width < 1024) setColumnCount(2);
+            else if (width < 1280) setColumnCount(3);
+            else setColumnCount(4);
         };
-    }, [selectedItem]);
+
+        handleResize(); // Initial check
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    // Distribute submissions into columns
+    useEffect(() => {
+        if (!submissions.length) return;
+
+        const cols = Array.from({ length: columnCount }, () => []);
+        submissions.forEach((item, index) => {
+            cols[index % columnCount].push(item);
+        });
+        setColumns(cols);
+    }, [submissions, columnCount]);
 
 
     if (loading) {
@@ -98,6 +111,10 @@ export function DiscoveryFeed() {
         );
     }
 
+    const handleItemClick = (item) => {
+        navigate('/challenge/feed', { state: { initialEntry: item } });
+    };
+
     return (
         <section className="py-8 pb-24">
             <div className="flex items-center justify-between mb-6">
@@ -105,73 +122,38 @@ export function DiscoveryFeed() {
                 <span className="text-sm font-medium text-gray-500">{submissions.length} posts</span>
             </div>
 
-            {/* Masonry Layout using CSS Columns with Framer Motion Stagger */}
-            <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-4 space-y-4">
+            {/* Masonry Layout using JS Columns */}
+            <div className="flex gap-4 items-start">
                 <AnimatePresence>
-                    {submissions.map((item, index) => (
-                        <motion.div
-                            key={item._id}
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.5, delay: index * 0.05 }}
-                            className="group break-inside-avoid bg-white dark:bg-[#18181b] rounded-xl overflow-hidden cursor-pointer relative border-4 border-white dark:border-[#2a2a2d] hover:border-gray-500 dark:hover:border-gray-500 transition-colors duration-300 shadow-sm"
-                            onClick={() => setSelectedItem(item)}
-                        >
-                            {/* Hover Overlay Effect - Subtle Flash/Glow */}
-                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300 z-10 pointer-events-none"></div>
+                    {columns.map((col, colIndex) => (
+                        <div key={colIndex} className="flex-1 flex flex-col gap-4 min-w-0">
+                            {col.map((item, itemIndex) => (
+                                <motion.div
+                                    key={item._id}
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ duration: 0.5, delay: (colIndex + itemIndex) * 0.05 }}
+                                    className="group bg-white dark:bg-[#18181b] rounded-xl overflow-hidden cursor-pointer relative border-4 border-white dark:border-[#2a2a2d] hover:border-gray-500 dark:hover:border-gray-500 transition-colors duration-300 shadow-sm"
+                                    onClick={() => handleItemClick(item)}
+                                >
+                                    {/* Hover Overlay Effect - Subtle Flash/Glow */}
+                                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300 z-10 pointer-events-none"></div>
 
-                            {item.mediaType === 'video' ? (
-                                <VideoItem src={item.mediaUrl} />
-                            ) : (
-                                <img
-                                    src={item.mediaUrl}
-                                    alt="Challenge Submission"
-                                    className="w-full h-auto block rounded-xl transform transition-transform duration-500 group-hover:scale-[1.02]"
-                                />
-                            )}
-                        </motion.div>
+                                    {item.mediaType === 'video' ? (
+                                        <VideoItem src={item.mediaUrl} />
+                                    ) : (
+                                        <img
+                                            src={item.mediaUrl}
+                                            alt="Challenge Submission"
+                                            className="w-full h-auto block rounded-xl transform transition-transform duration-500 group-hover:scale-[1.02]"
+                                        />
+                                    )}
+                                </motion.div>
+                            ))}
+                        </div>
                     ))}
                 </AnimatePresence>
             </div>
-
-            {/* Lightbox Modal */}
-            <AnimatePresence>
-                {selectedItem && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        onClick={() => setSelectedItem(null)} // Close on background click
-                        className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4"
-                    >
-                        <motion.div
-                            initial={{ scale: 0.9, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            exit={{ scale: 0.9, opacity: 0 }}
-                            transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                            className="relative max-w-5xl w-full max-h-[90vh] flex items-center justify-center"
-                            onClick={(e) => e.stopPropagation()} // Prevent closing when clicking content
-                        >
-                            <button
-                                onClick={() => setSelectedItem(null)}
-                                className="absolute -top-12 right-0 text-white/50 hover:text-white transition-colors"
-                            >
-                                <span className="material-symbols-outlined text-4xl">close</span>
-                            </button>
-
-                            {selectedItem.mediaType === 'video' ? (
-                                <VideoItem src={selectedItem.mediaUrl} inLightbox={true} />
-                            ) : (
-                                <img
-                                    src={selectedItem.mediaUrl}
-                                    alt="Full Size"
-                                    className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl"
-                                />
-                            )}
-                        </motion.div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
         </section>
     );
 }

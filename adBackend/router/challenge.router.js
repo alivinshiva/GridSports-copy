@@ -2,6 +2,7 @@ import express from "express";
 import { createChallangeController, getAllChallengesController, getSingleChallengeController, updateChallengeController, deleteChallengeController, getChallengesByWeekendIdController, getAllActiveChallangesController, getAllClosedChallangesController, getAllUpcomingChallangesController } from "../controller/challenge.controller.js";
 import { createChallengeMiddleware, updateChallengeMiddleware } from "../middleware/challange.middleware.js";
 import { upload } from "../middleware/multer.middleware.js";
+import { getAllSubmissionOnParticularChallanage } from "../controller/submission.controller.js";
 
 const challengeRouter = express.Router();
 
@@ -15,5 +16,7 @@ challengeRouter.route("/weekend/:weekendId").get(getChallengesByWeekendIdControl
 challengeRouter.route("/active").get(getAllActiveChallangesController);
 challengeRouter.route("/closed").get(getAllClosedChallangesController);
 challengeRouter.route("/upcoming").get(getAllUpcomingChallangesController);
+
+challengeRouter.route("/submission/:challenge").get(getAllSubmissionOnParticularChallanage);
 
 export default challengeRouter;
