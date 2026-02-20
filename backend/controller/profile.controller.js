@@ -16,7 +16,7 @@ export const createTribeController = async (req, res) => {
 
         const alreadyTribeMember = await profileModel.findOne({ user: loggedInUser });
 
-        if (alreadyTribeMember.tribe !== undefined || alreadyTribeMember.tribe !== null) {
+        if (alreadyTribeMember && alreadyTribeMember.tribe) {
             return res.status(400).json({ success: false, message: "You are already a tribe member" });
         };
 
@@ -174,4 +174,19 @@ export const getLoggedProfileController = async (req, res) => {
 };
 
 
+export const onlyTribeInformation = async (req, res) => {
+    try {
+        const loggedInUser = req.user._id;
 
+        const profile = await profileModel.findOne({ user: loggedInUser }).select("tribe");
+
+        if (!profile) {
+            return res.status(404).json({ success: false, message: "Profile Not Found" });
+        };
+
+        return res.status(200).json({ success: true, message: "Profile fetched Successfully", data: profile });
+
+    } catch (error) {
+        return res.status(500).json({ success: false, message: "Internal Server Error", error: error.message });
+    };
+}
