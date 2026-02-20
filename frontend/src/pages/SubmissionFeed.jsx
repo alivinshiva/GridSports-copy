@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { getAllRandomSubmissions, rateSubmission, recordShare, rateDetailed } from "@/services/submissionService";
-import { Loader2, ArrowLeft, Volume2, VolumeX, Heart, ThumbsUp, ThumbsDown, Share2, Facebook, Instagram, MessageCircle, Link as LinkIcon, X, CheckSquare } from "lucide-react";
+import { Loader2, ArrowLeft, Volume2, VolumeX, Heart, ThumbsUp, ThumbsDown, Share2, Facebook, Instagram, MessageCircle, Link as LinkIcon, X, CheckSquare, Star } from "lucide-react";
 import { HomeHeader } from "@/components/home/HomeHeader";
 import { BottomNav } from "@/components/home/BottomNav";
 
@@ -318,17 +318,12 @@ const SubmissionFeed = () => {
 
                                 {/* Conditionally Render Rating UI */}
                                 {entry.challenge?.scoringType === 'DETAILED' ? (
-                                    <div className="flex flex-col w-full px-4 pb-4 text-white pointer-events-auto backdrop-blur-md bg-black/40 rounded-t-3xl border-t border-white/10 pt-4">
+                                    <div className="flex flex-col w-full px-4 pb-4 text-white pointer-events-auto bg-transparent pt-4">
                                         <div className="space-y-3">
                                             {entry.challenge?.parameters?.map((param, pIdx) => {
                                                 const maxPts = param.maxPoints;
-                                                const tiles = Math.floor(maxPts / 5);
+                                                const tiles = 5; // Always show 5 stars
                                                 const currentScore = detailedRatingsState[entry._id]?.[param.name] || 0;
-
-                                                const activeBg = "bg-[#cca651]";
-                                                const inactiveBg = "bg-[#433f4a]";
-                                                const activeText = "text-white font-bold drop-shadow-md";
-                                                const inactiveText = "text-[#8b8793] font-medium";
 
                                                 const paramSubtitles = {
                                                     'Clarity': 'Fresh idea',
@@ -348,21 +343,19 @@ const SubmissionFeed = () => {
                                                             </div>
                                                             <div className="flex flex-row gap-2 ml-4">
                                                                 {Array.from({ length: tiles }).map((_, tIdx) => {
-                                                                    const tileVal = (tIdx + 1) * 5;
+                                                                    const tileVal = Math.round(((tIdx + 1) / 5) * maxPts);
                                                                     const isActive = currentScore >= tileVal;
-                                                                    const isImpactFlame = param.name.toLowerCase() === 'impact' && tIdx === tiles - 1;
 
                                                                     return (
                                                                         <button
                                                                             key={tIdx}
                                                                             onClick={(e) => handleDetailedRate(e, entry._id, param.name, tileVal)}
-                                                                            className={`w-[38px] h-[38px] flex items-center justify-center rounded-lg transition-all duration-200 border-none shadow-sm ${isActive ? activeBg : inactiveBg}`}
+                                                                            className="w-[30px] h-[30px] flex items-center justify-center rounded-lg transition-transform active:scale-90 border-none bg-transparent"
                                                                         >
-                                                                            {isImpactFlame ? (
-                                                                                <span className="text-xl drop-shadow-md">🔥</span>
-                                                                            ) : (
-                                                                                <span className={`text-base ${isActive ? activeText : inactiveText}`}>{tIdx + 1}</span>
-                                                                            )}
+                                                                            <Star
+                                                                                size={26}
+                                                                                className={`drop-shadow-md transition-colors ${isActive ? "fill-[#cca651] stroke-[#cca651] text-[#cca651]" : "fill-transparent stroke-white/40"}`}
+                                                                            />
                                                                         </button>
                                                                     );
                                                                 })}
