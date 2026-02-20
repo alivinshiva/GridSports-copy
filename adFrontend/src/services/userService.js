@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:7000/api/v1/admin';
+const API_URL = 'http://localhost:7001/api/v1/admin';
 
 export const getAllUsers = async () => {
     try {

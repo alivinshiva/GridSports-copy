@@ -18,7 +18,7 @@ export function AuthProvider({ children }) {
 
     const signup = async (name, phone, password) => {
         try {
-            const response = await fetch("http://localhost:7000/api/v1/user/signup", {
+            const response = await fetch("http://localhost:7001/api/v1/user/signup", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ name, phoneNumber: phone, password }),
@@ -36,7 +36,7 @@ export function AuthProvider({ children }) {
 
     const fetchProfile = useCallback(async () => {
         try {
-            const response = await fetch("http://localhost:7000/api/v1/profile/profile-details", {
+            const response = await fetch("http://localhost:7001/api/v1/profile/profile-details", {
                 credentials: "include",
             });
             const data = await response.json();
@@ -69,7 +69,7 @@ export function AuthProvider({ children }) {
 
     const login = async (phone, password) => {
         try {
-            const response = await fetch("http://localhost:7000/api/v1/user/login-phone", {
+            const response = await fetch("http://localhost:7001/api/v1/user/login-phone", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ phoneNumber: phone, password }),
@@ -95,7 +95,7 @@ export function AuthProvider({ children }) {
 
     const verifyOTP = async (otp, userData) => {
         try {
-            const response = await fetch("http://localhost:7000/api/v1/user/verify-phone", {
+            const response = await fetch("http://localhost:7001/api/v1/user/verify-phone", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ code: otp }),
@@ -123,7 +123,7 @@ export function AuthProvider({ children }) {
 
     const logout = async () => {
         try {
-            await fetch("http://localhost:7000/api/v1/user/logout", {
+            await fetch("http://localhost:7001/api/v1/user/logout", {
                 method: "POST",
                 credentials: "include"
             });

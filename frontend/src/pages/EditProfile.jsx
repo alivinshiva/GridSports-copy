@@ -51,7 +51,7 @@ export default function EditProfile() {
         formData.append("image", selectedFile);
 
         try {
-            const response = await fetch("http://localhost:7000/api/v1/profile/upload-image", {
+            const response = await fetch("http://localhost:7001/api/v1/profile/upload-image", {
                 method: "PUT",
                 body: formData,
                 credentials: "include", // Important for cookies
@@ -77,7 +77,7 @@ export default function EditProfile() {
         if (!window.confirm("Are you sure you want to delete your profile image?")) return;
 
         try {
-            const response = await fetch("http://localhost:7000/api/v1/profile/delete-image", {
+            const response = await fetch("http://localhost:7001/api/v1/profile/delete-image", {
                 method: "DELETE",
                 credentials: "include",
             });

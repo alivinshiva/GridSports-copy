@@ -29,7 +29,7 @@
 - Access weekend schedules and seasonal information
 
 The application is built with a **microservices architecture** featuring:
-- **Backend (Port 7000)**: Main authentication, user management, and profile service
+- **Backend (Port 7001)**: Main authentication, user management, and profile service
 - **Admin Backend (Port 9000)**: Challenge, weekend, and submission management
 - **Frontend (Port 5173)**: User-facing React application
 - **Admin Frontend (Port 5174)**: Administrative dashboard for managing challenges and submissions
@@ -54,7 +54,7 @@ The application is built with a **microservices architecture** featuring:
 │           │                             │                 │
 │  ┌────────▼──────────┐    ┌─────────────▼──────────┐     │
 │  │  Backend         │    │  Admin Backend        │     │
-│  │  (Port 7000)     │    │  (Port 9000)          │     │
+│  │  (Port 7001)     │    │  (Port 9000)          │     │
 │  │  Express + Node  │    │  Express + Node       │     │
 │  └────────┬─────────┘    └────────────┬───────────┘     │
 │           │                           │                 │
@@ -92,7 +92,7 @@ sport v2/
 ├── start_all.bat                          # Batch script to start all services
 ├── PROJECT_DOCUMENTATION.md               # This file
 │
-├── backend/                               # Main Backend Service (Port 7000)
+├── backend/                               # Main Backend Service (Port 7001)
 │   ├── index.js                          # Express server entry point
 │   ├── package.json                      # Dependencies & scripts
 │   ├── .env                              # Environment variables
@@ -277,7 +277,7 @@ Main authentication and user management service. Handles:
 ### Entry Point: [backend/index.js](backend/index.js)
 
 **Server Configuration:**
-- Port: 7000
+- Port: 7001
 - CORS Origins: `http://localhost:5173`, `http://localhost:5174`
 - Middleware Stack:
   - Cookie parser (for JWT in cookies)
@@ -1157,7 +1157,7 @@ deleteWeekend(id)
 
 **[frontend/src/services/userService.js](frontend/src/services/userService.js)**
 - Would contain: User authentication API calls
-- Base URL: `http://localhost:7000/api/v1/user`
+- Base URL: `http://localhost:7001/api/v1/user`
 - Functions: signup, login, logout, verifyOTP, resetPassword
 
 **[frontend/src/services/submissionService.js](frontend/src/services/submissionService.js)**
@@ -1346,7 +1346,7 @@ Admin functions include:
 
 #### [adFrontend/src/services/userService.js](adFrontend/src/services/userService.js)
 
-**Base URL:** `http://localhost:7000/api/v1/admin`
+**Base URL:** `http://localhost:7001/api/v1/admin`
 
 Admin functions include:
 - `getAllUsers()` - List all users
@@ -1385,7 +1385,7 @@ FRONTEND (Port 5173)
 │   └── hooks/useTribe.js
 │       └── Uses: localStorage
 
-BACKEND (Port 7000)
+BACKEND (Port 7001)
 ├── index.js
 │   ├── router/user.router.js
 │   │   ├── controller/user.controller.js
@@ -1506,7 +1506,7 @@ ProfilePage displays updated image
 
 **Backend (.env)**
 ```
-PORT=7000
+PORT=7001
 MONGO_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/gridsports
 JWT_SECRET=your_jwt_secret_key
 CLOUDINARY_NAME=your_cloudinary_name
@@ -1560,7 +1560,7 @@ npm run dev
 ### Access Points
 - **Main App**: http://localhost:5173
 - **Admin Dashboard**: http://localhost:5174
-- **Backend API**: http://localhost:7000
+- **Backend API**: http://localhost:7001
 - **Admin API**: http://localhost:9000
 
 ---
