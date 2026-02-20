@@ -45,3 +45,37 @@ export const getAllRandomSubmissions = async (limit = 15) => {
         throw error.response?.data || error.message;
     }
 };
+
+export const rateSubmission = async (submissionId, ratingType) => {
+    try {
+        const response = await axios.post(`${API_URL}/rate`, { submissionId, ratingType }, {
+            withCredentials: true,
+        });
+        return response.data;
+    } catch (error) {
+        throw error.response?.data || error;
+    }
+};
+
+export const recordShare = async (submissionId) => {
+    try {
+        const response = await axios.post(`${API_URL}/share/record`, { submissionId }, {
+            withCredentials: true,
+        });
+        return response.data;
+    } catch (error) {
+        throw error.response?.data || error;
+    }
+};
+
+export const rateDetailed = async (submissionId, challengeId, ratings) => {
+    try {
+        const response = await axios.post(`${API_URL}/rate-detailed`, { submissionId, challengeId, ratings }, {
+            withCredentials: true,
+        });
+        return response.data;
+    } catch (error) {
+        throw error.response?.data || error;
+    }
+};
+

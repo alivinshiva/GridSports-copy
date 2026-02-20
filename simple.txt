@@ -1,0 +1,83 @@
+MODEL NAME: SimpleChallenge
+
+DESCRIPTION:
+Used for fun/easy challenges.
+Includes upload + quick reaction + share + streak.
+NO detailed rating.
+NO AI accuracy.
+
+--------------------------------------------------
+
+BASIC INFO
+- challengeId (string, unique)
+- title (string)
+- description (string)
+- type = "SIMPLE"
+- sportType (F1 / IPL / etc)
+- startTime (datetime)
+- endTime (datetime)
+- maxUploadsPerUser (number)
+
+--------------------------------------------------
+
+UPLOAD CONFIG
+- uploadAllowed: true
+- allowedMedia: ["image", "video"]
+- minVideoDurationSec
+- maxVideoDurationSec
+- minImages
+- maxImages
+- tagsRequired (boolean)
+- minTagsRequired
+
+--------------------------------------------------
+
+CREATOR POINT FEATURES
+- uploadPoints
+- tagPoints
+- uploadTimeBonus:
+    - withinWindow1
+    - withinWindow2
+- creatorStreakEnabled (true/false)
+
+--------------------------------------------------
+
+REACTION SYSTEM (QUICK)
+
+reactionMode: "3_CHOICE"
+
+reactions:
+- POSITIVE
+- NEUTRAL
+- NEGATIVE
+
+reactionPoints:
+- positivePoints
+- neutralPoints
+- negativePoints
+
+--------------------------------------------------
+
+RATER FEATURES
+
+- quickReactionPoints
+- reactionTimeBonus:
+    - withinWindow1
+    - withinWindow2
+- sharePoints
+- raterStreakEnabled (true/false)
+
+--------------------------------------------------
+
+LIMITS / CAPS
+
+- maxReactionsPerDay
+- maxSharesPerDay
+- antiSpamEnabled (true/false)
+
+--------------------------------------------------
+
+MULTIPLIER SUPPORT
+
+- contextMultiplierEnabled (true/false)
+- multiplierType (F1 / IPL / custom)

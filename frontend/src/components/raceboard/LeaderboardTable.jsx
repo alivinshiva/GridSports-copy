@@ -18,20 +18,28 @@ const LeaderboardTable = ({ data, columns }) => {
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-[#e8dbce] dark:divide-[#3d2d1e]">
-                        {data.map((row, rowIndex) => (
-                            <tr key={rowIndex} className="hover:bg-primary/5 transition-colors group">
-                                {columns.map((col, colIndex) => (
-                                    <td
-                                        key={`${rowIndex}-${colIndex}`}
-                                        className={`px-6 py-5 ${col.align === 'right' ? 'text-right' : 'text-left'}`}
-                                    >
-                                        {col.render ? col.render(row) : (
-                                            <span className="text-slate-900 dark:text-white font-medium">{row[col.key]}</span>
-                                        )}
-                                    </td>
-                                ))}
-                            </tr>
-                        ))}
+                        {data.map((row, rowIndex) => {
+                            // Apply a special tint for the top 3 (indexes 0, 1, 2)
+                            const isTopThree = rowIndex < 3;
+                            const rowBg = isTopThree
+                                ? "bg-[#9c7349]/10 dark:bg-[#c5a17e]/10 border-l-4 border-l-primary"
+                                : "hover:bg-primary/5 transition-colors";
+
+                            return (
+                                <tr key={rowIndex} className={`${rowBg} group relative`}>
+                                    {columns.map((col, colIndex) => (
+                                        <td
+                                            key={`${rowIndex}-${colIndex}`}
+                                            className={`px-6 py-5 ${col.align === 'right' ? 'text-right' : 'text-left'}`}
+                                        >
+                                            {col.render ? col.render(row) : (
+                                                <span className="text-slate-900 dark:text-white font-medium">{row[col.key]}</span>
+                                            )}
+                                        </td>
+                                    ))}
+                                </tr>
+                            );
+                        })}
                     </tbody>
                 </table>
             </div>

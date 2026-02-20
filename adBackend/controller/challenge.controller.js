@@ -11,7 +11,17 @@ import submissionModel from "../model/submission.model.js";
 export const createChallangeController = async (req, res) => {
     // console.log(req.body);
     try {
-        const { weekend, name, description, startAt, endAt, round, rules, type, status, season } = req.body;
+        const { weekend, name, description, startAt, endAt, round, rules, type, status, season, scoringType, parameters } = req.body;
+
+        let parsedParameters = [];
+        if (parameters) {
+            try {
+                parsedParameters = JSON.parse(parameters);
+            } catch (e) {
+                console.error("Error parsing parameters:", e);
+                return res.status(400).json({ success: false, message: "Invalid parameters format" });
+            }
+        }
 
         const image = req.file;
         // console.log("Uploaded File:", image);
@@ -40,6 +50,8 @@ export const createChallangeController = async (req, res) => {
             rules,
             type,
             status,
+            scoringType: scoringType || "SIMPLE",
+            parameters: parsedParameters,
             imageUrl: image.path,
             imageId: image.filename,
             season: season || String(weekendExist.season),

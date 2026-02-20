@@ -18,10 +18,15 @@ const ChallengeForm = () => {
         round: '',
         type: 'PHOTO',
         status: 'UPCOMING',
+        scoringType: 'SIMPLE',
     });
     const [rules, setRules] = useState([]);
     const [currentRule, setCurrentRule] = useState('');
     const [ruleError, setRuleError] = useState('');
+    const [parameters, setParameters] = useState([]);
+    const [currentParamName, setCurrentParamName] = useState('');
+    const [currentParamPoints, setCurrentParamPoints] = useState(5);
+    const [paramError, setParamError] = useState('');
     const [image, setImage] = useState(null);
     const [preview, setPreview] = useState(null);
 
@@ -81,6 +86,23 @@ const ChallengeForm = () => {
         setRules(rules.filter((_, i) => i !== index));
     };
 
+    // Parameters Management
+    const handleAddParameter = () => {
+        if (currentParamName.trim() !== "") {
+            setParameters([...parameters, { name: currentParamName.trim(), maxPoints: parseInt(currentParamPoints) }]);
+            setCurrentParamName("");
+            setCurrentParamPoints(5);
+            setParamError("");
+        } else {
+            setParamError("Parameter name cannot be empty");
+            setTimeout(() => setParamError(""), 3000);
+        }
+    };
+
+    const handleRemoveParameter = (index) => {
+        setParameters(parameters.filter((_, i) => i !== index));
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
@@ -92,6 +114,11 @@ const ChallengeForm = () => {
 
         // Append Rules
         rules.forEach(rule => data.append('rules', rule));
+
+        // Append Parameters if DETAILED
+        if (formData.scoringType === 'DETAILED') {
+            data.append('parameters', JSON.stringify(parameters));
+        }
 
         if (image) {
             data.append('image', image);
@@ -219,8 +246,8 @@ const ChallengeForm = () => {
                     </div>
                 </div>
 
-                {/* Type & Status */}
-                <div className="grid grid-cols-2 gap-4">
+                {/* Type & Status & Scoring */}
+                <div className="grid grid-cols-3 gap-4">
                     <div>
                         <label className="block text-sm font-medium text-gray-700">Type</label>
                         <select name="type" value={formData.type} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border">
@@ -236,6 +263,13 @@ const ChallengeForm = () => {
                             <option value="UPCOMING">UPCOMING</option>
                             <option value="ACTIVE">ACTIVE</option>
                             <option value="CLOSED">CLOSED</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700">Scoring Algorithm</label>
+                        <select name="scoringType" value={formData.scoringType} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border">
+                            <option value="SIMPLE">SIMPLE (Love/Like/Share)</option>
+                            <option value="DETAILED">DETAILED (AI Rating & Params)</option>
                         </select>
                     </div>
                 </div>
@@ -289,7 +323,69 @@ const ChallengeForm = () => {
                     )}
                 </div>
 
-                <div className="flex justify-end pt-4">
+                {/* Dynamic Parameters Input (Visible only if DETAILED scoring) */}
+                {formData.scoringType === 'DETAILED' && (
+                    <div className="border-t border-gray-200 pt-6 mt-6">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Scoring Parameters</label>
+                        <p className="text-xs text-gray-500 mb-3">Add criteria for the AI to grade the user on, along with max points.</p>
+                        <div className="flex gap-2 mb-3">
+                            <input
+                                type="text"
+                                value={currentParamName}
+                                onChange={(e) => setCurrentParamName(e.target.value)}
+                                placeholder="Parameter (e.g., Audio Quality)"
+                                className="flex-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border"
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                        e.preventDefault();
+                                        handleAddParameter();
+                                    }
+                                }}
+                            />
+                            <select
+                                value={currentParamPoints}
+                                onChange={(e) => setCurrentParamPoints(e.target.value)}
+                                className="w-32 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border"
+                            >
+                                {Array.from({ length: 20 }, (_, i) => (i + 1) * 5).map(val => (
+                                    <option key={val} value={val}>{val} Pts</option>
+                                ))}
+                            </select>
+                            <button
+                                type="button"
+                                onClick={handleAddParameter}
+                                className="bg-blue-600 text-white p-2 rounded-md hover:bg-blue-700 transition-colors"
+                            >
+                                <Plus size={20} />
+                            </button>
+                        </div>
+                        {paramError && <p className="text-red-500 text-sm mb-2">{paramError}</p>}
+
+                        {parameters.length > 0 && (
+                            <ul className="space-y-2 bg-gray-50 p-4 rounded-md border border-gray-200">
+                                {parameters.map((param, index) => (
+                                    <li key={index} className="flex items-center justify-between text-gray-700 text-sm bg-white p-2 rounded border border-gray-100 shadow-sm">
+                                        <div className="flex items-center w-full pr-4">
+                                            <span className="font-bold mr-2 text-blue-500">{index + 1}.</span>
+                                            <span className="flex-1">{param.name}</span>
+                                            <span className="font-bold text-green-600 bg-green-50 px-2 py-1 rounded">Max: {param.maxPoints} pts</span>
+                                        </div>
+                                        <button
+                                            type="button"
+                                            onClick={() => handleRemoveParameter(index)}
+                                            className="text-red-500 hover:text-red-700"
+                                            title="Remove Parameter"
+                                        >
+                                            <Trash2 size={16} />
+                                        </button>
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+                    </div>
+                )}
+
+                <div className="flex justify-end pt-4 border-t border-gray-200 mt-6">
                     <button type="button" onClick={() => navigate('/')} className="mr-4 bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-6 rounded">Cancel</button>
                     <button type="submit" disabled={loading} className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded shadow-lg transform active:scale-95 transition-transform">
                         {loading ? 'Creating...' : 'Create Challenge'}

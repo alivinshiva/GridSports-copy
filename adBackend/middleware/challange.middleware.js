@@ -31,7 +31,9 @@ export const createChallengeMiddleware = async (req, res, next) => {
             rules: joi.array().items(joi.string().trim().required()).required(),
             type: joi.string().valid("PHOTO", "VIDEO", "TEXT", "MIXED").required(),
             status: joi.string().valid("UPCOMING", "ACTIVE", "CLOSED").required(),
-            season: joi.string().required()
+            season: joi.string().required(),
+            scoringType: joi.string().valid("SIMPLE", "DETAILED").optional(),
+            parameters: joi.string().optional()
         });
 
         const { error } = schema.validate(req.body);

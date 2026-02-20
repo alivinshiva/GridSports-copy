@@ -53,7 +53,18 @@ const challengeSchema = new mongoose.Schema({
         type: String,
         enum: ["UPCOMING", "ACTIVE", "CLOSED"],
         default: "UPCOMING"
-    }
+    },
+    scoringType: {
+        type: String,
+        enum: ["SIMPLE", "DETAILED"],
+        default: "SIMPLE"
+    },
+    parameters: [
+        {
+            name: { type: String, required: true },
+            maxPoints: { type: Number, required: true }
+        }
+    ]
 
 }, { timestamps: true });
 

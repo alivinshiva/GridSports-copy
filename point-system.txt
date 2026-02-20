@@ -1,0 +1,294 @@
+# 📘 GRID SPORTS — POINT SYSTEM IMPLEMENTATION SPEC (F1 ONLY)
+
+---
+
+# 1️⃣ CORE RULE
+
+For every positive scoring event:
+
+```
+FinalPoints = BasePoints × ContextMultiplier
+```
+
+Apply FinalPoints to:
+
+* User personal total
+* User’s Tribe total
+
+Penalties:
+
+* Fixed value
+* NO multiplier applied
+
+Allow decimals.
+
+Use event-based ledger storage.
+
+---
+
+# 2️⃣ ROLES
+
+There are two scoring roles:
+
+### CREATOR
+
+* Uploads content
+* Earns upload-based rewards
+
+### RANKER
+
+* Rates content
+* Earns engagement-based rewards
+
+A user may act as both.
+
+---
+
+# 3️⃣ CHALLENGE TYPES
+
+## A) SIMPLE CHALLENGE
+
+Includes:
+
+* Upload
+* Quick reaction (Positive / Neutral / Negative)
+* Share
+* Streak
+
+NO AI accuracy
+NO weighted rating
+
+---
+
+## B) DETAILED CHALLENGE
+
+Includes:
+
+* Upload
+* Detailed rating (1–5 scale)
+* Weighted scoring
+* Comment
+* AI accuracy scoring
+* Share
+* Streak
+
+---
+
+# 4️⃣ CONTEXT MULTIPLIER (F1 MODE)
+
+### Creator actions:
+
+```
+Multiplier = 1.0
+```
+
+### Rater actions:
+
+```
+If rating own tribe → 1.0
+If rating other tribe → 0.25
+```
+
+This multiplier applies to:
+
+* Rating points
+* Comment points
+* Time bonus
+* AI accuracy bonus
+* Early traction bonus
+* Share (if tied to an entry)
+
+---
+
+# 5️⃣ BASE POINTS TABLE
+
+---
+
+## 🔹 CREATOR ACTIONS
+
+Upload = 8
+Tags used = 2
+
+Upload Time Bonus:
+
+* Within <24h = 4
+* Within 24–48h = 2
+
+Ratings received milestones:
+
+* 5 ratings = 5
+* 10 ratings = 10
+* 25 ratings = 20
+* 50 ratings = 40
+
+Creator location missions:
+
+* Upload to any 3 challenges = 12
+* Upload to any 5 challenges = 18
+* Upload to all 6 challenges = 25
+
+Creator streak (Fri + Sat + Sun active) = 20
+
+Penalty:
+Upload removed / disqualified = -50
+
+---
+
+## 🔹 RANKER ACTIONS
+
+### Core Rating
+
+Rate Simple = 3
+Rate Detailed = 7
+Comment on Detailed = 2
+
+---
+
+### Rating Time Bonus
+
+Within <24h = 2
+Within 24–48h = 1
+
+---
+
+### AI Accuracy (Detailed Only)
+
+Very close = 6
+Close = 4
+Okay = 2
+Way off = 0
+Suspicious pattern = -15
+
+---
+
+### Share
+
+Share entry (once per day) = 12
+
+---
+
+### Early Traction Bonus
+
+First 25 ratings per day per location = +2 per rating
+Cap = 25 ratings/day
+
+---
+
+### Rater Missions
+
+Rate 20 entries = 20
+Rate 50 entries = 50
+Coverage (rate at least 1 in each of 6 challenges) = 30
+
+Rater streak (Fri + Sat + Sun active) = 25
+
+Penalty:
+Spam/abuse confirmed = -50
+
+---
+
+# 6️⃣ FINAL POINT CALCULATION FLOW
+
+For every action:
+
+STEP 1 — Determine BasePoints
+STEP 2 — Determine ContextMultiplier
+STEP 3 — Calculate:
+
+```
+FinalPoints = BasePoints × ContextMultiplier
+```
+
+STEP 4 — Apply:
+
+```
+User.totalPoints += FinalPoints
+User.tribe.totalPoints += FinalPoints
+```
+
+STEP 5 — Save ledger entry:
+
+```
+{
+  userId,
+  tribeId,
+  challengeId,
+  actionType,
+  basePoints,
+  multiplier,
+  finalPoints,
+  timestamp
+}
+```
+
+---
+
+# 7️⃣ DAILY CAPS
+
+* Simple ratings earning points: 120/day
+* Detailed ratings earning points: 60/day
+* Share: 1/day
+* Early traction bonus: 25/day
+* Only valid ratings count
+
+---
+
+# 8️⃣ STREAK LOGIC
+
+Creator streak:
+
+* At least 1 creator action per day (Fri, Sat, Sun)
+* Award once per location
+
+Rater streak:
+
+* At least 1 rater action per day (Fri, Sat, Sun)
+* Award once per location
+
+---
+
+# 9️⃣ TRIBE SWITCH RULE (F1)
+
+Max 2 switches per season.
+
+On switch #1 or #2:
+
+Apply BOTH:
+
+* -150 to user personal total
+* -150 to tribe being left
+* 30% clawback of last 7 days points
+  (subtract from user + old tribe)
+
+No multiplier applies.
+
+Switch #3 → blocked.
+
+---
+
+# 🔟 IMPLEMENTATION REQUIREMENTS
+
+* Store basePoints and multiplier separately.
+* Never overwrite history.
+* Always use transactional update.
+* Allow decimals.
+* Use event-based scoring system.
+* Do not recompute historical points unless required.
+* Enforce daily caps before awarding points.
+
+---
+
+# ✅ FINAL SUMMARY FOR YOUR AGENT
+
+This is a tribe-based gamified scoring engine for F1 challenges.
+
+* Every action has base points.
+* Base × multiplier = final points.
+* Final points go to user + tribe.
+* Creator multiplier = 1.0.
+* Rater multiplier = 1.0 (own tribe) or 0.25 (other tribe).
+* Detailed challenges include AI accuracy.
+* Simple challenges use quick reaction only.
+* Missions and streaks are one-time bonuses.
+* Caps prevent farming.
+* Tribe switching includes heavy penalties.

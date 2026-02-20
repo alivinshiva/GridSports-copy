@@ -38,6 +38,14 @@ const userSchema = new mongoose.Schema({
     verificationTokenExpiresAtPhone: {
         type: Date
     },
+    creatorPoints: {
+        type: Number,
+        default: 0
+    },
+    rankerPoints: {
+        type: Number,
+        default: 0
+    }
 }, { timestamps: true, minimize: true });
 
 export default mongoose.model("User", userSchema);
