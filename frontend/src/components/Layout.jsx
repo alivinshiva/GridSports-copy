@@ -2,6 +2,7 @@ import { Bell, User, Home, Flag, BarChart3, Plus, Search } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useTribe } from "@/hooks/useTribe";
+import logo from "../assets/logo.svg";
 
 const NavItem = ({ icon: Icon, label, path, isActive, color }) => (
     <Link
@@ -27,10 +28,8 @@ export function Layout({ children }) {
             <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
                 <div className="max-w-7xl mx-auto px-4 h-16 md:h-20 flex items-center justify-between">
                     <div className="flex items-center space-x-2 md:space-x-4">
-                        <Link to="/" className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors" style={{ backgroundColor: tribe.color }}>
-                            <img src="/logo.svg" className="w-5 h-5 invert" alt="" onError={(e) => e.target.style.display = 'none'} />
-                            {/* Fallback if no logo: Cube icon or similar */}
-                            <span className="text-white font-bold text-sm">G</span>
+                        <Link to="/" className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors hover:opacity-80">
+                            <img src={logo} className="w-8 h-8 drop-shadow-md" alt="GridSports Logo" />
                         </Link>
                         <Link to="/" className="font-bold text-lg md:text-xl tracking-tight text-gray-900">Grid Sports</Link>
 

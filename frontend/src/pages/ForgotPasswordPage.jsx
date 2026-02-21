@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Phone, Lock, ArrowRight, ArrowLeft, KeyRound, CheckCircle2, Eye, EyeOff } from "lucide-react";
+import logo from "../assets/logo.svg";
 
 export function ForgotPasswordPage() {
     const [step, setStep] = useState(1); // 1: Phone, 2: OTP & New Password, 3: Success
@@ -87,7 +88,8 @@ export function ForgotPasswordPage() {
                 className="w-full max-w-md relative z-10"
             >
                 {/* Logo / Title */}
-                <div className="text-center mb-10">
+                <div className="text-center mb-10 flex flex-col items-center">
+                    <img src={logo} alt="GridSports Logo" className="w-24 h-24 mb-4 drop-shadow-[0_0_15px_rgba(255,87,34,0.3)]" />
                     <h1 className="text-4xl font-black text-white tracking-tight mb-2">
                         Grid<span className="text-racing-orange">Sports</span>
                     </h1>

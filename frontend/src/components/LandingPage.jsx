@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { ArrowRight, Trophy, Video, Camera, Users } from "lucide-react";
+import logo from "../assets/logo.svg";
 
 export function LandingPage() {
     return (
@@ -9,9 +10,7 @@ export function LandingPage() {
                 <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
                     <div className="flex items-center space-x-3">
                         {/* Logo / Brand Name */}
-                        <div className="w-10 h-10 bg-gradient-to-br from-red-600 to-orange-600 rounded-xl flex items-center justify-center shadow-lg shadow-red-900/20">
-                            <span className="text-white font-bold text-xl tracking-tighter">G</span>
-                        </div>
+                        <img src={logo} alt="GridSports Logo" className="w-10 h-10 drop-shadow-lg" />
                         <span className="font-bold text-2xl tracking-tight text-white">Grid Sports</span>
                     </div>
 
@@ -123,9 +122,7 @@ export function LandingPage() {
             <footer className="bg-neutral-950 py-12 px-6 border-t border-gray-800">
                 <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
                     <div className="flex items-center space-x-2">
-                        <div className="w-8 h-8 bg-gray-800 rounded-lg flex items-center justify-center">
-                            <span className="text-white font-bold text-sm">G</span>
-                        </div>
+                        <img src={logo} alt="GridSports Logo" className="w-8 h-8 drop-shadow-md" />
                         <span className="font-bold text-xl text-gray-300">Grid Sports</span>
                     </div>
 

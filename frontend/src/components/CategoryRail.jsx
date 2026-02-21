@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
+import logo from "../assets/logo.svg";
 
 const f1Category = {
     id: 3,
@@ -40,7 +41,7 @@ export function CategoryRail() {
                             <p className="text-gray-300 text-sm md:text-base">{f1Category.type}</p>
                         </div>
                         <div className="absolute top-4 right-4 md:top-6 md:right-6">
-                            {/* F1 Logo or similar could go here */}
+                            <img src={logo} alt="GridSports" className="w-8 h-8 opacity-90 drop-shadow-md" />
                         </div>
                     </motion.div>
                 </Link>

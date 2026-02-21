@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Phone, Lock, ArrowRight, Eye, EyeOff } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import logo from "../assets/logo.svg";
 
 // Login does NOT require OTP - direct login after credential check
 
@@ -45,7 +46,8 @@ export function LoginPage() {
                 className="w-full max-w-md relative z-10"
             >
                 {/* Logo / Title */}
-                <div className="text-center mb-10">
+                <div className="text-center mb-10 flex flex-col items-center">
+                    <img src={logo} alt="GridSports Logo" className="w-24 h-24 mb-4 drop-shadow-[0_0_15px_rgba(255,87,34,0.3)]" />
                     <h1 className="text-4xl font-black text-white tracking-tight mb-2">
                         Grid<span className="text-racing-orange">Sports</span>
                     </h1>
