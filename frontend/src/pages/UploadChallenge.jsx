@@ -18,6 +18,7 @@ export default function UploadChallenge() {
     const [isUploading, setIsUploading] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
     const [errorMsg, setErrorMsg] = useState("");
+    const [fileWarning, setFileWarning] = useState("");
 
     const { challengeId } = useParams();
     const [challenge, setChallenge] = useState(null);
@@ -54,6 +55,7 @@ export default function UploadChallenge() {
             const url = URL.createObjectURL(blob);
             setPreviewUrl(url);
             setSelectedFile(file);
+            setFileWarning("");
             setMode("preview");
 
             // Stop camera
@@ -69,6 +71,14 @@ export default function UploadChallenge() {
     const handleFileChange = (event) => {
         const file = event.target.files[0];
         if (file) {
+            const isPhoto = challenge?.type === 'PHOTO';
+            if (isPhoto && !file.type.startsWith('image/')) {
+                setFileWarning("! warning : Only images are allowed for this challenge.");
+            } else if (!isPhoto && !file.type.startsWith('video/')) {
+                setFileWarning("! warning : Only videos are allowed for this challenge.");
+            } else {
+                setFileWarning("");
+            }
             const url = URL.createObjectURL(file);
             setPreviewUrl(url);
             setSelectedFile(file);
@@ -112,6 +122,7 @@ export default function UploadChallenge() {
             const url = URL.createObjectURL(blob);
             setPreviewUrl(url);
             setSelectedFile(file);
+            setFileWarning("");
             setMode("preview");
             setChunks([]);
 
@@ -134,6 +145,7 @@ export default function UploadChallenge() {
         setMode("select");
         setIsRecording(false);
         setChunks([]);
+        setFileWarning("");
         if (videoRef.current && videoRef.current.srcObject) {
             videoRef.current.srcObject.getTracks().forEach(track => track.stop());
         }
@@ -332,7 +344,7 @@ export default function UploadChallenge() {
                                 {/* Hidden Inputs */}
                                 <input
                                     type="file"
-                                    accept="image/*,video/*"
+                                    accept={isPhotoChallenge ? "image/*" : "video/*"}
                                     ref={fileInputRef}
                                     onChange={handleFileChange}
                                     hidden
@@ -414,6 +426,12 @@ export default function UploadChallenge() {
                                 </div>
                             )}
 
+                            {fileWarning && (
+                                <div className="w-full max-w-md bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400 border border-red-500/20 rounded-xl p-4 flex items-center justify-center gap-2 font-medium">
+                                    {fileWarning}
+                                </div>
+                            )}
+
                             <div className="flex gap-4 w-full max-w-md">
                                 <button
                                     onClick={reset}
@@ -425,7 +443,7 @@ export default function UploadChallenge() {
                                 </button>
                                 <button
                                     onClick={handleUpload}
-                                    disabled={isUploading}
+                                    disabled={isUploading || !!fileWarning}
                                     className="flex-1 flex items-center justify-center gap-2 py-4 px-6 rounded-xl bg-primary text-white font-bold shadow-lg shadow-primary/25 hover:brightness-110 hover:translate-y-[-2px] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     {isUploading ? (

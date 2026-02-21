@@ -228,6 +228,23 @@ export const getAllSubmissionOnParticularChallanage = async (req, res) => {
     };
 };
 
+export const checkUserSubmissionController = async (req, res) => {
+    try {
+        const loggedInUser = req.user;
+        const { challengeId } = req.params;
+
+        if (!challengeId) {
+            return res.status(400).json({ success: false, message: "Challenge ID is required" });
+        }
+
+        const existingSubmission = await submissionModel.findOne({ user: loggedInUser, challenge: challengeId });
+
+        return res.status(200).json({ success: true, hasSubmitted: !!existingSubmission });
+    } catch (error) {
+        return res.status(500).json({ success: false, message: "Internal Server Error", error: error.message });
+    }
+};
+
 export const rateSubmissionController = async (req, res) => {
     try {
         const loggedInUser = req.user;

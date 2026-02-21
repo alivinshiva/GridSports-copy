@@ -1,0 +1,31 @@
+import mongoose from "mongoose";
+
+const notificationSchema = new mongoose.Schema({
+    user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: true
+    },
+    title: {
+        type: String,
+        required: true
+    },
+    message: {
+        type: String,
+        required: true
+    },
+    type: {
+        type: String, // e.g., 'CHALLENGE_LIVE', 'WEEKEND_LIVE', 'GENERAL'
+        default: 'GENERAL'
+    },
+    entityId: {
+        // ID of the inserted challenge or weekend, for linking/navigation directly to the resource
+        type: mongoose.Schema.Types.ObjectId,
+    },
+    isRead: {
+        type: Boolean,
+        default: false
+    }
+}, { timestamps: true });
+
+export default mongoose.model("Notification", notificationSchema);

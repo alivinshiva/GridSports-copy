@@ -1,11 +1,33 @@
 import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import { useEffect, useState } from "react";
+import { getUserNotifications } from "../../services/notificationService";
 
 export function HomeHeader() {
     const { user } = useAuth();
+    const [unreadCount, setUnreadCount] = useState(0);
 
     // Default avatar if no image or error
     const defaultAvatar = "https://lh3.googleusercontent.com/aida-public/AB6AXuCc4Y1XBf6f-biRM87-e-Kkw7QScj9DgkT3fN395NkKVPZ-Js9aScP6jVRPNbYbxyFPARUOeRwPCHTiK9Iyp9LP5i1WSaPwzGlpZ_wATUf2RYVhrYrBbBTPVZO--afW_Gy0q-jnBycflAR6fFWBDP4VcKaY7C5BOo7bf84z99q9hGH_ZXMI4hShD-y9v_qvhHVuftJkC4VyFjQ1FlNBSxTJBMciDY-HaLEl79KHOjyqrZb091JFyFgaOVnD333FB9j1nFAuXPlmyZ0";
+
+    useEffect(() => {
+        if (user) {
+            fetchUnreadCount();
+        }
+    }, [user]);
+
+    const fetchUnreadCount = async () => {
+        try {
+            const res = await getUserNotifications();
+            if (res.success && res.data) {
+                // Compute number of unread if the model separates read/unread
+                // The current requirement is that all retrieved notifications are unread because reading deletes them.
+                setUnreadCount(res.data.length);
+            }
+        } catch (error) {
+            console.error("Failed to fetch notification count", error);
+        }
+    };
 
     return (
         <header className="sticky top-0 z-50 w-full bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-[#f4ede7] dark:border-[#3d2e21]">
@@ -20,10 +42,12 @@ export function HomeHeader() {
                     <h1 className="text-xl font-extrabold tracking-tight">Grid Sports</h1>
                 </Link>
                 <div className="flex items-center gap-4">
-                    <button className="relative p-2 rounded-xl bg-[#f4ede7] dark:bg-[#3d2e21] text-[#1c140d] dark:text-white transition-colors hover:bg-primary/20">
+                    <Link to="/notifications" className="relative p-2 rounded-xl bg-[#f4ede7] dark:bg-[#3d2e21] text-[#1c140d] dark:text-white transition-colors hover:bg-primary/20">
                         <span className="material-symbols-outlined text-[24px]">notifications</span>
-                        <span className="absolute top-2 right-2.5 size-2 bg-primary rounded-full border-2 border-background-light"></span>
-                    </button>
+                        {unreadCount > 0 && (
+                            <span className="absolute top-1.5 right-1.5 size-2.5 bg-primary rounded-full border-2 border-background-light dark:border-background-dark animate-pulse"></span>
+                        )}
+                    </Link>
                     <Link to="/profile">
                         <div
                             className="size-10 rounded-full bg-cover bg-center border-2 border-primary bg-gray-200"

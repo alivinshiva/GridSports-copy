@@ -2,11 +2,13 @@ import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 import { getChallengeById } from "@/services/challengeService";
+import { checkUserSubmission } from "@/services/submissionService";
 
 export default function ChallengeDetails() {
     const { challengeId } = useParams();
     const [challenge, setChallenge] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [hasSubmitted, setHasSubmitted] = useState(false);
 
     useEffect(() => {
         const fetchChallenge = async () => {
@@ -15,6 +17,16 @@ export default function ChallengeDetails() {
                 console.log("Challenge Data:", response); // User requested debug log
                 if (response.success) {
                     setChallenge(response.data);
+                }
+
+                // Check submission status
+                try {
+                    const submissionRes = await checkUserSubmission(challengeId);
+                    if (submissionRes.success) {
+                        setHasSubmitted(submissionRes.hasSubmitted);
+                    }
+                } catch (subErr) {
+                    console.error("Error fetching submission status", subErr);
                 }
             } catch (error) {
                 console.error("Error fetching challenge details", error);
@@ -157,13 +169,23 @@ export default function ChallengeDetails() {
                                 </Link>
                             )}
                             {challenge.status === 'ACTIVE' ? (
-                                <Link
-                                    to={`/upload/${challenge._id}`}
-                                    className="flex-1 h-12 flex items-center justify-center gap-2 rounded-xl font-bold text-white bg-primary hover:bg-primary/90 shadow-lg shadow-primary/25 transition-all text-sm active:scale-[0.98]"
-                                >
-                                    <span className="material-symbols-outlined text-lg">upload</span>
-                                    <span className="hidden md:inline">Upload Entry</span>
-                                </Link>
+                                hasSubmitted ? (
+                                    <button
+                                        disabled
+                                        className="flex-1 h-12 flex items-center justify-center gap-2 rounded-xl font-bold text-gray-400 bg-gray-200 dark:bg-white/5 cursor-not-allowed transition-all text-sm"
+                                    >
+                                        <span className="material-symbols-outlined text-lg">check_circle</span>
+                                        <span className="hidden md:inline">Already Submitted</span>
+                                    </button>
+                                ) : (
+                                    <Link
+                                        to={`/upload/${challenge._id}`}
+                                        className="flex-1 h-12 flex items-center justify-center gap-2 rounded-xl font-bold text-white bg-primary hover:bg-primary/90 shadow-lg shadow-primary/25 transition-all text-sm active:scale-[0.98]"
+                                    >
+                                        <span className="material-symbols-outlined text-lg">upload</span>
+                                        <span className="hidden md:inline">Upload Entry</span>
+                                    </Link>
+                                )
                             ) : (
                                 <button
                                     disabled

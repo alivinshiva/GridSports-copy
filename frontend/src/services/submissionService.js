@@ -79,3 +79,14 @@ export const rateDetailed = async (submissionId, challengeId, ratings) => {
     }
 };
 
+export const checkUserSubmission = async (challengeId) => {
+    try {
+        const response = await axios.get(`${API_URL}/check/${challengeId}`, {
+            withCredentials: true,
+        });
+        return response.data;
+    } catch (error) {
+        throw error.response?.data || error;
+    }
+};
+

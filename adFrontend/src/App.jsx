@@ -13,6 +13,9 @@ import Welcome from './components/Welcome';
 import AllWeekends from './components/AllWeekends';
 import SubmissionForm from './components/SubmissionForm';
 import ChallengeDetails from './components/ChallengeDetails';
+import AllHeroes from './components/AllHeroes';
+import HeroForm from './components/HeroForm';
+import HeroUpdate from './components/HeroUpdate';
 
 function App() {
   return (
@@ -29,6 +32,9 @@ function App() {
           <Route path="/users" element={<Users />} />
           <Route path="/challenges" element={<Challenges />} />
           <Route path="/challenge-details/:id" element={<ChallengeDetails />} />
+          <Route path="/heroes" element={<AllHeroes />} />
+          <Route path="/add-hero" element={<HeroForm />} />
+          <Route path="/update-hero" element={<HeroUpdate />} />
         </Routes>
       </Layout>
     </BrowserRouter>

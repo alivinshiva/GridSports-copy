@@ -55,12 +55,16 @@ export default function UploadSuccess() {
             const difference = new Date(endTime) - new Date();
 
             if (difference > 0) {
-                const hours = Math.floor((difference / (1000 * 60 * 60)) % 24) + Math.floor(difference / (1000 * 60 * 60 * 24)) * 24;
+                const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((difference / (1000 * 60 * 60)) % 24);
                 const minutes = Math.floor((difference / 1000 / 60) % 60);
                 const seconds = Math.floor((difference / 1000) % 60);
+
+                const dayString = days > 0 ? `${days}d ` : "";
+
                 return (
                     <span className="font-bold" style={{ color: tribeColor }}>
-                        {hours}h {minutes}m {seconds}s
+                        {dayString}{hours}h {minutes}m {seconds}s
                     </span>
                 );
             } else {
@@ -230,7 +234,7 @@ export default function UploadSuccess() {
 
                             {/* Rate Fans -  Adjusted brightness/opacity */}
                             <button
-                                onClick={() => navigate('/')}
+                                onClick={() => navigate('/challenge/entries')}
                                 className="
         flex-1 flex items-center justify-center
         rounded-2xl md:rounded-xl

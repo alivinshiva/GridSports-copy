@@ -18,6 +18,7 @@ import { ChallengeEntries } from "@/pages/ChallengeEntries";
 import Raceboard from "@/pages/Raceboard"; // Import Raceboard
 import Tribes from "@/pages/Tribes"; // Import Tribes
 import SubmissionFeed from "@/pages/SubmissionFeed";
+import Notifications from "@/pages/Notifications"; // Import Notifications
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 
 // Protects routes: must be logged in AND have chosen a tribe
@@ -58,6 +59,7 @@ function App() {
           <Route path="/upload/success" element={<ProtectedRoute><UploadSuccess /></ProtectedRoute>} />
           <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
           <Route path="/profile/edit" element={<ProtectedRoute><EditProfile /></ProtectedRoute>} />
+          <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
           <Route path="/game/f1" element={<ProtectedRoute><GamePage /></ProtectedRoute>} />
           <Route path="/weekend/:weekendId" element={<ProtectedRoute><WeekendPage /></ProtectedRoute>} />
           <Route path="/challenge-details/:challengeId" element={<ProtectedRoute><ChallengeDetails /></ProtectedRoute>} />

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Users, Trophy, Menu, X, Plus, Calendar, Home } from 'lucide-react';
+import { Users, Trophy, Menu, X, Plus, Calendar, Home, MapPin } from 'lucide-react';
 
 const Layout = ({ children }) => {
     const location = useLocation();
@@ -12,10 +12,12 @@ const Layout = ({ children }) => {
     const navItems = [
         { path: '/', label: 'Home', icon: Home },
         { path: '/weekends', label: 'All Weekends', icon: Calendar },
+        { path: '/heroes', label: 'All Heroes', icon: MapPin },
         { path: '/challenges', label: 'All Challenges', icon: Trophy },
         { path: '/users', label: 'Users', icon: Users },
         { path: '/add', label: 'Create Weekend', icon: Plus },
         { path: '/add-challenge', label: 'Create Challenge', icon: Trophy },
+        { path: '/add-hero', label: 'Create Hero', icon: Plus },
     ];
 
     const isActive = (path) => {

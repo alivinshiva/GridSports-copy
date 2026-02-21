@@ -1,6 +1,7 @@
 import challangeModel from "../model/challange.model.js";
 import weekendModel from "../model/weekend.model.js";
 import submissionModel from "../model/submission.model.js";
+import { distributeNotificationToAllUsers } from "../service/notification.service.js";
 
 
 // desc create challenge
@@ -59,6 +60,15 @@ export const createChallangeController = async (req, res) => {
         });
 
         const savedWeekend = await newChallange.save();
+
+        if (status === 'ACTIVE') {
+            await distributeNotificationToAllUsers(
+                "New Challenge Live!",
+                `${name} is now open for entries.`,
+                "CHALLENGE_LIVE",
+                savedWeekend._id
+            );
+        }
 
         return res.status(201).json({ success: true, message: "Challenge Created Successfully", data: savedWeekend });
 
@@ -139,6 +149,16 @@ export const updateChallengeController = async (req, res) => {
         };
 
         const updatedChallenge = await challangeModel.findByIdAndUpdate(id, { status }, { new: true });
+
+        // If the challenge was moved to ACTIVE, send a notification
+        if (status === 'ACTIVE' && challenge.status !== 'ACTIVE') {
+            await distributeNotificationToAllUsers(
+                "Challenge Live!",
+                `${updatedChallenge.name} is now open for entries.`,
+                "CHALLENGE_LIVE",
+                updatedChallenge._id
+            );
+        }
 
         return res.status(200).json({ success: true, message: "Challenge Updated Successfully", data: updatedChallenge });
 

@@ -1,4 +1,5 @@
 import weekendModel from "../model/weekend.model.js";
+import { distributeNotificationToAllUsers } from "../service/notification.service.js";
 
 // description : create weekend
 // method : POST
@@ -28,6 +29,15 @@ export const createWeekendController = async (req, res) => {
         });
 
         const savedWeekend = await weekendData.save();
+
+        if (status === 'ACTIVE') {
+            await distributeNotificationToAllUsers(
+                "New Weekend Live!",
+                `${title} is now active and ready.`,
+                "WEEKEND_LIVE",
+                savedWeekend._id
+            );
+        }
 
         return res.status(201).json({ success: true, message: "Weekend Created Successfully", data: savedWeekend });
 
@@ -85,8 +95,18 @@ export const updateWeekendController = async (req, res) => {
             return res.status(404).json({ success: false, message: "Weekend Not Found" });
         };
 
+        const prevStatus = weekendExist.status;
         weekendExist.status = status;
         await weekendExist.save();
+
+        if (status === 'ACTIVE' && prevStatus !== 'ACTIVE') {
+            await distributeNotificationToAllUsers(
+                "Weekend Live!",
+                `${weekendExist.title} is now active.`,
+                "WEEKEND_LIVE",
+                weekendExist._id
+            );
+        }
 
         return res.status(200).json({ success: true, message: "Weekend Updated Successfully", data: weekendExist });
 

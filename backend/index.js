@@ -8,6 +8,7 @@ import userRouter from "./router/user.router.js";
 import profileRouter from "./router/profile.router.js";
 import adminRouter from "./router/admin.router.js";
 import leaderboardRouter from "./router/leaderboard.router.js";
+import notificationRouter from "./router/notification.router.js";
 
 dotenv.config();
 
@@ -40,6 +41,7 @@ app.use("/api/v1/user", userRouter);
 app.use("/api/v1/profile", profileRouter);
 app.use("/api/v1/admin", adminRouter);
 app.use("/api/v1/leaderboard", leaderboardRouter);
+app.use("/api/v1/notification", notificationRouter);
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);

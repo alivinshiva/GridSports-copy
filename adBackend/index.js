@@ -7,6 +7,7 @@ import { connectDb } from "./config/db.connect.js";
 import weekendRouter from "./router/weekend.router.js";
 import challengeRouter from "./router/challenge.router.js";
 import submissionRouter from "./router/submission.router.js";
+import heroRouter from "./router/hero.router.js";
 
 dotenv.config();
 
@@ -34,6 +35,7 @@ app.get("/", (req, res) => {
 app.use("/api/v1/weekend", weekendRouter);
 app.use("/api/v1/challenge", challengeRouter);
 app.use("/api/v1/submission", submissionRouter);
+app.use("/api/v1/hero", heroRouter);
 
 
 app.listen(PORT, () => {

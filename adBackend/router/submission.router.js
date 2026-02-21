@@ -1,5 +1,5 @@
 import express from "express";
-import { addSubmissionController, getAllLoggedInUserImageSubmission, getAllLoggedInUserVideoSubmission, getAllRandomSubmissionController, getAllSubmissionsController, getSingleSubmissionController, rateDetailedController, rateSubmissionController, shareSubmissionController } from "../controller/submission.controller.js";
+import { addSubmissionController, getAllLoggedInUserImageSubmission, getAllLoggedInUserVideoSubmission, getAllRandomSubmissionController, getAllSubmissionsController, getSingleSubmissionController, rateDetailedController, rateSubmissionController, shareSubmissionController, checkUserSubmissionController } from "../controller/submission.controller.js";
 import { verifyCookies } from "../middleware/verify.cookies.js";
 import { upload } from "../middleware/multer.middleware.js";
 
@@ -11,6 +11,7 @@ submissionRouter.route("/all-random").get(getAllRandomSubmissionController);
 submissionRouter.route("/single/:id").get(getSingleSubmissionController);
 submissionRouter.route("/all-image-submission").get(verifyCookies, getAllLoggedInUserImageSubmission);
 submissionRouter.route("/all-video-submission").get(verifyCookies, getAllLoggedInUserVideoSubmission);
+submissionRouter.route("/check/:challengeId").get(verifyCookies, checkUserSubmissionController);
 
 submissionRouter.route("/rate").post(verifyCookies, rateSubmissionController);
 submissionRouter.route("/rate-detailed").post(verifyCookies, rateDetailedController);
