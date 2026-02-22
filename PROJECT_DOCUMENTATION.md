@@ -7,6 +7,7 @@
 ---
 
 ## 📋 Table of Contents
+
 1. [Project Overview](#project-overview)
 2. [Project Architecture](#project-architecture)
 3. [Directory Structure](#directory-structure)
@@ -22,6 +23,7 @@
 ## 🎯 Project Overview
 
 **GridSports** is a comprehensive sports management and challenge platform that enables users to:
+
 - Create and participate in racing and sporting challenges
 - Upload submissions for weekend challenges
 - Manage user profiles and tribe memberships
@@ -29,6 +31,7 @@
 - Access weekend schedules and seasonal information
 
 The application is built with a **microservices architecture** featuring:
+
 - **Backend (Port 7001)**: Main authentication, user management, and profile service
 - **Admin Backend (Port 9000)**: Challenge, weekend, and submission management
 - **Frontend (Port 5173)**: User-facing React application
@@ -76,6 +79,7 @@ The application is built with a **microservices architecture** featuring:
 ```
 
 ### Communication Flow:
+
 - **Frontend ↔ Backend**: User authentication, profile management, tribe creation
 - **Frontend ↔ Admin Backend**: Challenge data, weekend schedules, submissions
 - **External Services**:
@@ -267,7 +271,9 @@ sport v2/
 ## 🔧 Backend Documentation
 
 ### Purpose
+
 Main authentication and user management service. Handles:
+
 - User registration and login
 - Phone number verification via OTP
 - Password management and reset
@@ -277,6 +283,7 @@ Main authentication and user management service. Handles:
 ### Entry Point: [backend/index.js](backend/index.js)
 
 **Server Configuration:**
+
 - Port: 7001
 - CORS Origins: `http://localhost:5173`, `http://localhost:5174`
 - Middleware Stack:
@@ -286,6 +293,7 @@ Main authentication and user management service. Handles:
   - Express JSON parser
 
 **Routes Mounted:**
+
 - `/api/v1/user` → User authentication routes
 - `/api/v1/profile` → Profile management routes
 - `/api/v1/admin` → Admin-specific routes
@@ -295,18 +303,21 @@ Main authentication and user management service. Handles:
 ### Configuration Files
 
 #### [backend/config/db.connect.js](backend/config/db.connect.js)
+
 - **Purpose**: MongoDB database connection
 - **Uses**: Mongoose ODM
 - **Connects to**: MongoDB Atlas (via MONGO_URI in .env)
 - **Exports**: `connectDb()` function
 
 #### [backend/config/cloudinary.config.js](backend/config/cloudinary.config.js)
+
 - **Purpose**: Image upload service configuration
 - **Service**: Cloudinary (cloud storage for images)
 - **Used for**: Profile picture uploads
 - **Credentials**: From environment variables
 
 #### [backend/config/twilio.config.js](backend/config/twilio.config.js)
+
 - **Purpose**: SMS gateway configuration
 - **Service**: Twilio
 - **Used for**: OTP delivery via SMS
@@ -319,6 +330,7 @@ Main authentication and user management service. Handles:
 #### [backend/models/user.model.js](backend/models/user.model.js)
 
 **User Schema Structure:**
+
 ```
 User {
   name: String
@@ -336,6 +348,7 @@ User {
 ```
 
 **Used by:**
+
 - User authentication controllers
 - Profile management controllers
 - Admin dashboard
@@ -343,6 +356,7 @@ User {
 #### [backend/models/profile.model.js](backend/models/profile.model.js)
 
 **Profile Schema Structure:**
+
 ```
 Profile {
   userId: ObjectId (reference to User)
@@ -364,6 +378,7 @@ Profile {
 ```
 
 **Used by:**
+
 - Tribe creation and management
 - Profile data retrieval
 
@@ -385,7 +400,7 @@ Profile {
      5. Sends OTP via Twilio service
      6. Saves user with OTP token
      7. Returns user data and OTP message
-   - Dependencies: 
+   - Dependencies:
      - `userModel` (database)
      - `generateOTP` (service)
      - `sendPhoneVerificationOtp` (Twilio service)
@@ -485,6 +500,7 @@ Profile {
 #### [backend/middleware/profile.middleware.js](backend/middleware/profile.middleware.js)
 
 **Functions:**
+
 - **`createTribeMiddleware()`**: Validates tribe creation data
 - Checks: Tribe name, user ID
 - Uses: Joi validation
@@ -499,6 +515,7 @@ Profile {
 #### [backend/middleware/verify.cookie.js](backend/middleware/verify.cookie.js)
 
 **Function:** `verifyCookies()`
+
 - Validates JWT token from cookies
 - Decodes token and extracts user ID
 - Sets `req.user` for downstream handlers
@@ -508,6 +525,7 @@ Profile {
 #### [backend/middleware/send.cookies.js](backend/middleware/send.cookies.js)
 
 **Function:** `sendCookies()`
+
 - Generates JWT token
 - Sets HTTP-only secure cookie
 - Called after successful authentication
@@ -520,6 +538,7 @@ Profile {
 #### [backend/service/otp.generator.js](backend/service/otp.generator.js)
 
 **Function:** `generateOTP()`
+
 - Generates 6-digit random OTP
 - Returns: String OTP code
 - Used by: User signup, forgot password
@@ -540,6 +559,7 @@ Profile {
    - Returns: Twilio response
 
 **Dependencies:**
+
 - Twilio credentials from environment
 - Phone number sanitization
 
@@ -551,26 +571,26 @@ Profile {
 
 **Endpoints:**
 
-| Method | Path | Middleware | Controller | Purpose |
-|--------|------|-----------|-----------|---------|
-| POST | `/signup` | `signupMiddleware` | `signupController` | Register new user |
-| POST | `/verify-phone` | `otpMiddleware` | `verifyPhoneController` | Verify OTP |
-| POST | `/login-phone` | `loginPhoneNumberMiddleware` | `loginPhoneNumberController` | Phone login |
-| PUT | `/change-password` | `verifyCookies`, `changePasswordMiddleware` | `changePasswordController` | Change password |
-| PUT | `/forgot-password` | `forgotPasswordPhoneMiddleware` | `forgotPasswordController` | Send forgot password OTP |
-| PUT | `/reset-password` | `resetPasswordPhoneMiddleware` | `verifyForgotPasswordOtpController` | Reset password |
-| POST | `/logout` | `verifyCookies` | `logoutController` | Logout user |
+| Method | Path               | Middleware                                  | Controller                          | Purpose                  |
+| ------ | ------------------ | ------------------------------------------- | ----------------------------------- | ------------------------ |
+| POST   | `/signup`          | `signupMiddleware`                          | `signupController`                  | Register new user        |
+| POST   | `/verify-phone`    | `otpMiddleware`                             | `verifyPhoneController`             | Verify OTP               |
+| POST   | `/login-phone`     | `loginPhoneNumberMiddleware`                | `loginPhoneNumberController`        | Phone login              |
+| PUT    | `/change-password` | `verifyCookies`, `changePasswordMiddleware` | `changePasswordController`          | Change password          |
+| PUT    | `/forgot-password` | `forgotPasswordPhoneMiddleware`             | `forgotPasswordController`          | Send forgot password OTP |
+| PUT    | `/reset-password`  | `resetPasswordPhoneMiddleware`              | `verifyForgotPasswordOtpController` | Reset password           |
+| POST   | `/logout`          | `verifyCookies`                             | `logoutController`                  | Logout user              |
 
 #### [backend/router/profile.router.js](backend/router/profile.router.js)
 
 **Endpoints:**
 
-| Method | Path | Middleware | Controller | Purpose |
-|--------|------|-----------|-----------|---------|
-| POST | `/create-tribe` | `verifyCookies`, `createTribeMiddleware` | `createTribeController` | Create tribe |
-| PUT | `/upload-image` | `upload.single()`, `verifyCookies` | `uploadProfileImageController` | Upload profile image |
-| DELETE | `/delete-image` | `verifyCookies` | `deleteImageController` | Delete profile image |
-| GET | `/profile-details` | `verifyCookies` | `getLoggedProfileController` | Get profile data |
+| Method | Path               | Middleware                               | Controller                     | Purpose              |
+| ------ | ------------------ | ---------------------------------------- | ------------------------------ | -------------------- |
+| POST   | `/create-tribe`    | `verifyCookies`, `createTribeMiddleware` | `createTribeController`        | Create tribe         |
+| PUT    | `/upload-image`    | `upload.single()`, `verifyCookies`       | `uploadProfileImageController` | Upload profile image |
+| DELETE | `/delete-image`    | `verifyCookies`                          | `deleteImageController`        | Delete profile image |
+| GET    | `/profile-details` | `verifyCookies`                          | `getLoggedProfileController`   | Get profile data     |
 
 #### [backend/router/admin.router.js](backend/router/admin.router.js)
 
@@ -582,7 +602,9 @@ Profile {
 ## 🎛️ Admin Backend Documentation
 
 ### Purpose
+
 Manages all challenge, weekend schedule, and submission data. Handles:
+
 - Creating and updating challenges
 - Managing weekend schedules
 - Processing user submissions
@@ -591,6 +613,7 @@ Manages all challenge, weekend schedule, and submission data. Handles:
 ### Entry Point: [adBackend/index.js](adBackend/index.js)
 
 **Server Configuration:**
+
 - Port: 9000
 - CORS Origins: `http://localhost:5173`, `http://localhost:5174`
 - Routes mounted:
@@ -603,10 +626,12 @@ Manages all challenge, weekend schedule, and submission data. Handles:
 ### Configuration Files
 
 #### [adBackend/config/db.connect.js](adBackend/config/db.connect.js)
+
 - Connects to MongoDB for challenge data
 - Uses: Mongoose ODM
 
 #### [adBackend/config/cloudinary.config.js](adBackend/config/cloudinary.config.js)
+
 - Image upload for challenge details
 - Used for: Challenge banners, submission images
 
@@ -617,6 +642,7 @@ Manages all challenge, weekend schedule, and submission data. Handles:
 #### [adBackend/model/challange.model.js](adBackend/model/challange.model.js)
 
 **Challenge Schema Structure:**
+
 ```
 Challenge {
   title: String
@@ -640,6 +666,7 @@ Challenge {
 #### [adBackend/model/weekend.model.js](adBackend/model/weekend.model.js)
 
 **Weekend Schema Structure:**
+
 ```
 Weekend {
   title: String
@@ -663,6 +690,7 @@ Weekend {
 #### [adBackend/model/submission.model.js](adBackend/model/submission.model.js)
 
 **Submission Schema Structure:**
+
 ```
 Submission {
   challengeId: ObjectId (reference to Challenge)
@@ -771,6 +799,7 @@ Submission {
 #### [adBackend/middleware/challange.middleware.js](adBackend/middleware/challange.middleware.js)
 
 **Functions:**
+
 - Challenge validation
 - Validates: Title, description, weekendId
 - Uses: Joi schema
@@ -778,6 +807,7 @@ Submission {
 #### [adBackend/middleware/weekend.middleware.js](adBackend/middleware/weekend.middleware.js)
 
 **Functions:**
+
 - Weekend validation
 - Validates: Title, dates, description
 - Uses: Joi schema
@@ -796,44 +826,46 @@ Submission {
 
 **Endpoints:**
 
-| Method | Path | Purpose |
-|--------|------|---------|
-| GET | `/all` | Get all challenges |
-| GET | `/weekend/:weekendId` | Get challenges by weekend |
-| POST | `/create` | Create new challenge |
-| PUT | `/update/:id` | Update challenge |
-| DELETE | `/delete/:id` | Delete challenge |
+| Method | Path                  | Purpose                   |
+| ------ | --------------------- | ------------------------- |
+| GET    | `/all`                | Get all challenges        |
+| GET    | `/weekend/:weekendId` | Get challenges by weekend |
+| POST   | `/create`             | Create new challenge      |
+| PUT    | `/update/:id`         | Update challenge          |
+| DELETE | `/delete/:id`         | Delete challenge          |
 
 #### [adBackend/router/weekend.router.js](adBackend/router/weekend.router.js)
 
 **Endpoints:**
 
-| Method | Path | Purpose |
-|--------|------|---------|
-| GET | `/all` | Get all weekends |
-| GET | `/:id` | Get specific weekend |
-| POST | `/create` | Create new weekend |
-| PUT | `/update/:id` | Update weekend |
-| DELETE | `/delete/:id` | Delete weekend |
+| Method | Path          | Purpose              |
+| ------ | ------------- | -------------------- |
+| GET    | `/all`        | Get all weekends     |
+| GET    | `/:id`        | Get specific weekend |
+| POST   | `/create`     | Create new weekend   |
+| PUT    | `/update/:id` | Update weekend       |
+| DELETE | `/delete/:id` | Delete weekend       |
 
 #### [adBackend/router/submission.router.js](adBackend/router/submission.router.js)
 
 **Endpoints:**
 
-| Method | Path | Purpose |
-|--------|------|---------|
-| GET | `/all` | Get all submissions |
-| GET | `/challenge/:challengeId` | Get submissions for challenge |
-| POST | `/create` | Submit challenge entry |
-| PUT | `/approve/:id` | Approve submission |
-| PUT | `/reject/:id` | Reject submission |
+| Method | Path                      | Purpose                       |
+| ------ | ------------------------- | ----------------------------- |
+| GET    | `/all`                    | Get all submissions           |
+| GET    | `/challenge/:challengeId` | Get submissions for challenge |
+| POST   | `/create`                 | Submit challenge entry        |
+| PUT    | `/approve/:id`            | Approve submission            |
+| PUT    | `/reject/:id`             | Reject submission             |
 
 ---
 
 ## 📱 Frontend Documentation
 
 ### Purpose
+
 User-facing React application for:
+
 - User registration and authentication
 - Viewing and participating in challenges
 - Managing user profiles
@@ -855,37 +887,39 @@ User-facing React application for:
 
 **Purpose:** Main routing component  
 **Protected Routes:** Uses `ProtectedRoute` wrapper requiring:
+
 1. User authentication
 2. Tribe selection
 
 **Route Structure:**
 
-| Path | Component | Protected | Purpose |
-|------|-----------|-----------|---------|
-| `/` | Home | No | Landing/home page |
-| `/signup` | SignupPage | No | User registration |
-| `/login` | LoginPage | No | User login |
-| `/forgot-password` | ForgotPasswordPage | No | Password recovery |
-| `/otp` | OTPPage | No | OTP verification |
-| `/tribe` | TribePage | Yes* | Tribe selection |
-| `/schedule` | SeasonSchedule | Yes | Race schedule |
-| `/race/:raceId` | RaceDetails | Yes | Race details |
-| `/upload/:challengeId` | UploadChallenge | Yes | Submit challenge |
-| `/upload/success` | UploadSuccess | Yes | Submission success |
-| `/profile` | ProfilePage | Yes | View profile |
-| `/profile/edit` | EditProfile | Yes | Edit profile |
-| `/game/f1` | GamePage | Yes | Game view |
-| `/weekend/:weekendId` | WeekendPage | Yes | Weekend details |
-| `/raceboard` | Raceboard | Yes | Leaderboard |
-| `/tribes` | Tribes | Yes | Tribes list |
-| `/challenges` | ChallengeEntries | Yes | Challenge entries |
+| Path                   | Component          | Protected | Purpose            |
+| ---------------------- | ------------------ | --------- | ------------------ |
+| `/`                    | Home               | No        | Landing/home page  |
+| `/signup`              | SignupPage         | No        | User registration  |
+| `/login`               | LoginPage          | No        | User login         |
+| `/forgot-password`     | ForgotPasswordPage | No        | Password recovery  |
+| `/otp`                 | OTPPage            | No        | OTP verification   |
+| `/tribe`               | TribePage          | Yes\*     | Tribe selection    |
+| `/schedule`            | SeasonSchedule     | Yes       | Race schedule      |
+| `/race/:raceId`        | RaceDetails        | Yes       | Race details       |
+| `/upload/:challengeId` | UploadChallenge    | Yes       | Submit challenge   |
+| `/upload/success`      | UploadSuccess      | Yes       | Submission success |
+| `/profile`             | ProfilePage        | Yes       | View profile       |
+| `/profile/edit`        | EditProfile        | Yes       | Edit profile       |
+| `/game/f1`             | GamePage           | Yes       | Game view          |
+| `/weekend/:weekendId`  | WeekendPage        | Yes       | Weekend details    |
+| `/raceboard`           | Raceboard          | Yes       | Leaderboard        |
+| `/tribes`              | Tribes             | Yes       | Tribes list        |
+| `/challenges`          | ChallengeEntries   | Yes       | Challenge entries  |
 
-*Tribe route bypasses tribe requirement on initial visit
+\*Tribe route bypasses tribe requirement on initial visit
 
 #### [frontend/src/context/AuthContext.jsx](frontend/src/context/AuthContext.jsx)
 
 **Purpose:** Global authentication state management  
 **Provides:**
+
 - `useAuth()` hook for accessing auth state
 - `user` object (current logged-in user)
 - `isLoading` state
@@ -893,6 +927,7 @@ User-facing React application for:
 - Token/cookie management
 
 **Data Structure:**
+
 ```javascript
 user = {
   id: String,
@@ -901,11 +936,12 @@ user = {
   tribeId: String,
   tribeName: String,
   profileImage: String,
-  lastLogin: Date
-}
+  lastLogin: Date,
+};
 ```
 
 **Used by:**
+
 - `App.jsx` (for protected routes)
 - All authenticated components
 - All pages requiring user info
@@ -1156,11 +1192,13 @@ deleteWeekend(id)
 #### Inferred Services:
 
 **[frontend/src/services/userService.js](frontend/src/services/userService.js)**
+
 - Would contain: User authentication API calls
 - Base URL: `http://localhost:7001/api/v1/user`
 - Functions: signup, login, logout, verifyOTP, resetPassword
 
 **[frontend/src/services/submissionService.js](frontend/src/services/submissionService.js)**
+
 - Would contain: Submission-related API calls
 - Base URL: `http://localhost:9000/api/v1/submission`
 - Functions: createSubmission, getSubmissions, approveSubmission
@@ -1190,20 +1228,24 @@ deleteWeekend(id)
 ### Configuration Files
 
 #### [frontend/vite.config.js](frontend/vite.config.js)
+
 - Bundler configuration
 - Path aliases (@ for src/)
 - React Fast Refresh plugin
 - Development server settings
 
 #### [frontend/tailwind.config.js](frontend/tailwind.config.js)
+
 - Tailwind CSS customization
 - Theme colors, fonts
 - Breakpoints
 
 #### [frontend/postcss.config.js](frontend/postcss.config.js)
+
 - PostCSS plugins (Tailwind, Autoprefixer)
 
 #### [frontend/eslint.config.js](frontend/eslint.config.js)
+
 - ESLint rules for code quality
 - React-specific rules
 
@@ -1212,7 +1254,9 @@ deleteWeekend(id)
 ## 🎨 Admin Frontend Documentation
 
 ### Purpose
+
 Administrative dashboard for managing:
+
 - Challenge creation and editing
 - Weekend schedule management
 - Submission review and approval
@@ -1223,24 +1267,27 @@ Administrative dashboard for managing:
 **Build Tool:** Vite  
 **CSS Framework:** Tailwind CSS  
 **HTTP Client:** Axios  
-**Routing:** React Router  
+**Routing:** React Router
 
 ---
 
 ### Key Components
 
 #### [adFrontend/src/components/Layout.jsx](adFrontend/src/components/Layout.jsx)
+
 - Admin layout wrapper
 - Navigation sidebar
 - Header with user info
 - Used by all admin pages
 
 #### [adFrontend/src/components/Welcome.jsx](adFrontend/src/components/Welcome.jsx)
+
 - Dashboard welcome page
 - Shows quick stats
 - Latest updates
 
 #### [adFrontend/src/components/AdminGridDashboard.jsx](adFrontend/src/components/AdminGridDashboard.jsx)
+
 - Main admin dashboard
 - Displays grid/cards of:
   - Active challenges
@@ -1317,6 +1364,7 @@ Administrative dashboard for managing:
 **Base URL:** `http://localhost:9000/api/v1/challenge`
 
 Admin functions include:
+
 - `getAllChallenges()` - List all
 - `getChallengeById(id)` - Get details
 - `createChallenge(data)` - Create
@@ -1328,6 +1376,7 @@ Admin functions include:
 **Base URL:** `http://localhost:9000/api/v1/weekend`
 
 Admin functions include:
+
 - `getAllWeekends()` - List all
 - `getWeekendById(id)` - Get details
 - `createWeekend(data)` - Create
@@ -1339,6 +1388,7 @@ Admin functions include:
 **Base URL:** `http://localhost:9000/api/v1/submission`
 
 Admin functions include:
+
 - `getAllSubmissions()` - List all
 - `getSubmissionsByChallenge(id)` - Filter by challenge
 - `approveSubmission(id)` - Approve
@@ -1349,6 +1399,7 @@ Admin functions include:
 **Base URL:** `http://localhost:7001/api/v1/admin`
 
 Admin functions include:
+
 - `getAllUsers()` - List all users
 - `getUserById(id)` - Get user details
 - `updateUser(id, data)` - Edit user
@@ -1459,6 +1510,7 @@ EXTERNAL SERVICES
 ### Key Relationships
 
 #### Authentication Flow
+
 ```
 SignupPage → backend/controller/user → userModel → OTP Service → Twilio
      ↓
@@ -1468,6 +1520,7 @@ Protected Pages (useAuth hook)
 ```
 
 #### Challenge Submission Flow
+
 ```
 UploadChallenge → submissionService → adBackend/submission/create
      ↓
@@ -1481,6 +1534,7 @@ SubmissionForm → approveSubmission → adBackend ← Update status
 ```
 
 #### Profile Update Flow
+
 ```
 EditProfile → upload middleware → Cloudinary
      ↓
@@ -1496,6 +1550,7 @@ ProfilePage displays updated image
 ## 🚀 Getting Started
 
 ### Prerequisites
+
 - Node.js (v16+)
 - MongoDB Atlas account
 - Cloudinary account
@@ -1505,6 +1560,7 @@ ProfilePage displays updated image
 ### Environment Setup
 
 **Backend (.env)**
+
 ```
 PORT=7001
 MONGO_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/gridsports
@@ -1518,6 +1574,7 @@ TWILIO_PHONE_NUMBER=your_twilio_number
 ```
 
 **Admin Backend (.env)**
+
 ```
 PORT=9000
 MONGO_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/gridsports_admin
@@ -1529,12 +1586,14 @@ CLOUDINARY_API_SECRET=your_api_secret
 ### Running the Project
 
 **Option 1: Using Batch Script**
+
 ```bash
 # From root directory
 start_all.bat
 ```
 
 **Option 2: Manual Start**
+
 ```bash
 # Terminal 1 - Backend
 cd backend
@@ -1558,6 +1617,7 @@ npm run dev
 ```
 
 ### Access Points
+
 - **Main App**: http://localhost:5173
 - **Admin Dashboard**: http://localhost:5174
 - **Backend API**: http://localhost:7001
@@ -1576,12 +1636,12 @@ npm run dev
 ✅ **SMS Notifications**: Twilio for OTP and alerts  
 ✅ **Database**: MongoDB for flexible data storage  
 ✅ **Modern Frontend**: React with Vite, Tailwind CSS  
-✅ **Admin Dashboard**: Full control panel for platform management  
+✅ **Admin Dashboard**: Full control panel for platform management
 
 **Total Files:** 100+  
 **Lines of Code:** 10,000+  
 **API Endpoints:** 30+  
-**Database Collections:** 4  
+**Database Collections:** 4
 
 ---
 

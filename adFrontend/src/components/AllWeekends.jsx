@@ -59,7 +59,7 @@ const AllWeekends = () => {
                 {weekends.map((weekend) => (
                     <div
                         key={weekend._id}
-                        onClick={() => navigate(`/details/${weekend._id}`)}
+                        onClick={() => navigate(`/weekend/details/${weekend._id}`)}
                         className="bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-100 dark:border-gray-700 overflow-hidden cursor-pointer hover:shadow-lg transition-shadow duration-300"
                     >
                         <div className="h-48 bg-gray-200 dark:bg-gray-700 relative">

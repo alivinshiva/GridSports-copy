@@ -2,8 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { getAllRandomSubmissions, rateSubmission, recordShare, rateDetailed } from "@/services/submissionService";
 import { Loader2, ArrowLeft, Volume2, VolumeX, Heart, ThumbsUp, ThumbsDown, Share2, Facebook, Instagram, MessageCircle, Link as LinkIcon, X, CheckSquare, Star } from "lucide-react";
-import { HomeHeader } from "@/components/home/HomeHeader";
-import { BottomNav } from "@/components/home/BottomNav";
+import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 
 const SubmissionFeed = () => {
     const location = useLocation();
@@ -256,11 +255,9 @@ const SubmissionFeed = () => {
     };
 
     return (
-        <div className="bg-black h-screen w-full overflow-hidden flex flex-col font-display md:bg-zinc-900 relative">
-            <HomeHeader />
-
+        <AuthenticatedLayout>
             {/* Vertical Scroll Snap Container */}
-            <div className="flex-1 w-full md:max-w-[420px] mx-auto bg-black overflow-y-scroll snap-y snap-mandatory no-scrollbar shadow-2xl relative" style={{ scrollBehavior: 'smooth' }}>
+            <div className="w-full h-[calc(100vh-160px)] min-h-[500px] md:max-w-[420px] mx-auto bg-black overflow-y-scroll snap-y snap-mandatory no-scrollbar shadow-2xl relative rounded-xl" style={{ scrollBehavior: 'smooth' }}>
                 {feed.map((entry, index) => {
                     // Trigger load when 5 items remaining (visited approx 10 if total 15)
                     const isLast = index === feed.length - 5;
@@ -276,7 +273,7 @@ const SubmissionFeed = () => {
                             className="submission-slide h-full w-full snap-start snap-always relative flex items-center justify-center bg-black"
                         >
                             {/* Media */}
-                            <div className="relative w-full h-full flex items-center justify-center" onClick={toggleMute}>
+                            <div className="relative w-full h-full flex items-center justify-center cursor-pointer" onClick={toggleMute}>
                                 {entry.mediaType === 'video' ? (
                                     <video
                                         src={entry.mediaUrl}
@@ -299,18 +296,18 @@ const SubmissionFeed = () => {
                             </div>
 
                             {/* Actions Container */}
-                            <div className="absolute inset-x-0 bottom-24 z-20 pointer-events-none">
+                            <div className="absolute inset-x-0 bottom-6 z-20 pointer-events-none">
                                 {/* Vertical Sidebar (Share, Mute) positioned above Love icon */}
                                 <div className="absolute right-6 bottom-full mb-6 flex flex-col items-center gap-6 text-white pointer-events-auto">
                                     <button onClick={(e) => handleShareClick(e, entry._id)} className="flex flex-col items-center gap-1 transition-transform active:scale-95">
-                                        <div className="p-3 bg-white/10 backdrop-blur-md rounded-full shadow-lg">
+                                        <div className="p-3 bg-white/10 backdrop-blur-md rounded-full shadow-lg hover:bg-white/20">
                                             <Share2 size={24} />
                                         </div>
                                         <span className="text-xs font-bold drop-shadow-md">Share</span>
                                     </button>
 
                                     {entry.mediaType === 'video' && (
-                                        <button onClick={toggleMute} className="p-3 bg-white/10 backdrop-blur-md rounded-full">
+                                        <button onClick={toggleMute} className="p-3 bg-white/10 backdrop-blur-md rounded-full hover:bg-white/20">
                                             {muted ? <VolumeX size={24} /> : <Volume2 size={24} />}
                                         </button>
                                     )}
@@ -318,7 +315,7 @@ const SubmissionFeed = () => {
 
                                 {/* Conditionally Render Rating UI */}
                                 {entry.challenge?.scoringType === 'DETAILED' ? (
-                                    <div className="flex flex-col w-full px-4 pb-4 text-white pointer-events-auto bg-transparent pt-4">
+                                    <div className="flex flex-col w-full px-4 pb-0 text-white pointer-events-auto bg-transparent pt-4">
                                         <div className="space-y-3">
                                             {entry.challenge?.parameters?.map((param, pIdx) => {
                                                 const maxPts = param.maxPoints;
@@ -370,7 +367,7 @@ const SubmissionFeed = () => {
                                         </div>
                                     </div>
                                 ) : (
-                                    <div className="flex flex-row flex-nowrap items-center justify-between w-full px-8 text-white pointer-events-auto">
+                                    <div className="flex flex-row flex-nowrap items-center justify-between w-full px-8 text-white pointer-events-auto pb-4">
                                         <button
                                             onClick={(e) => handleRate(e, entry._id, 'DISLIKE')}
                                             className="flex flex-col items-center gap-1 transition-transform active:scale-95 group"
@@ -403,13 +400,6 @@ const SubmissionFeed = () => {
                                     </div>
                                 )}
                             </div>
-
-                            {/* Bottom Info */}
-                            {/* Keeping it minimal as per "only image and video" request, but usually a feed has SOME info. 
-                                User said "remove all submissions from the challenge/entries... remove the user static profile data etc i only want image and video rest nothing".
-                                For this details view, I will stick to minimal. Maybe just a small indicator if needed.
-                                For now, purely full screen media.
-                            */}
                         </div>
                     );
                 })}
@@ -423,7 +413,7 @@ const SubmissionFeed = () => {
 
             {/* Share Popup Overlay */}
             {activeShare && (
-                <div className="absolute inset-0 z-[60] flex items-end justify-center pointer-events-auto" onClick={() => setActiveShare(null)}>
+                <div className="fixed inset-0 z-[100] flex items-end justify-center pointer-events-auto" onClick={() => setActiveShare(null)}>
                     {/* Backdrop */}
                     <div className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" />
 
@@ -473,9 +463,7 @@ const SubmissionFeed = () => {
                     </div>
                 </div>
             )}
-
-            <BottomNav />
-        </div>
+        </AuthenticatedLayout>
     );
 };
 

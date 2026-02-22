@@ -32,7 +32,7 @@ const WeekendUpdate = () => {
         try {
             const response = await updateWeekendStatus(id, status);
             if (response.success) {
-                navigate(`/details/${id}`);
+                navigate(`/weekend/details/${id}`);
             } else {
                 setError(response.message || "Update failed");
             }
@@ -64,7 +64,7 @@ const WeekendUpdate = () => {
                     <button type="submit" className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
                         Update
                     </button>
-                    <button type="button" onClick={() => navigate(`/details/${id}`)} className="text-gray-600">
+                    <button type="button" onClick={() => navigate(`/weekend/details/${id}`)} className="text-gray-600">
                         Cancel
                     </button>
                 </div>

@@ -4,6 +4,7 @@ import { Upload, Video, Info, X, Circle, Square, RotateCcw, Check, Camera, Image
 import { addSubmission } from "@/services/submissionService";
 import { getChallengeById } from "@/services/challengeService";
 import { motion } from "framer-motion";
+import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 
 export default function UploadChallenge() {
     const navigate = useNavigate();
@@ -193,7 +194,7 @@ export default function UploadChallenge() {
     const rulesList = challenge?.rules ? (Array.isArray(challenge.rules) ? challenge.rules : challenge.rules.split('\n').filter(r => r.trim())) : [];
 
     return (
-        <div className="bg-background-light dark:bg-background-dark min-h-screen text-[#1c140d] dark:text-white transition-colors duration-200 flex flex-col relative">
+        <AuthenticatedLayout>
             {/* Success Popup Modal */}
             {showSuccess && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-300">
@@ -221,25 +222,18 @@ export default function UploadChallenge() {
                 </div>
             )}
 
-            {/* Top Navigation Bar */}
-            <header className="flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[#f4ede7] dark:border-b-[#3d2e1f] px-10 py-3 bg-background-light dark:bg-background-dark sticky top-0 z-50">
-                <div className="flex items-center gap-4">
-                    <div className="size-6 text-primary">
-                        <svg fill="currentColor" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-                            <path clipRule="evenodd" d="M24 4H42V17.3333V30.6667H24V44H6V30.6667V17.3333H24V4Z" fillRule="evenodd"></path>
-                        </svg>
-                    </div>
-                    <h2 className="text-lg font-bold leading-tight tracking-[-0.015em]">{challenge ? challenge.name : "Challenge Upload"}</h2>
+            <main className="flex-1 flex flex-col items-center py-4 px-4 w-full">
+                {/* Header Actions */}
+                <div className="w-full max-w-[800px] flex items-center justify-between mb-6">
+                    <h2 className="text-2xl font-bold leading-tight tracking-tight">{challenge ? challenge.name : "Challenge Upload"}</h2>
+                    <button
+                        onClick={() => navigate(-1)}
+                        className="flex items-center justify-center rounded-xl h-10 w-10 bg-[#f4ede7] dark:bg-[#3d2e1f] text-[#1c140d] dark:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
+                    >
+                        <X size={24} />
+                    </button>
                 </div>
-                <button
-                    onClick={() => navigate(-1)}
-                    className="flex items-center justify-center rounded-xl h-10 w-10 bg-[#f4ede7] dark:bg-[#3d2e1f] text-[#1c140d] dark:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
-                >
-                    <X size={24} />
-                </button>
-            </header>
 
-            <main className="flex-1 flex flex-col items-center py-10 px-4">
                 <div className="max-w-[800px] w-full flex flex-col gap-8">
 
                     {/* Progress Bar */}
@@ -466,6 +460,6 @@ export default function UploadChallenge() {
             <footer className="p-8 text-center text-xs opacity-50">
                 © 2024 Race Start Reaction. Built for speed.
             </footer>
-        </div>
+        </AuthenticatedLayout>
     );
 }

@@ -27,7 +27,7 @@ function App() {
           <Route path="/add" element={<WeekendForm />} />
           <Route path="/add-challenge" element={<ChallengeForm />} />
           <Route path="/add-submission" element={<SubmissionForm />} />
-          <Route path="/details/:id" element={<WeekendDetails />} />
+          <Route path="/weekend/details/:id" element={<WeekendDetails />} />
           <Route path="/update/:id" element={<WeekendUpdate />} />
           <Route path="/users" element={<Users />} />
           <Route path="/challenges" element={<Challenges />} />
