@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:9000/api/v1/hero";
+const API_URL = `${import.meta.env.VITE_AD_API_URL}/api/v1/hero`;
 
 export const getAllHeroes = async () => {
     try {

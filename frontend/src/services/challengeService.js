@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:9000/api/v1/challenge';
+const API_URL = `${import.meta.env.VITE_AD_API_URL}/api/v1/challenge`;
 
 export const getAllChallenges = async () => {
     try {

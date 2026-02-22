@@ -8,7 +8,7 @@ import axios from "axios";
 // Let's assume relative path if proxy is set up, or hardcoded for now based on previous context.
 // Actually, I should check weekendService.js to be consistent.
 
-const API_URL = "http://localhost:9000/api/v1/submission";
+const API_URL = `${import.meta.env.VITE_AD_API_URL}/api/v1/submission`;
 
 export const getAllSubmissions = async () => {
     try {

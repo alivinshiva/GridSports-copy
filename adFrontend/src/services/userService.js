@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:7001/api/v1/admin';
+const API_URL = `${import.meta.env.VITE_MAIN_API_URL}/api/v1/admin`;
 
 export const getAllUsers = async () => {
     try {

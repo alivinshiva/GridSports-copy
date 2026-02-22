@@ -25,7 +25,7 @@ export function ForgotPasswordPage() {
         }
 
         try {
-            const response = await fetch("http://localhost:7001/api/v1/user/forgot-password", {
+            const response = await fetch(`${import.meta.env.VITE_MAIN_API_URL}/api/v1/user/forgot-password`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ phoneNumber: `+91${phone}` }),
@@ -56,7 +56,7 @@ export function ForgotPasswordPage() {
         }
 
         try {
-            const response = await fetch("http://localhost:7001/api/v1/user/reset-password", {
+            const response = await fetch(`${import.meta.env.VITE_MAIN_API_URL}/api/v1/user/reset-password`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ code: otp, password: newPassword }),

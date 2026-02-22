@@ -42,7 +42,7 @@ export default function ProfilePage() {
         setIsImagesLoading(true);
         try {
             // Fetching larger limit (50) to cover "all" recent for profile context
-            const response = await fetch(`http://localhost:9000/api/v1/submission/all-image-submission?page=1&limit=50`, {
+            const response = await fetch(`${import.meta.env.VITE_AD_API_URL}/api/v1/submission/all-image-submission?page=1&limit=50`, {
                 credentials: "include",
             });
             const data = await response.json();
@@ -60,7 +60,7 @@ export default function ProfilePage() {
         setIsVideosLoading(true);
         try {
             // Fetching larger limit (50)
-            const response = await fetch(`http://localhost:9000/api/v1/submission/all-video-submission?page=1&limit=50`, {
+            const response = await fetch(`${import.meta.env.VITE_AD_API_URL}/api/v1/submission/all-video-submission?page=1&limit=50`, {
                 credentials: "include",
             });
             const data = await response.json();

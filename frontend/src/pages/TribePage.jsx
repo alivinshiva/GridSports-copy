@@ -35,7 +35,7 @@ export function TribePage() {
         if (!activeTribe) return;
 
         try {
-            const response = await fetch("http://localhost:7001/api/v1/profile/create-tribe", {
+            const response = await fetch(`${import.meta.env.VITE_MAIN_API_URL}/api/v1/profile/create-tribe`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ tribe: activeTribe.id }),

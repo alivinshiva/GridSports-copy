@@ -13,7 +13,7 @@ export default function RaceDetails() {
     useEffect(() => {
         const fetchRaceDetails = async () => {
             try {
-                const response = await fetch(`http://localhost:7001/api/v1/public/race/${raceId}`);
+                const response = await fetch(`${import.meta.env.VITE_MAIN_API_URL}/api/v1/public/race/${raceId}`);
                 const data = await response.json();
                 if (data.success) {
                     setRace(data.data.race);
