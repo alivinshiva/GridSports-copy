@@ -14,17 +14,14 @@ const SubmissionFeed = () => {
     const [feed, setFeed] = useState(preloadedFeed && preloadedFeed.length > 0 ? preloadedFeed : (initialEntry ? [initialEntry] : []));
     const [loading, setLoading] = useState(false);
     const [muted, setMuted] = useState(true);
-    const [hasMore, setHasMore] = useState(true);
-    const [retryCount, setRetryCount] = useState(0); // Track retries for empty responses
     const [ratingsState, setRatingsState] = useState({}); // { [id]: 'LOVE'|'LIKE'|'DISLIKE' }
     const [detailedRatingsState, setDetailedRatingsState] = useState({}); // { [subId]: { [paramName]: score } }
     const [activeShare, setActiveShare] = useState(null); // ID of submission being shared
     const [activeSubmissionId, setActiveSubmissionId] = useState(null);
-    const observer = useRef();
     const visibilityObserver = useRef();
 
     const fetchMoreEntries = useCallback(async () => {
-        if (loading || (!hasMore && retryCount >= 1)) return; // Stop if no more and retried once
+        if (loading) return;
         setLoading(true);
         try {
             const response = await getAllRandomSubmissions(15);
@@ -35,31 +32,13 @@ const SubmissionFeed = () => {
                     );
                     return [...prev, ...newEntries];
                 });
-                setRetryCount(0); // Reset retry on success
-                setHasMore(true);
-            } else {
-                // If empty, increment retry. If it was 0, we'll try one more time immediately (next trigger or effect)
-                // But generally if API returns 0, we might want to stop. User said "call once time again to verify".
-                if (retryCount === 0) {
-                    setRetryCount(1);
-                    // Automatically try again immediately? Or just leave it for next scroll trigger?
-                    // User said "call once time again to verify and than stop".
-                    // Let's try again in 500ms to verify.
-                    setTimeout(() => {
-                        setLoading(false);
-                        fetchMoreEntries();
-                    }, 500);
-                    return; // Return here so we don't clear loading yet (handled in timeout)
-                } else {
-                    setHasMore(false);
-                }
             }
         } catch (error) {
             console.error("Error fetching feed:", error);
         } finally {
             setLoading(false);
         }
-    }, [loading, hasMore, retryCount]);
+    }, [loading]);
 
     // Initial fetch
     useEffect(() => {
@@ -68,44 +47,18 @@ const SubmissionFeed = () => {
         }
     }, []);
 
-    // 1 Minute Interval to check for new data if we stopped
+    // 30 Seconds Interval to fetch new data and load below
     useEffect(() => {
-        if (!hasMore) {
-            const interval = setInterval(() => {
-                // Try resetting to see if new data exists
-                console.log("Feed interval checking for new data...");
-                setRetryCount(0);
-                setHasMore(true);
-                // We don't call fetchMoreEntries here directly to avoid closure staleness.
-                // The state change to hasMore=true will trigger the effect below or the observer.
-            }, 60000); // 1 minute
-            return () => clearInterval(interval);
-        }
-    }, [hasMore]);
-
-    // Effect to trigger fetch if we have 'hasMore' but feed is empty (Recovery)
-    useEffect(() => {
-        if (hasMore && !loading && feed.length === 0) {
+        const interval = setInterval(() => {
+            console.log("30s polling: fetching new feed data...");
             fetchMoreEntries();
-        }
-    }, [hasMore, loading, feed.length, fetchMoreEntries]);
-
-    // Intersection Observer
-    const lastElementRef = useCallback(node => {
-        if (loading) return;
-        if (observer.current) observer.current.disconnect();
-        observer.current = new IntersectionObserver(entries => {
-            if (entries[0].isIntersecting && hasMore) {
-                fetchMoreEntries();
-            }
-        });
-        if (node) observer.current.observe(node);
-    }, [loading, fetchMoreEntries, hasMore]);
+        }, 30000); // 30 seconds
+        return () => clearInterval(interval);
+    }, [fetchMoreEntries]);
 
     // Clean up observer
     useEffect(() => {
         return () => {
-            if (observer.current) observer.current.disconnect();
             if (visibilityObserver.current) visibilityObserver.current.disconnect();
         }
     }, []);
@@ -257,18 +210,11 @@ const SubmissionFeed = () => {
     return (
         <AuthenticatedLayout>
             {/* Vertical Scroll Snap Container */}
-            <div className="w-full h-[calc(100vh-160px)] min-h-[500px] md:max-w-[420px] mx-auto bg-black overflow-y-scroll snap-y snap-mandatory no-scrollbar shadow-2xl relative rounded-xl" style={{ scrollBehavior: 'smooth' }}>
+            <div className="w-full h-[calc(100dvh-70px)] md:h-[calc(100vh-80px)] md:max-w-[420px] mx-auto bg-black overflow-y-scroll snap-y snap-mandatory no-scrollbar relative md:rounded-xl md:shadow-2xl" style={{ scrollBehavior: 'smooth' }}>
                 {feed.map((entry, index) => {
-                    // Trigger load when 5 items remaining (visited approx 10 if total 15)
-                    const isLast = index === feed.length - 5;
-                    // Fallback for very short lists to trigger at end
-                    const isAlsoLast = index === feed.length - 1 && feed.length < 5;
-
-                    const shouldTrigger = isLast || isAlsoLast;
                     return (
                         <div
                             key={`${entry._id}-${index}`}
-                            ref={shouldTrigger ? lastElementRef : null}
                             data-id={entry._id}
                             className="submission-slide h-full w-full snap-start snap-always relative flex items-center justify-center bg-black"
                         >

@@ -114,15 +114,6 @@ const ChallengeEntries = () => {
 
     return (
         <AuthenticatedLayout>
-            {/* Header */}
-            <div className="flex items-center justify-between gap-4 mb-5 md:mb-10 px-2 pt-2">
-                <h1 className="text-xl md:text-3xl font-bold tracking-tight">Challenge Entries</h1>
-
-                <Link to="/" className="flex items-center justify-center w-10 h-10 rounded-full bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 transition-all border border-slate-200 dark:border-white/10 text-slate-500 dark:text-white/60 hover:text-primary">
-                    <span className="material-symbols-outlined">arrow_back</span>
-                </Link>
-            </div>
-
             {/* Entry Grid */}
             <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6">
                 {entries.map((entry, index) => {

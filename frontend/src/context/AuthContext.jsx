@@ -5,6 +5,7 @@ const AuthContext = createContext(null);
 export function AuthProvider({ children }) {
     const [user, setUser] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [toastMessage, setToastMessage] = useState("");
 
     useEffect(() => {
         // Check localStorage for existing session
@@ -133,10 +134,22 @@ export function AuthProvider({ children }) {
         setUser(null);
         localStorage.removeItem("gridsports_user");
         localStorage.removeItem("gridsports_tribe");
+
+        // Show in-UI success message then redirect
+        setToastMessage("Logout successfully");
+        setTimeout(() => {
+            window.location.href = '/';
+        }, 1200);
     };
 
     return (
         <AuthContext.Provider value={{ user, isLoading, signup, login, verifyOTP, logout, fetchProfile }}>
+            {toastMessage && (
+                <div className="fixed top-12 left-1/2 -translate-x-1/2 z-[9999] bg-[#e6f4ea] dark:bg-[#1a2f22] text-[#137333] dark:text-[#5bb974] border border-[#ceead6] dark:border-[#214330] px-6 py-3 rounded-full shadow-lg font-medium text-sm flex items-center gap-2 animate-in fade-in slide-in-from-top-4 duration-300">
+                    <span className="material-symbols-outlined text-[18px]">check_circle</span>
+                    {toastMessage}
+                </div>
+            )}
             {children}
         </AuthContext.Provider>
     );

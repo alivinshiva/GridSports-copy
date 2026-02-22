@@ -45,7 +45,6 @@ export function SignupPage() {
             >
                 {/* Logo / Title */}
                 <div className="text-center mb-10 flex flex-col items-center">
-                    <img src={logo} alt="GridSports Logo" className="w-24 h-24 mb-4 drop-shadow-[0_0_15px_rgba(255,87,34,0.3)]" />
                     <h1 className="text-4xl font-black text-white tracking-tight mb-2">
                         Grid<span className="text-racing-orange">Sports</span>
                     </h1>

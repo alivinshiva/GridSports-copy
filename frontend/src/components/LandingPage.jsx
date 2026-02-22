@@ -17,7 +17,7 @@ export function LandingPage() {
                     {/* Login Button */}
                     <Link
                         to="/login"
-                        className="bg-white text-black hover:bg-gray-200 font-semibold py-2.5 px-6 rounded-full transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(255,255,255,0.3)]"
+                        className="bg-white text-black hover:bg-gray-200 font-semibold py-2.5 px-10 rounded-full transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(255,255,255,0.3)] text-center"
                     >
                         Login
                     </Link>

@@ -159,7 +159,7 @@ export const getLoggedProfileController = async (req, res) => {
     try {
         const loggedInUser = req.user._id;
 
-        const profile = await profileModel.findOne({ user: loggedInUser }).populate("user", "name isAdmin");
+        const profile = await profileModel.findOne({ user: loggedInUser }).populate("user", "name isAdmin creatorPoints rankerPoints");
         // console.log("This is a profile", profile);
 
         if (!profile) {

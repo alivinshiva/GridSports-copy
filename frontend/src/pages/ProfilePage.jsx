@@ -15,8 +15,9 @@ import {
     PartyPopper,
     Zap,
     X,
-    Loader2 // Import Loader2
+    Loader2
 } from "lucide-react";
+import { getRankerLeaderboard } from "@/services/leaderboardService";
 
 export default function ProfilePage() {
     const navigate = useNavigate();
@@ -25,6 +26,7 @@ export default function ProfilePage() {
     const [selectedImage, setSelectedImage] = useState(null); // Add selectedImage state
     const [profileData, setProfileData] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [userRank, setUserRank] = useState(null);
 
     const [activeTab, setActiveTab] = useState("images"); // 'images' or 'videos'
 
@@ -81,6 +83,21 @@ export default function ProfilePage() {
             const profile = await fetchProfile();
             if (profile) {
                 setProfileData(profile);
+                // Fetch leaderboard to determine rank based on points
+                try {
+                    const leaderboardData = await getRankerLeaderboard();
+                    if (leaderboardData && leaderboardData.data) {
+                        const rankInfo = leaderboardData.data.findIndex(u => u._id === profile.user._id);
+                        if (rankInfo !== -1) {
+                            setUserRank(rankInfo + 1);
+                        } else {
+                            // If not in the list (e.g., 0 points), we just show a dash or calculate based on total known users
+                            setUserRank("Unranked");
+                        }
+                    }
+                } catch (error) {
+                    console.error("Failed to fetch leaderboard for rank:", error);
+                }
             }
             setLoading(false);
 
@@ -201,33 +218,41 @@ export default function ProfilePage() {
 
                     {/* Stats Section */}
                     <div className="flex flex-wrap gap-4 mb-8">
-                        {/* ... Stats cards remain unchanged ... */}
+                        {/* Overall Points */}
                         <div className="flex min-w-[200px] flex-1 flex-col gap-2 rounded-xl p-6 bg-white dark:bg-white/5 border border-[#e8dbce] dark:border-white/10 shadow-sm hover:border-primary/40 transition-colors">
                             <div className="flex items-center justify-between">
-                                <p className="text-[#9c7349] dark:text-[#c4a17d] text-sm font-medium leading-normal">Season Rank</p>
-                                <Medal size={24} className="text-primary opacity-60" />
+                                <p className="text-[#9c7349] dark:text-[#c4a17d] text-sm font-medium leading-normal">Overall Points</p>
+                                <Zap size={24} className="text-primary opacity-60" />
                             </div>
-                            <p className="text-[#1c140d] dark:text-white tracking-light text-3xl font-bold leading-tight">#142</p>
+                            <p className="text-green-600 dark:text-green-400 tracking-light text-3xl font-bold leading-tight">
+                                {((profileData?.user?.creatorPoints || 0) + (profileData?.user?.rankerPoints || 0)).toLocaleString()}
+                            </p>
                         </div>
+                        {/* Tribe Rank */}
                         <div className="flex min-w-[200px] flex-1 flex-col gap-2 rounded-xl p-6 bg-white dark:bg-white/5 border border-[#e8dbce] dark:border-white/10 shadow-sm hover:border-primary/40 transition-colors">
                             <div className="flex items-center justify-between">
-                                <p className="text-[#9c7349] dark:text-[#c4a17d] text-sm font-medium leading-normal">Race Wins</p>
+                                <p className="text-[#9c7349] dark:text-[#c4a17d] text-sm font-medium leading-normal">Tribe Rank</p>
                                 <Trophy size={24} className="text-primary opacity-60" />
                             </div>
-                            <p className="text-[#1c140d] dark:text-white tracking-light text-3xl font-bold leading-tight">42</p>
+                            <p className="text-[#1c140d] dark:text-white tracking-light text-3xl font-bold leading-tight">
+                                {userRank ? (typeof userRank === 'number' ? `#${userRank}` : userRank) : '-'}
+                            </p>
                         </div>
-                        <div className="flex min-w-[200px] flex-1 flex-col gap-2 rounded-xl p-6 bg-white dark:bg-white/5 border border-[#e8dbce] dark:border-white/10 shadow-sm hover:border-primary/40 transition-colors">
+                        {/* Season Rank (Locked) */}
+                        <div className="flex min-w-[200px] flex-1 flex-col gap-2 rounded-xl p-6 bg-slate-50 dark:bg-white/5 border border-[#e8dbce] dark:border-white/10 shadow-sm opacity-70">
                             <div className="flex items-center justify-between">
-                                <p className="text-[#9c7349] dark:text-[#c4a17d] text-sm font-medium leading-normal">Rating Impact</p>
-                                <TrendingUp size={24} className="text-primary opacity-60" />
+                                <p className="text-[#9c7349] dark:text-[#c4a17d] text-sm font-medium leading-normal">Season Rank</p>
+                                <span className="material-symbols-outlined text-gray-400 text-xl">lock</span>
                             </div>
-                            <p className="text-green-600 dark:text-green-400 tracking-light text-3xl font-bold leading-tight">+1,250</p>
+                            <p className="text-gray-500 tracking-light text-xl font-bold leading-tight mt-1 flex items-center gap-2">
+                                Locked
+                            </p>
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                        {/* Main Tabs & Content (Left Column) */}
-                        <div className="lg:col-span-2 flex flex-col gap-4">
+                    <div className="flex flex-col gap-8">
+                        {/* Main Tabs & Content */}
+                        <div className="flex flex-col gap-4 w-full">
                             <div className="pb-3 bg-white dark:bg-white/5 rounded-t-xl">
                                 <div className="flex border-b border-[#e8dbce] dark:border-white/10 px-4 gap-8">
                                     <button
@@ -248,7 +273,7 @@ export default function ProfilePage() {
                             {/* Content Grid */}
                             <div className="min-h-[200px]">
                                 {activeTab === "images" && (
-                                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                                         {imageSubmissions.map((submission) => (
                                             <div
                                                 key={submission._id}
@@ -275,7 +300,7 @@ export default function ProfilePage() {
                                 )}
 
                                 {activeTab === "videos" && (
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                         {videoSubmissions.map((submission) => (
                                             <div key={submission._id} className="group relative aspect-video rounded-lg overflow-hidden bg-black/10 dark:bg-white/10 border border-[#e8dbce] dark:border-white/10">
                                                 <video
@@ -297,61 +322,6 @@ export default function ProfilePage() {
                                         )}
                                     </div>
                                 )}
-                            </div>
-                        </div>
-
-                        {/* Tribe & Badges (Right Column) */}
-                        <div className="flex flex-col gap-6">
-                            {/* Tribe Contribution Card */}
-                            <div className="bg-white dark:bg-white/5 p-6 rounded-xl border border-[#e8dbce] dark:border-white/10 shadow-sm">
-                                <h3 className="text-[#1c140d] dark:text-white text-lg font-bold mb-4 flex items-center gap-2">
-                                    <Users className="text-primary" size={24} />
-                                    Tribe Contribution
-                                </h3>
-                                <div className="flex flex-col gap-4">
-                                    <div className="flex items-center justify-between text-sm">
-                                        <p className="text-[#9c7349] dark:text-[#c4a17d]">Red Grid Rank</p>
-                                        <p className="text-[#1c140d] dark:text-white font-bold">Elite Member</p>
-                                    </div>
-                                    <div className="w-full bg-[#f4ede7] dark:bg-white/10 h-3 rounded-full overflow-hidden">
-                                        <div className="bg-primary h-full w-[85%] rounded-full"></div>
-                                    </div>
-                                    <div className="flex items-center justify-between text-xs">
-                                        <p className="text-[#9c7349] dark:text-[#c4a17d] font-medium">850 / 1,000 Points</p>
-                                        <p className="text-primary font-bold">Next level: 150 more</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Badges Mini View */}
-                            <div className="bg-white dark:bg-white/5 p-6 rounded-xl border border-[#e8dbce] dark:border-white/10 shadow-sm">
-                                <h3 className="text-[#1c140d] dark:text-white text-lg font-bold mb-4 flex items-center justify-between">
-                                    <span className="flex items-center gap-2">
-                                        <ShieldCheck className="text-primary" size={24} />
-                                        Recent Badges
-                                    </span>
-                                    <a className="text-primary text-xs font-bold uppercase hover:underline" href="#">View All</a>
-                                </h3>
-                                <div className="flex flex-wrap gap-4">
-                                    <div className="group relative flex flex-col items-center gap-2">
-                                        <div className="size-14 rounded-full bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center border-2 border-yellow-400 group-hover:scale-110 transition-transform">
-                                            <Award className="text-yellow-600 dark:text-yellow-400" size={30} />
-                                        </div>
-                                        <p className="text-[10px] text-center font-bold dark:text-white uppercase leading-tight">Race Winner</p>
-                                    </div>
-                                    <div className="group relative flex flex-col items-center gap-2">
-                                        <div className="size-14 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center border-2 border-purple-400 group-hover:scale-110 transition-transform">
-                                            <PartyPopper className="text-purple-600 dark:text-purple-400" size={30} />
-                                        </div>
-                                        <p className="text-[10px] text-center font-bold dark:text-white uppercase leading-tight">Top Meme</p>
-                                    </div>
-                                    <div className="group relative flex flex-col items-center gap-2">
-                                        <div className="size-14 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center border-2 border-blue-400 group-hover:scale-110 transition-transform">
-                                            <Zap className="text-blue-600 dark:text-blue-400" size={30} />
-                                        </div>
-                                        <p className="text-[10px] text-center font-bold dark:text-white uppercase leading-tight">Speed Demon</p>
-                                    </div>
-                                </div>
                             </div>
                         </div>
                     </div>
