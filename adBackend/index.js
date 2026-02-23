@@ -12,7 +12,7 @@ import heroRouter from "./router/hero.router.js";
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 9000;
+const PORT = process.env.PORT;
 
 connectDb();
 
