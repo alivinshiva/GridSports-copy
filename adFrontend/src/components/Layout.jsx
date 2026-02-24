@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Users, Trophy, Menu, X, Plus, Calendar, Home, MapPin } from 'lucide-react';
+import { Users, Trophy, Menu, X, Plus, Calendar, Home, MapPin, Target } from 'lucide-react';
 
 const Layout = ({ children }) => {
     const location = useLocation();
@@ -18,6 +18,7 @@ const Layout = ({ children }) => {
         { path: '/add', label: 'Create Weekend', icon: Plus },
         { path: '/add-challenge', label: 'Create Challenge', icon: Trophy },
         { path: '/add-hero', label: 'Create Hero', icon: Plus },
+        { path: '/manage-tribe-points', label: 'Manage Tribe Points', icon: Target },
     ];
 
     const isActive = (path) => {

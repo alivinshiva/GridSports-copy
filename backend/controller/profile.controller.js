@@ -1,5 +1,8 @@
 import cloudinary from "../config/cloudinary.config.js";
 import profileModel from "../models/profile.model.js";
+import userModel from "../models/user.model.js";
+import tribeModel from "../models/tribe.model.js";
+import pointLedgerModel from "../models/pointLedger.model.js";
 
 
 
@@ -189,4 +192,82 @@ export const onlyTribeInformation = async (req, res) => {
     } catch (error) {
         return res.status(500).json({ success: false, message: "Internal Server Error", error: error.message });
     };
-}
+};
+
+// desc: Switch Tribe with F1 Penalties
+// path: PUT /api/v1/profile/switch-tribe
+// access: Private
+
+export const switchTribeController = async (req, res) => {
+    try {
+        const loggedInUser = req.user._id;
+        const { newTribe } = req.body;
+
+        if (!newTribe) return res.status(400).json({ success: false, message: "New tribe is required" });
+
+        const profile = await profileModel.findOne({ user: loggedInUser });
+        if (!profile) return res.status(404).json({ success: false, message: "Profile not found" });
+
+        if (profile.switches >= 2) {
+            return res.status(400).json({ success: false, message: "You have reached the maximum of 2 tribe switches per season." });
+        }
+
+        if (profile.tribe === newTribe) {
+            return res.status(400).json({ success: false, message: "You are already in this tribe." });
+        }
+
+        const oldTribeName = profile.tribe;
+
+        const fixedFee = 150;
+        const sevenDaysAgo = new Date();
+        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+        const recentPoints = await pointLedgerModel.aggregate([
+            { $match: { user: loggedInUser, isCapped: false, createdAt: { $gte: sevenDaysAgo } } },
+            { $group: { _id: null, total: { $sum: "$finalPoints" } } }
+        ]);
+
+        const recentPointsTotal = recentPoints.length > 0 ? recentPoints[0].total : 0;
+        const clawbackFee = Math.floor(recentPointsTotal * 0.30);
+        const totalPenalty = fixedFee + clawbackFee;
+
+        await userModel.findByIdAndUpdate(loggedInUser, {
+            $inc: {
+                totalPoints: -Math.abs(totalPenalty),
+                rankerPoints: -Math.abs(totalPenalty)
+            }
+        });
+
+        if (oldTribeName) {
+            await tribeModel.findOneAndUpdate({ name: oldTribeName }, {
+                $inc: { totalPoints: -Math.abs(totalPenalty) }
+            }, { upsert: true });
+        }
+
+        await pointLedgerModel.create({
+            user: loggedInUser,
+            tribe: oldTribeName || "NONE",
+            actionType: 'TRIBE_SWITCH_PENALTY',
+            basePoints: -totalPenalty,
+            multiplier: 1.0,
+            finalPoints: -totalPenalty,
+            isCapped: false
+        });
+
+        profile.tribe = newTribe;
+        profile.switches = (profile.switches || 0) + 1;
+        await profile.save();
+
+        console.log(`[Tribe Switch] User ${loggedInUser} switched from ${oldTribeName} to ${newTribe}. Penalty: -${totalPenalty}`);
+
+        return res.status(200).json({
+            success: true,
+            message: `Successfully switched to ${newTribe}. Applied a penalty of ${totalPenalty} points (${fixedFee} fixed + ${clawbackFee} clawback).`,
+            data: { switchesRemaining: 2 - profile.switches, totalPenalty }
+        });
+
+    } catch (error) {
+        console.error("Error switching tribe", error);
+        return res.status(500).json({ success: false, message: "Internal Server Error", error: error.message });
+    }
+};

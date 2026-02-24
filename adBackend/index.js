@@ -8,6 +8,7 @@ import weekendRouter from "./router/weekend.router.js";
 import challengeRouter from "./router/challenge.router.js";
 import submissionRouter from "./router/submission.router.js";
 import heroRouter from "./router/hero.router.js";
+import tribeRouter from "./router/tribe.router.js";
 
 dotenv.config();
 
@@ -36,6 +37,7 @@ app.use("/api/v1/weekend", weekendRouter);
 app.use("/api/v1/challenge", challengeRouter);
 app.use("/api/v1/submission", submissionRouter);
 app.use("/api/v1/hero", heroRouter);
+app.use("/api/v1/tribe", tribeRouter);
 
 
 app.listen(PORT, () => {

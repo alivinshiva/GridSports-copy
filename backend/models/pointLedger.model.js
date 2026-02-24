@@ -10,6 +10,10 @@ const pointLedgerSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    weekend: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "weekend"
+    },
     challenge: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "challenge"
@@ -33,6 +37,10 @@ const pointLedgerSchema = new mongoose.Schema({
     finalPoints: {
         type: Number,
         required: true
+    },
+    isCapped: {
+        type: Boolean,
+        default: false
     }
 }, { timestamps: true });
 

@@ -73,8 +73,9 @@ export const addSubmissionController = async (req, res) => {
             mediaType
         });
 
-        // Award points for uploading (10 if within 24h, else 5)
-        const pointResult = await processSubmissionUpload(loggedInUser, challenge, submission._id, challangeStatus.startAt);
+        const hasTags = !!req.body.tags && req.body.tags.length > 0;
+        // Award points for uploading
+        const pointResult = await processSubmissionUpload(loggedInUser, challenge, submission._id, challangeStatus.startAt, hasTags);
 
         return res.status(200).json({
             success: true,
@@ -299,8 +300,9 @@ export const rateDetailedController = async (req, res) => {
 
         const totalScore = ratings.reduce((acc, curr) => acc + curr.score, 0);
 
+        const hasComment = !!req.body.comment || !!req.body.comments;
         // Use the scoring service to process and award points
-        const processResult = await processDetailedRating(loggedInUser, submissionId, challengeId, ratings);
+        const processResult = await processDetailedRating(loggedInUser, submissionId, challengeId, ratings, hasComment);
 
         if (!processResult.success) {
             return res.status(400).json(processResult);
@@ -309,7 +311,6 @@ export const rateDetailedController = async (req, res) => {
         return res.status(200).json({
             success: true,
             message: "Detailed ratings saved successfully",
-            data: detailedRating,
             points: processResult.data
         });
     } catch (error) {

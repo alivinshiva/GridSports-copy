@@ -1,8 +1,10 @@
 import mongoose from "mongoose";
 import pointLedgerModel from "../model/pointLedger.model.js";
 import submissionModel from "../model/submission.model.js";
+import challengeModel from "../model/challange.model.js";
 
-// Utility to get user Profile (Tribe) since it is stored in the `backend` DB inside `profiles` collection
+// -- UTILS --
+
 export const getUserProfile = async (userId) => {
     try {
         const db = mongoose.connection.db;
@@ -14,117 +16,317 @@ export const getUserProfile = async (userId) => {
     }
 };
 
-// Add points directly to the user's specific point type field and the tribe's totalPoints field.
-export const awardPoints = async (userId, tribeName, userPointType, points) => {
+export const awardPoints = async (userId, tribeName, userPointType, points, actionType = "UNKNOWN") => {
     if (points === 0) return;
     try {
         const db = mongoose.connection.db;
         const updateField = userPointType === 'creator' ? 'creatorPoints' : 'rankerPoints';
-        const userUpdateQuery = { $inc: { [updateField]: points, totalPoints: points } }; // Keep totalPoints for safety
+        const userUpdateQuery = { $inc: { [updateField]: points, totalPoints: points } };
 
-        // Update user
         await db.collection("users").updateOne(
             { _id: new mongoose.Types.ObjectId(userId) },
             userUpdateQuery
         );
 
-        // Update tribe (we created a tribes collection)
-        await mongoose.connection.db.collection("tribes").updateOne(
-            { name: tribeName },
-            { $inc: { totalPoints: points } },
-            { upsert: true }
-        );
+        if (tribeName && tribeName !== "NONE") {
+            await db.collection("tribes").updateOne(
+                { name: tribeName },
+                { $inc: { totalPoints: points } },
+                { upsert: true }
+            );
+        }
+        console.log(`[Scoring] Awarded ${points} points to User ${userId} (${userPointType}) in Tribe ${tribeName} for action: ${actionType}`);
     } catch (error) {
         console.error("Error awarding points:", error);
     }
 };
 
-export const processRating = async (rankerId, submissionId, ratingType) => {
-    // ratingType: 'LOVE' (+10), 'LIKE' (+5), 'DISLIKE' (0)
+const getStartOfDay = () => {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    return d;
+}
 
-    // Check if ranker already rated
+const checkDailyCap = async (userId, actionPrefix, limit) => {
+    const startOfDay = getStartOfDay();
+    const count = await pointLedgerModel.countDocuments({
+        user: userId,
+        actionType: { $regex: `^${actionPrefix}` },
+        createdAt: { $gte: startOfDay },
+        isCapped: false
+    });
+    return count < limit;
+}
+
+const logPointTransaction = async (userId, tribe, challengeId, weekendId, submissionId, actionType, basePoints, multiplier, isCapped) => {
+    const finalPoints = isCapped ? 0 : Number((basePoints * multiplier).toFixed(2));
+
+    await pointLedgerModel.create({
+        user: userId,
+        tribe: tribe,
+        weekend: weekendId,
+        challenge: challengeId,
+        submission: submissionId,
+        actionType,
+        basePoints,
+        multiplier,
+        finalPoints,
+        isCapped
+    });
+
+    if (!isCapped && finalPoints !== 0) {
+        const userPointType = actionType.startsWith("RECEIVED_") || actionType.startsWith("SUBMISSION_") || actionType.startsWith("CREATOR_") ? 'creator' : 'ranker';
+        await awardPoints(userId, tribe, userPointType, finalPoints, actionType);
+    }
+
+    return finalPoints;
+};
+
+// -- F1 STREAKS & MISSIONS --
+
+const processRaterMissions = async (userId, weekendId, rankerProfile) => {
+    const rankerTribe = rankerProfile ? rankerProfile.tribe : "NONE";
+
+    const allWeekendRatings = await pointLedgerModel.find({
+        user: userId,
+        weekend: weekendId,
+        isCapped: false,
+        actionType: { $regex: /^RATE_/ }
+    });
+
+    if (allWeekendRatings.length === 0) return;
+
+    const awardedMissions = await pointLedgerModel.find({
+        user: userId,
+        weekend: weekendId,
+        actionType: { $regex: /^RATER_MISSION_/ }
+    });
+    const awardedTypes = new Set(awardedMissions.map(m => m.actionType));
+
+    let ownTribeCount = 0;
+    let otherTribeCount = 0;
+
+    for (const r of allWeekendRatings) {
+        if (r.multiplier === 1) ownTribeCount++;
+        else if (r.multiplier === 0.25) otherTribeCount++;
+    }
+
+    const totalCount = ownTribeCount + otherTribeCount;
+    const effectiveMultiplier = totalCount > 0 ? ((ownTribeCount * 1.0) + (otherTribeCount * 0.25)) / totalCount : 0.25;
+
+    if (totalCount >= 20 && !awardedTypes.has("RATER_MISSION_20")) {
+        await logPointTransaction(userId, rankerTribe, null, weekendId, null, "RATER_MISSION_20", 20, effectiveMultiplier, false);
+    }
+
+    if (totalCount >= 50 && !awardedTypes.has("RATER_MISSION_50")) {
+        await logPointTransaction(userId, rankerTribe, null, weekendId, null, "RATER_MISSION_50", 50, effectiveMultiplier, false);
+    }
+
+    if (!awardedTypes.has("RATER_MISSION_COVERAGE")) {
+        const uniqueChallenges = new Set(allWeekendRatings.map(r => r.challenge ? r.challenge.toString() : ""));
+        uniqueChallenges.delete("");
+        if (uniqueChallenges.size >= 6) {
+            await logPointTransaction(userId, rankerTribe, null, weekendId, null, "RATER_MISSION_COVERAGE", 30, effectiveMultiplier, false);
+        }
+    }
+
+    if (!awardedTypes.has("RATER_MISSION_STREAK")) {
+        const daysWithAction = new Set();
+        for (const r of allWeekendRatings) {
+            const day = new Date(r.createdAt).getDay();
+            if (day === 0 || day === 5 || day === 6) {
+                daysWithAction.add(day);
+            }
+        }
+        if (daysWithAction.has(0) && daysWithAction.has(5) && daysWithAction.has(6)) {
+            await logPointTransaction(userId, rankerTribe, null, weekendId, null, "RATER_MISSION_STREAK", 25, effectiveMultiplier, false);
+        }
+    }
+};
+
+const processCreatorMissions = async (userId, weekendId, creatorProfile) => {
+    const creatorTribe = creatorProfile ? creatorProfile.tribe : "NONE";
+    const allUploads = await pointLedgerModel.find({
+        user: userId,
+        weekend: weekendId,
+        actionType: 'SUBMISSION_UPLOAD'
+    });
+
+    if (allUploads.length === 0) return;
+
+    const awardedMissions = await pointLedgerModel.find({
+        user: userId,
+        weekend: weekendId,
+        actionType: { $regex: /^CREATOR_MISSION_/ }
+    });
+    const awardedTypes = new Set(awardedMissions.map(m => m.actionType));
+
+    const uniqueChallenges = new Set(allUploads.map(r => r.challenge ? r.challenge.toString() : ""));
+    uniqueChallenges.delete("");
+    const count = uniqueChallenges.size;
+
+    if (count >= 3 && !awardedTypes.has("CREATOR_MISSION_3_OF_6")) {
+        await logPointTransaction(userId, creatorTribe, null, weekendId, null, "CREATOR_MISSION_3_OF_6", 12, 1.0, false);
+    }
+    if (count >= 5 && !awardedTypes.has("CREATOR_MISSION_5_OF_6")) {
+        await logPointTransaction(userId, creatorTribe, null, weekendId, null, "CREATOR_MISSION_5_OF_6", 18, 1.0, false);
+    }
+    if (count >= 6 && !awardedTypes.has("CREATOR_MISSION_6_OF_6")) {
+        await logPointTransaction(userId, creatorTribe, null, weekendId, null, "CREATOR_MISSION_6_OF_6", 25, 1.0, false);
+    }
+
+    if (!awardedTypes.has("CREATOR_MISSION_STREAK")) {
+        const daysWithAction = new Set();
+        for (const r of allUploads) {
+            const day = new Date(r.createdAt).getDay();
+            if (day === 0 || day === 5 || day === 6) daysWithAction.add(day);
+        }
+        if (daysWithAction.has(0) && daysWithAction.has(5) && daysWithAction.has(6)) {
+            await logPointTransaction(userId, creatorTribe, null, weekendId, null, "CREATOR_MISSION_STREAK", 20, 1.0, false);
+        }
+    }
+};
+
+const checkSubmissionMilestones = async (submissionId, creatorId, creatorTribe, challengeId, weekendId) => {
+    const ratingCount = await pointLedgerModel.countDocuments({
+        submission: submissionId,
+        actionType: { $regex: /^RATE_/ }
+    });
+
+    const milestonesAlready = await pointLedgerModel.find({
+        submission: submissionId,
+        actionType: { $regex: /^RECEIVED_MILESTONE_/ }
+    });
+    const types = new Set(milestonesAlready.map(m => m.actionType));
+
+    if (ratingCount >= 5 && !types.has("RECEIVED_MILESTONE_5")) {
+        await logPointTransaction(creatorId, creatorTribe, challengeId, weekendId, submissionId, "RECEIVED_MILESTONE_5", 5, 1.0, false);
+    }
+    if (ratingCount >= 10 && !types.has("RECEIVED_MILESTONE_10")) {
+        await logPointTransaction(creatorId, creatorTribe, challengeId, weekendId, submissionId, "RECEIVED_MILESTONE_10", 10, 1.0, false);
+    }
+    if (ratingCount >= 25 && !types.has("RECEIVED_MILESTONE_25")) {
+        await logPointTransaction(creatorId, creatorTribe, challengeId, weekendId, submissionId, "RECEIVED_MILESTONE_25", 20, 1.0, false);
+    }
+    if (ratingCount >= 50 && !types.has("RECEIVED_MILESTONE_50")) {
+        await logPointTransaction(creatorId, creatorTribe, challengeId, weekendId, submissionId, "RECEIVED_MILESTONE_50", 40, 1.0, false);
+    }
+};
+
+// -- MAIN ENDPOINTS --
+
+export const processRating = async (rankerId, submissionId, ratingType) => {
     const existingLedger = await pointLedgerModel.findOne({
         user: rankerId,
         submission: submissionId,
-        actionType: { $in: ['RATE_LOVE', 'RATE_LIKE', 'RATE_DISLIKE'] }
+        actionType: { $in: ['RATE_LOVE', 'RATE_LIKE', 'RATE_DISLIKE', 'RATE_EASY'] }
     });
 
-    if (existingLedger) {
-        return { success: false, message: "You have already rated this submission." };
-    }
+    if (existingLedger) return { success: false, message: "You have already rated this submission." };
 
     const submission = await submissionModel.findById(submissionId).populate("challenge");
     if (!submission) return { success: false, message: "Submission not found" };
 
     const creatorId = submission.user;
-    const challengeId = submission.challenge._id;
+    const challenge = submission.challenge;
+    const challengeId = challenge._id;
+    const weekendId = challenge.weekend;
 
-    // Get profiles to calculate multipliers
     const rankerProfile = await getUserProfile(rankerId);
     const creatorProfile = await getUserProfile(creatorId);
 
     const rankerTribe = rankerProfile ? rankerProfile.tribe : "NONE";
     const creatorTribe = creatorProfile ? creatorProfile.tribe : "NONE";
 
-    // --- RANKER POINTS ---
-    // Rule: Rate Simple = 3. Context Multiplier: Own tribe = 1, Other tribe = 0.25 (for F1 mode)
-    let rankerMultiplier = (rankerTribe === creatorTribe) ? 1 : 0.25;
+    const isCapped = !(await checkDailyCap(rankerId, "RATE_EASY", 120));
+
+    let rankerMultiplier = (rankerTribe === creatorTribe) ? 1.0 : 0.25;
     let rankerBasePoints = 3;
 
-    // Time Bonus for Ranker (assuming submission createdAt)
     const hoursSinceUpload = (Date.now() - new Date(submission.createdAt).getTime()) / (1000 * 60 * 60);
     if (hoursSinceUpload < 24) rankerBasePoints += 2;
     else if (hoursSinceUpload < 48) rankerBasePoints += 1;
 
-    let rankerFinalPoints = rankerBasePoints * rankerMultiplier;
-
-    // Save Ranker Ledger
-    await pointLedgerModel.create({
-        user: rankerId,
-        tribe: rankerTribe,
-        challenge: challengeId,
+    // Early Traction Bonus
+    const firstRatingsCount = await pointLedgerModel.countDocuments({
         submission: submissionId,
-        actionType: `RATE_${ratingType}`,
-        basePoints: rankerBasePoints,
-        multiplier: rankerMultiplier,
-        finalPoints: rankerFinalPoints
+        actionType: { $regex: /^RATE_/ }
     });
-
-    // Award Ranker
-    await awardPoints(rankerId, rankerTribe, 'ranker', rankerFinalPoints);
-
-    // --- CREATOR POINTS ---
-    // Rule: Love = +10, Like = +5, Dislike = 0
-    let creatorBasePoints = 0;
-    if (ratingType === 'LOVE') creatorBasePoints = 10;
-    if (ratingType === 'LIKE') creatorBasePoints = 5;
-
-    let creatorMultiplier = 1; // Creator multiplier is always 1
-    let creatorFinalPoints = creatorBasePoints * creatorMultiplier;
-
-    if (creatorFinalPoints > 0) {
-        // Save Creator Ledger
-        await pointLedgerModel.create({
-            user: creatorId,
-            tribe: creatorTribe,
-            challenge: challengeId,
-            submission: submissionId,
-            actionType: `RECEIVED_${ratingType}`,
-            basePoints: creatorBasePoints,
-            multiplier: creatorMultiplier,
-            finalPoints: creatorFinalPoints
-        });
-
-        // Award Creator
-        await awardPoints(creatorId, creatorTribe, 'creator', creatorFinalPoints);
+    if (firstRatingsCount < 25) {
+        const earlyCapped = !(await checkDailyCap(rankerId, "EARLY_TRACTION", 25));
+        if (!earlyCapped) {
+            await logPointTransaction(rankerId, rankerTribe, challengeId, weekendId, submissionId, "EARLY_TRACTION", 2, rankerMultiplier, false);
+        }
     }
+
+    const rankerFinal = await logPointTransaction(rankerId, rankerTribe, challengeId, weekendId, submissionId, `RATE_EASY`, rankerBasePoints, rankerMultiplier, isCapped);
+
+    await checkSubmissionMilestones(submissionId, creatorId, creatorTribe, challengeId, weekendId);
+    await processRaterMissions(rankerId, weekendId, rankerProfile);
 
     return {
         success: true,
         message: "Rating processed successfully",
+        data: { rankerPointsEarned: rankerFinal, creatorPointsEarned: 0 }
+    };
+};
+
+export const processDetailedRating = async (rankerId, submissionId, challengeId, ratingsArray, hasComment = true) => {
+
+    const existingLedger = await pointLedgerModel.findOne({
+        user: rankerId,
+        submission: submissionId,
+        actionType: 'RATE_DETAILED'
+    });
+
+    if (existingLedger) return { success: false, message: 'You have already rated this submission.' };
+
+    const submission = await submissionModel.findById(submissionId).populate("challenge");
+    if (!submission) return { success: false, message: 'Submission not found' };
+
+    const creatorId = submission.user;
+    const challenge = submission.challenge;
+    const weekendId = challenge.weekend;
+
+    const rankerProfile = await getUserProfile(rankerId);
+    const creatorProfile = await getUserProfile(creatorId);
+
+    const rankerTribe = rankerProfile ? rankerProfile.tribe : 'NONE';
+    const creatorTribe = creatorProfile ? creatorProfile.tribe : 'NONE';
+
+    const isCapped = !(await checkDailyCap(rankerId, "RATE_DETAILED", 60));
+
+    let rankerMultiplier = (rankerTribe === creatorTribe) ? 1.0 : 0.25;
+    let rankerBasePoints = 7;
+    if (hasComment) rankerBasePoints += 2;
+
+    const hoursSinceUpload = (Date.now() - new Date(submission.createdAt).getTime()) / (1000 * 60 * 60);
+    if (hoursSinceUpload < 24) rankerBasePoints += 2;
+    else if (hoursSinceUpload < 48) rankerBasePoints += 1;
+
+    const firstRatingsCount = await pointLedgerModel.countDocuments({
+        submission: submissionId,
+        actionType: { $regex: /^RATE_/ }
+    });
+    if (firstRatingsCount < 25) {
+        const earlyCapped = !(await checkDailyCap(rankerId, "EARLY_TRACTION", 25));
+        if (!earlyCapped) {
+            await logPointTransaction(rankerId, rankerTribe, challengeId, weekendId, submissionId, "EARLY_TRACTION", 2, rankerMultiplier, false);
+        }
+    }
+
+    const rankerFinal = await logPointTransaction(rankerId, rankerTribe, challengeId, weekendId, submissionId, 'RATE_DETAILED', rankerBasePoints, rankerMultiplier, isCapped);
+
+    await checkSubmissionMilestones(submissionId, creatorId, creatorTribe, challengeId, weekendId);
+    await processRaterMissions(rankerId, weekendId, rankerProfile);
+
+    return {
+        success: true,
+        message: 'Detailed rating processed successfully',
         data: {
-            rankerPointsEarned: rankerFinalPoints,
-            creatorPointsEarned: creatorFinalPoints
+            rankerPointsEarned: rankerFinal,
+            creatorPointsEarned: 0,
+            averageScore: 0
         }
     };
 };
@@ -137,11 +339,14 @@ export const processShare = async (rankerId, submissionId) => {
     });
 
     if (existingLedger) {
-        return { success: true, message: "Shared successfully (no points awarded this time)", data: { pointsEarned: 0 } };
+        return { success: true, message: "Shared successfully", data: { pointsEarned: 0 } };
     }
 
-    const submission = await submissionModel.findById(submissionId);
+    const submission = await submissionModel.findById(submissionId).populate("challenge");
     if (!submission) return { success: false, message: "Submission not found" };
+
+    const challenge = submission.challenge;
+    const weekendId = challenge.weekend;
 
     const rankerProfile = await getUserProfile(rankerId);
     const creatorProfile = await getUserProfile(submission.user);
@@ -149,46 +354,21 @@ export const processShare = async (rankerId, submissionId) => {
     const rankerTribe = rankerProfile ? rankerProfile.tribe : "NONE";
     const creatorTribe = creatorProfile ? creatorProfile.tribe : "NONE";
 
-    let multiplier = (rankerTribe === creatorTribe) ? 1 : 0.25;
-    let basePoints = 12; // Ranker points for sharing (or standard)
-    let finalPoints = basePoints * multiplier;
+    const isCapped = !(await checkDailyCap(rankerId, "SHARE", 1));
 
-    await pointLedgerModel.create({
-        user: rankerId,
-        tribe: rankerTribe,
-        challenge: submission.challenge,
-        submission: submissionId,
-        actionType: 'SHARE',
-        basePoints,
-        multiplier,
-        finalPoints
-    });
+    let multiplier = (rankerTribe === creatorTribe) ? 1.0 : 0.25;
+    let basePoints = 12;
 
-    await awardPoints(rankerId, rankerTribe, 'ranker', finalPoints);
-
-    // Also award points to the CREATOR
-    let creatorBasePoints = 12; // Creator gets 12 points when shared
-    await pointLedgerModel.create({
-        user: submission.user,
-        tribe: creatorTribe,
-        challenge: submission.challenge,
-        submission: submissionId,
-        actionType: 'RECEIVED_SHARE',
-        basePoints: creatorBasePoints,
-        multiplier: 1,
-        finalPoints: creatorBasePoints
-    });
-
-    await awardPoints(submission.user, creatorTribe, 'creator', creatorBasePoints);
+    const rankerFinal = await logPointTransaction(rankerId, rankerTribe, challenge._id, weekendId, submissionId, 'SHARE', basePoints, multiplier, isCapped);
 
     return {
         success: true,
-        message: "Share processed successfully",
-        data: { pointsEarned: finalPoints, creatorPointsEarned: creatorBasePoints }
+        message: "Share processed",
+        data: { pointsEarned: rankerFinal }
     };
 };
 
-export const processSubmissionUpload = async (userId, challengeId, submissionId, challengeStartAt) => {
+export const processSubmissionUpload = async (userId, challengeId, submissionId, challengeStartAt, hasTags = false) => {
     const existingLedger = await pointLedgerModel.findOne({
         user: userId,
         submission: submissionId,
@@ -199,110 +379,28 @@ export const processSubmissionUpload = async (userId, challengeId, submissionId,
         return { success: false, message: "Upload points already awarded." };
     }
 
+    const challenge = await challengeModel.findById(challengeId);
+    const weekendId = challenge.weekend;
+
     const creatorProfile = await getUserProfile(userId);
     const creatorTribe = creatorProfile ? creatorProfile.tribe : "NONE";
 
-    let basePoints = 5; // Default points for uploading
+    let basePoints = 8;
+    if (hasTags) basePoints += 2;
+
     if (challengeStartAt) {
         const hoursSinceStart = (Date.now() - new Date(challengeStartAt).getTime()) / (1000 * 60 * 60);
-        if (hoursSinceStart <= 24) {
-            basePoints = 10;
-        }
+        if (hoursSinceStart <= 24) basePoints += 4;
+        else if (hoursSinceStart <= 48) basePoints += 2;
     }
 
-    await pointLedgerModel.create({
-        user: userId,
-        tribe: creatorTribe,
-        challenge: challengeId,
-        submission: submissionId,
-        actionType: 'SUBMISSION_UPLOAD',
-        basePoints: basePoints,
-        multiplier: 1,
-        finalPoints: basePoints
-    });
+    const finalPoints = await logPointTransaction(userId, creatorTribe, challengeId, weekendId, submissionId, 'SUBMISSION_UPLOAD', basePoints, 1.0, false);
 
-    await awardPoints(userId, creatorTribe, 'creator', basePoints);
+    await processCreatorMissions(userId, weekendId, creatorProfile);
 
     return {
         success: true,
         message: "Upload points awarded successfully",
-        data: { pointsEarned: basePoints }
+        data: { pointsEarned: finalPoints }
     };
-};
-
-export const processDetailedRating = async (rankerId, submissionId, challengeId, ratingsArray) => {
-    const pointLedgerModel = (await import('../model/pointLedger.model.js')).default;
-    const submissionModel = (await import('../model/submission.model.js')).default;
-
-    const existingLedger = await pointLedgerModel.findOne({
-        user: rankerId,
-        submission: submissionId,
-        actionType: 'RATE_DETAILED'
-    });
-
-    if (existingLedger) {
-        return { success: false, message: 'You have already rated this submission.' };
-    }
-
-    const submission = await submissionModel.findById(submissionId);
-    if (!submission) return { success: false, message: 'Submission not found' };
-
-    const creatorId = submission.user;
-
-    const rankerProfile = await getUserProfile(rankerId);
-    const creatorProfile = await getUserProfile(creatorId);
-
-    const rankerTribe = rankerProfile ? rankerProfile.tribe : 'NONE';
-    const creatorTribe = creatorProfile ? creatorProfile.tribe : 'NONE';
-
-    // 1. Calculate the Average
-    const totalScore = ratingsArray.reduce((acc, curr) => acc + curr.score, 0);
-    const averageScore = ratingsArray.length > 0 ? totalScore / ratingsArray.length : 0;
-
-    let rankerMultiplier = (rankerTribe === creatorTribe) ? 1 : 0.25;
-    let rankerBasePoints = 5;
-    let rankerFinalPoints = rankerBasePoints * rankerMultiplier;
-
-    await pointLedgerModel.create({
-        user: rankerId,
-        tribe: rankerTribe,
-        challenge: challengeId,
-        submission: submissionId,
-        actionType: 'RATE_DETAILED',
-        basePoints: rankerBasePoints,
-        multiplier: rankerMultiplier,
-        finalPoints: rankerFinalPoints
-    });
-
-    await awardPoints(rankerId, rankerTribe, 'ranker', rankerFinalPoints);
-
-    // Creator gets exactly the mathematical average as points!
-    if (averageScore > 0) {
-        const creatorFinalPoints = Number(averageScore.toFixed(2));
-
-        await pointLedgerModel.create({
-            user: creatorId,
-            tribe: creatorTribe,
-            challenge: challengeId,
-            submission: submissionId,
-            actionType: 'RECEIVED_DETAILED_RATING',
-            basePoints: creatorFinalPoints,
-            multiplier: 1,
-            finalPoints: creatorFinalPoints
-        });
-
-        await awardPoints(creatorId, creatorTribe, 'creator', creatorFinalPoints);
-
-        return {
-            success: true,
-            message: 'Detailed rating processed successfully',
-            data: {
-                rankerPointsEarned: rankerFinalPoints,
-                creatorPointsEarned: creatorFinalPoints,
-                averageScore: averageScore
-            }
-        };
-    }
-
-    return { success: true, message: 'Processed, but no points awarded', data: { averageScore } };
 };
