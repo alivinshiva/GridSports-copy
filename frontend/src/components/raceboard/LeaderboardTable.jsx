@@ -31,7 +31,7 @@ const LeaderboardTable = ({ data, columns, enablePagination = false }) => {
     };
 
     return (
-        <div className="bg-[#101117] rounded-xl border border-white/5 overflow-hidden shadow-[0_0_30px_rgba(0,0,0,0.5)]">
+        <div className="bg-[#101117] rounded-xl mx-1 sm:mx-0 border border-white/5 overflow-hidden shadow-[0_0_30px_rgba(0,0,0,0.5)]">
             <div className="overflow-x-auto">
                 <table className="w-full border-collapse">
                     <thead>
@@ -39,7 +39,7 @@ const LeaderboardTable = ({ data, columns, enablePagination = false }) => {
                             {columns.map((col, index) => (
                                 <th
                                     key={index}
-                                    className={`px-4 sm:px-6 py-5 text-xs font-semibold uppercase tracking-wider text-white/80 ${col.align === 'right' ? 'text-right' : col.align === 'center' ? 'text-center' : 'text-left'}`}
+                                    className={`px-3 sm:px-6 py-3 sm:py-5 text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-white/80 ${col.align === 'right' ? 'text-right' : col.align === 'center' ? 'text-center' : 'text-left'} ${col.hideOnMobile ? 'hidden sm:table-cell' : ''}`}
                                 >
                                     {col.label}
                                 </th>
@@ -64,7 +64,7 @@ const LeaderboardTable = ({ data, columns, enablePagination = false }) => {
                                     {columns.map((col, colIndex) => (
                                         <td
                                             key={`${rowIndex}-${colIndex}`}
-                                            className={`px-4 sm:px-6 py-4 whitespace-nowrap ${col.align === 'right' ? 'text-right' : col.align === 'center' ? 'text-center' : 'text-left'}`}
+                                            className={`px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap ${col.align === 'right' ? 'text-right' : col.align === 'center' ? 'text-center' : 'text-left'} ${col.hideOnMobile ? 'hidden sm:table-cell' : ''}`}
                                         >
                                             {col.render ? col.render({ ...row, isHighlighted }) : (
                                                 <span className={`${isHighlighted ? 'text-black font-bold' : 'text-white/90 font-medium'}`}>{row[col.key]}</span>

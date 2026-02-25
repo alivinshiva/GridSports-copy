@@ -8,52 +8,56 @@ import { getCreatorLeaderboard, getRankerLeaderboard, getTribeLeaderboard } from
 const creatorsColumns = [
     {
         key: "rank", label: "RANK", render: (row) => (
-            <span className={`text-[17px] pl-2 ${row.isHighlighted ? 'text-[#3b82f6] font-normal' : 'text-white font-normal'}`}>{row.rank}</span>
+            <span className={`text-[15px] sm:text-[17px] pl-1 sm:pl-2 ${row.isHighlighted ? 'text-[#3b82f6] font-normal' : 'text-white font-normal'}`}>{row.rank}</span>
         )
     },
     {
         key: "name", label: "CREATOR", render: (row) => (
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3 sm:gap-4">
                 {row.avatar ? (
-                    <div className="size-10 rounded-full bg-cover bg-center" style={{ backgroundImage: `url('${row.avatar}')` }}></div>
+                    <div className="size-8 sm:size-10 rounded-full bg-cover bg-center shrink-0" style={{ backgroundImage: `url('${row.avatar}')` }}></div>
                 ) : (
-                    <div className="size-10 rounded-full bg-white flex items-center justify-center text-sm font-bold text-slate-900 shadow-sm border border-black/10">
+                    <div className="size-8 sm:size-10 rounded-full bg-white flex shrink-0 items-center justify-center text-xs sm:text-sm font-bold text-slate-900 shadow-sm border border-black/10">
                         {row.name ? row.name.charAt(0).toUpperCase() : ''}
                     </div>
                 )}
-                <div className="flex flex-col">
-                    <span className={`text-[15px] leading-tight text-white font-medium`}>{row.name}</span>
-                    <span className={`text-[11px] mt-0.5 text-white/70 font-normal`}>{row.subtitle || "Active bbb"}</span>
+                <div className="flex flex-col justify-center">
+                    <span className={`text-[13px] sm:text-[15px] leading-none text-white font-medium`}>{row.name}</span>
+                    {/* Mobile-only tribe indicator merged under name */}
+                    <div className="flex sm:hidden items-center gap-1.5 mt-1.5">
+                        <div className={`size-2.5 rounded-full bg-gradient-to-br ${row.color || "from-gray-500 to-gray-800"}`}></div>
+                        <span className={`text-[10px] uppercase tracking-wider text-white/90 font-medium leading-none`}>{row.tribe}</span>
+                    </div>
                 </div>
             </div>
         )
     },
     {
-        key: "tribe", label: "TRIBE", render: (row) => (
+        key: "tribe", label: "TRIBE", hideOnMobile: true, render: (row) => (
             <div className="flex items-center gap-2">
-                <div className={`size-3 rounded-full ${row.color || "bg-[#dc2626]"}`}></div>
+                <div className={`size-3 rounded-full bg-gradient-to-br ${row.color || "from-gray-500 to-gray-800"}`}></div>
                 <span className={`text-[13px] uppercase tracking-wider text-white font-medium`}>{row.tribe}</span>
             </div>
         )
     },
-    { key: "points", label: "SCORE", align: "center", render: (row) => <span className={`text-[15px] ${row.isHighlighted ? 'text-white font-normal' : 'text-white font-normal'}`}>{row.points}</span> },
+    { key: "points", label: "SCORE", align: "center", render: (row) => <span className={`text-[14px] sm:text-[15px] ${row.isHighlighted ? 'text-white font-normal' : 'text-white font-normal'}`}>{row.points}</span> },
 ];
 
 const tribesColumns = [
     {
         key: "rank", label: "RANK", render: (row) => (
-            <span className={`text-[17px] pl-2 ${row.isHighlighted ? 'text-[#3b82f6] font-normal' : 'text-white font-normal'}`}>{row.rank}</span>
+            <span className={`text-[15px] sm:text-[17px] pl-1 sm:pl-2 ${row.isHighlighted ? 'text-[#3b82f6] font-normal' : 'text-white font-normal'}`}>{row.rank}</span>
         )
     },
     {
         key: "name", label: "TRIBE", render: (row) => (
-            <div className="flex items-center gap-4">
-                <div className={`size-8 rounded-full bg-gradient-to-br ${row.avatar} shadow-sm border border-white/20`}></div>
-                <span className={`uppercase tracking-wide text-[15px] ${row.isHighlighted ? 'text-white font-medium' : 'text-white font-medium'}`}>{row.name}</span>
+            <div className="flex items-center gap-3 sm:gap-4">
+                <div className={`size-6 sm:size-8 rounded-full bg-gradient-to-br ${row.avatar} shadow-sm border border-white/20 shrink-0`}></div>
+                <span className={`uppercase tracking-wide text-[12px] sm:text-[15px] whitespace-normal sm:whitespace-nowrap ${row.isHighlighted ? 'text-white font-medium' : 'text-white font-medium'}`}>{row.name}</span>
             </div>
         )
     },
-    { key: "points", label: "SCORE", align: "center", render: (row) => <span className={`text-[15px] ${row.isHighlighted ? 'text-white font-normal' : 'text-white font-normal'}`}>{row.points}</span> },
+    { key: "points", label: "SCORE", align: "center", render: (row) => <span className={`text-[14px] sm:text-[15px] ${row.isHighlighted ? 'text-white font-normal' : 'text-white font-normal'}`}>{row.points}</span> },
 ];
 
 const ratersColumns = creatorsColumns; // reuse UI style
@@ -96,9 +100,8 @@ export default function Raceboard() {
                         name: c.name || `User ${idx + 1}`,
                         points: c.points ? c.points.toLocaleString() : "0",
                         avatar: c.avatar || null,
-                        subtitle: c.tribe ? "Active" : "Active",
                         tribe: c.tribe || "No Tribe",
-                        color: "bg-[#dc2626]",
+                        color: DefaultTribesColorMap[c.tribe] || "from-[#434343] to-[#000000]",
                         isHighlighted: Boolean(user && (c.userId === user._id || c._id === user._id || c.name === user.name))
                     }));
                 };
@@ -128,10 +131,10 @@ export default function Raceboard() {
 
     return (
         <AuthenticatedLayout>
-            <div className="max-w-[1000px] mx-auto px-4 py-10 pb-32 pt-20">
+            <div className="max-w-[1000px] mx-auto px-0 sm:px-4 py-10 pb-32 pt-20">
                 {/* Header Card */}
-                <div className="bg-[#181920] rounded-2xl p-4 md:p-6 mb-6 flex flex-col md:flex-row md:items-center justify-between gap-6 border border-white/5 shadow-2xl">
-                    <h2 className="text-[28px] md:text-3xl font-medium tracking-wide text-[#3b82f6] px-2">Season Leaderboard</h2>
+                <div className="bg-[#181920] rounded-2xl mx-1 sm:mx-0 p-4 md:p-6 mb-6 flex flex-col items-start md:flex-row md:items-center justify-between gap-4 md:gap-6 border border-white/5 shadow-2xl">
+                    <h2 className="text-[20px] md:text-3xl font-medium tracking-wide text-[#3b82f6] px-2 leading-none">Season Leaderboard</h2>
 
                     {/* Segmented Control Pill */}
                     <div className="flex bg-[#32323a] p-1.5 rounded-full w-full md:w-auto h-[46px] items-center">

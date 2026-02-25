@@ -177,11 +177,11 @@ export default function ProfilePage() {
                     </div>
                 </div>
             )}
-            <div className="flex flex-1 justify-center py-8">
-                <div className="layout-content-container flex flex-col max-w-[1024px] flex-1 px-4 md:px-0 w-full">
+            <div className="flex flex-1 justify-center sm:py-8">
+                <div className="layout-content-container flex flex-col max-w-[1024px] flex-1 w-full">
 
                     {/* Profile Header Section */}
-                    <div className="flex p-4 bg-white dark:bg-white/5 rounded-xl mb-6 shadow-sm border border-[#e8dbce] dark:border-white/10">
+                    <div className="flex p-4 bg-white dark:bg-white/5 rounded-none sm:rounded-xl mb-6 shadow-sm border-b sm:border border-[#e8dbce] dark:border-white/10">
                         <div className="flex w-full flex-col gap-6 md:flex-row md:justify-between md:items-center">
                             <div className="flex flex-col md:flex-row gap-4 md:gap-6 items-center w-full md:w-auto">
                                 <div
@@ -217,7 +217,7 @@ export default function ProfilePage() {
                     </div>
 
                     {/* Stats Section */}
-                    <div className="flex flex-wrap gap-4 mb-8">
+                    <div className="flex flex-wrap gap-4 mb-8 px-4 sm:px-0">
                         {/* Overall Points */}
                         <div className="flex min-w-[200px] flex-1 flex-col gap-2 rounded-xl p-6 bg-white dark:bg-white/5 border border-[#e8dbce] dark:border-white/10 shadow-sm hover:border-primary/40 transition-colors">
                             <div className="flex items-center justify-between">
@@ -253,8 +253,8 @@ export default function ProfilePage() {
                     <div className="flex flex-col gap-8">
                         {/* Main Tabs & Content */}
                         <div className="flex flex-col gap-4 w-full">
-                            <div className="pb-3 bg-white dark:bg-white/5 rounded-t-xl">
-                                <div className="flex border-b border-[#e8dbce] dark:border-white/10 px-4 gap-8">
+                            <div className="pb-3 bg-white dark:bg-white/5 rounded-none sm:rounded-t-xl">
+                                <div className="flex border-b border-[#e8dbce] dark:border-white/10 px-4 sm:px-0 gap-8">
                                     <button
                                         onClick={() => setActiveTab("images")}
                                         className={`flex flex-col items-center justify-center border-b-[3px] ${activeTab === "images" ? "border-b-primary text-[#1c140d] dark:text-white" : "border-b-transparent text-[#9c7349] dark:text-[#c4a17d]"} pb-[13px] pt-4 transition-colors`}
