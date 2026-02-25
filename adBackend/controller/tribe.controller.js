@@ -22,13 +22,11 @@ export const addPoints = async (req, res) => {
             });
         }
 
-        const tribe = await Tribe.findOne({ name: tribeName });
+        let tribe = await Tribe.findOne({ name: tribeName });
 
         if (!tribe) {
-            return res.status(404).json({
-                success: false,
-                message: `Tribe with name '${tribeName}' not found.`
-            });
+            // Create the tribe if it doesn't already exist in the database
+            tribe = new Tribe({ name: tribeName, totalPoints: 0 });
         }
 
         // Add the points

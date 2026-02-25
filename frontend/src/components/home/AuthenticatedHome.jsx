@@ -1,36 +1,58 @@
 import { useEffect, useState } from "react";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 import { Hero } from "@/components/home/Hero";
-import { WeekendChallenges } from "@/components/home/WeekendChallenges";
-import { DiscoveryFeed } from "@/components/home/DiscoveryFeed";
-import { ChallengeStatusSection } from "@/components/home/ChallengeStatusSection";
-import { getAllActiveWeekends } from "@/services/weekendService";
+import { ThisWeekend } from "@/components/home/ThisWeekend";
+import { UpcomingLocations } from "@/components/home/UpcomingLocations";
+import { getAllActiveWeekends, getAllUpcomingWeekends } from "@/services/weekendService";
 
 export function AuthenticatedHome() {
-    const [weekends, setWeekends] = useState([]);
+    const [activeWeekends, setActiveWeekends] = useState([]);
+    const [upcomingWeekends, setUpcomingWeekends] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchWeekends = async () => {
             try {
-                // Use the new service to fetch only active weekends
-                const response = await getAllActiveWeekends();
-                if (response.success && response.data.length > 0) {
-                    setWeekends(response.data);
+                // Fetch active weekends to populate Hero and ThisWeekend
+                const activeRes = await getAllActiveWeekends();
+                if (activeRes.success) {
+                    setActiveWeekends(activeRes.data);
+                }
+
+                // Fetch upcoming weekends to populate UpcomingLocations
+                const upcomingRes = await getAllUpcomingWeekends();
+                if (upcomingRes.success) {
+                    setUpcomingWeekends(upcomingRes.data);
                 }
             } catch (error) {
-                console.error("Failed to fetch active weekends for Hero:", error);
+                console.error("Failed to fetch weekends:", error);
+            } finally {
+                setLoading(false);
             }
         };
 
         fetchWeekends();
     }, []);
 
+    // Active weekend is the first one
+    const activeWeekend = activeWeekends[0] || null;
+
     return (
-        <AuthenticatedLayout>
-            <Hero weekends={weekends || []} />
-            <WeekendChallenges />
-            <ChallengeStatusSection />
-            <DiscoveryFeed />
+        <AuthenticatedLayout fullWidth={true} customBg="bg-[#0a0f16] text-white">
+            <div className="pb-20">
+                {!loading && (
+                    <>
+                        {/* Passes all weekends, Hero component selects the first one */}
+                        <Hero weekends={activeWeekends} />
+
+                        {/* Displays challenges for the active weekend */}
+                        <ThisWeekend weekend={activeWeekend} />
+
+                        {/* Displays cards for future upcoming weekends */}
+                        <UpcomingLocations upcomingWeekends={upcomingWeekends} />
+                    </>
+                )}
+            </div>
         </AuthenticatedLayout>
     );
 }

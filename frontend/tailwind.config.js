@@ -36,6 +36,7 @@ export default {
                 sans: ['"Outfit"', 'sans-serif'],
                 display: ['"Be Vietnam Pro"', "sans-serif"], // New
                 body: ['"Noto Sans"', "sans-serif"], // New
+                feguropic: ['"Feguropic"', 'sans-serif'],
             },
             borderRadius: { "DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px" }, // Validated from snippet
         },

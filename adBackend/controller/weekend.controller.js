@@ -149,3 +149,12 @@ export const getAllActiveWeekendController = async (req, res) => {
         return res.status(500).json({ success: false, message: "Internal Server Error", error: error.message });
     }
 }
+
+export const getAllUpcomingWeekendController = async (req, res) => {
+    try {
+        const weekends = await weekendModel.find({ status: "UPCOMING" });
+        return res.status(200).json({ success: true, message: "Upcoming Weekends Fetched Successfully", data: weekends });
+    } catch (error) {
+        return res.status(500).json({ success: false, message: "Internal Server Error", error: error.message });
+    }
+}

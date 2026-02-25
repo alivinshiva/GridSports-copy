@@ -1,54 +1,104 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { getAllHeroes } from "../../services/heroService";
+import f1CarBg from "../../assets/f1_car.png";
 
-export function Hero() {
-    const [heroData, setHeroData] = useState(null);
+export function Hero({ weekends }) {
+    const [timeLeft, setTimeLeft] = useState({
+        days: "00", hours: "00", minutes: "00", seconds: "00"
+    });
+
+    const activeWeekend = weekends?.[0] || null;
 
     useEffect(() => {
-        const fetchHeroes = async () => {
-            try {
-                const response = await getAllHeroes();
-                if (response.success && response.data.length > 0) {
-                    setHeroData(response.data[0]);
-                }
-            } catch (error) {
-                console.error("Failed to fetch heroes:", error);
-            }
-        };
-        fetchHeroes();
-    }, []);
+        if (!activeWeekend?.endDate) return;
 
-    const currentHero = heroData || {
-        name: "Grid Race",
-        location: "Bahrain",
-        imageUrl: "https://lh3.googleusercontent.com/aida-public/AB6AXuC9V8JczUYEIpqpoa6nJo1saMAaKDx0DMxf0-3IP97IIrbrjozybmJczzPtXASTUOKnI5cPOzMyaFyrTQodgYa_qO6nC4JD7XeYfxmE0cd4TY8h2sZP03STsOfqYvh3ZLMdKou9MAq-_wBkVJUokOJ8GWunivnvgieqX7B_-jC0znWm4Cl-J9zVoIN7EL8y-J2rGg-PQw_PbTbykap0DGMMuMaUNgXmTzIl72B5t82D1F9JnbdyBCiAcNqZkEL0QhSpFmoRjNA3gBU"
-    };
+        const timer = setInterval(() => {
+            const target = new Date(activeWeekend.endDate).getTime();
+            const now = new Date().getTime();
+            const difference = target - now;
+
+            if (difference <= 0) {
+                clearInterval(timer);
+                return;
+            }
+
+            const d = Math.floor(difference / (1000 * 60 * 60 * 24));
+            const h = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const m = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+            const s = Math.floor((difference % (1000 * 60)) / 1000);
+
+            setTimeLeft({
+                days: d < 10 ? `0${d}` : `${d}`,
+                hours: h < 10 ? `0${h}` : `${h}`,
+                minutes: m < 10 ? `0${m}` : `${m}`,
+                seconds: s < 10 ? `0${s}` : `${s}`,
+            });
+        }, 1000);
+
+        return () => clearInterval(timer);
+    }, [activeWeekend]);
 
     return (
-        <section className="mb-10">
-            <div className="group relative overflow-hidden rounded-xl bg-white dark:bg-[#2d2218] shadow-sm border border-[#f4ede7] dark:border-[#3d2e21] flex flex-col md:flex-row">
-                {/* Changed h-64 to aspect-video for better mobile sizing as requested: "remove the image size of top... make it responsive" */}
-                <div className="w-full md:w-2/3 aspect-video md:aspect-auto md:h-auto bg-cover bg-center" data-alt={currentHero.name} style={{ backgroundImage: `url('${currentHero.imageUrl}')` }}>
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent md:bg-gradient-to-r"></div>
-                </div>
-                <div className="relative w-full md:w-1/3 p-8 flex flex-col justify-center gap-4">
-                    <div className="flex items-center gap-2">
-                        <span className="flex h-2 w-2 rounded-full bg-primary animate-pulse"></span>
-                        <p className="text-primary text-sm font-bold uppercase tracking-wider">Race Live</p>
+        <section className="relative w-full h-[600px] md:h-[700px] xl:h-[800px] bg-[#0a0f16] overflow-hidden flex flex-col justify-center">
+            {/* Background Image */}
+            <div
+                className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-90 mixing-blend-screen"
+                style={{ backgroundImage: `url('${activeWeekend?.imageUrl || f1CarBg}')` }}
+            >
+                {/* Gradient Masks to blend into the dark theme bottom */}
+                <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[#0a0f16] to-transparent"></div>
+                <div className="absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-[#0a0f16]/80 to-transparent"></div>
+            </div>
+
+            {/* Content Container */}
+            <div className="relative z-10 max-w-[1200px] mx-auto px-4 md:px-6 w-full pt-16">
+                <div className="max-w-xl">
+
+                    {/* Race Live Badge */}
+                    {/* <div className="inline-flex items-center gap-2 px-3 py-1 bg-white rounded-full mb-6 shadow-lg bg-gradient-to-b from-[#8c6A00] via-[#FACC15] to-[#F5D76E]">
+                        <span className="text-blac text-[10px] md:text-xs font-bold uppercase tracking-widest leading-none">
+                            Race Live
+                        </span>
+                    </div> */}
+
+                    {/* Title */}
+                    <div className="flex flex-col gap-1 mb-6">
+                        <h1 className="text-4xl md:text-6xl xl:text-7xl font-feguropic font-black text-white italic tracking-widest uppercase leading-none" style={{ WebkitTextStroke: '1px rgba(255,255,255,0.1)' }}>
+                            {activeWeekend?.title || "GRID RACE"}
+                        </h1>
+                        <h2 className="text-4xl md:text-6xl xl:text-7xl font-feguropic font-black text-white italic tracking-widest uppercase leading-none">
+                            {activeWeekend?.location || "BAHRAIN"}
+                        </h2>
                     </div>
-                    <div>
-                        <p className="text-[#9c7349] dark:text-[#c4a68a] text-sm font-medium">Current Round</p>
-                        <h2 className="text-3xl font-extrabold leading-tight">{currentHero.name} - {currentHero.location}</h2>
+
+                    {/* Countdown Timer */}
+                    <div className="flex items-center gap-1 md:gap-2 text-2xl md:text-4xl xl:text-5xl font-bold text-white tracking-widest mb-10">
+                        <span>{timeLeft.days}</span>
+                        <span className="text-white/60 pb-1">:</span>
+                        <span>{timeLeft.hours}</span>
+                        <span className="text-white/60 pb-1">:</span>
+                        <span>{timeLeft.minutes}</span>
+                        <span className="text-white/60 pb-1">:</span>
+                        <span>{timeLeft.seconds}</span>
                     </div>
-                    <div className="flex flex-col gap-3 mt-4">
-                        <Link to="/schedule" className="w-full py-3 bg-primary hover:bg-primary/90 text-white font-bold rounded-xl transition-all shadow-lg shadow-primary/20 flex items-center justify-center">
-                            Enter Race
+
+                    {/* Buttons */}
+                    <div className="flex flex-col sm:flex-row items-center gap-4">
+                        <Link
+                            to={activeWeekend ? `/weekend/${activeWeekend._id}` : "#"}
+                            className="w-full sm:w-auto px-8 py-3 bg-gradient-to-r from-[#3B82F6] to-[#2ED1B8] shadow-[0_0_25px_rgba(46,209,184,0.7)] hover:shadow-[0_0_15px_rgba(46,209,184,0.9)] text-white font-bold uppercase tracking-widest text-sm rounded-full transition-all active:scale-95 text-center flex items-center justify-center leading-none"
+                        >
+                            Race Live
                         </Link>
-                        <Link to="/raceboard" className="w-full py-3 bg-[#f4ede7] dark:bg-[#3d2e21] text-[#1c140d] dark:text-white font-bold rounded-xl transition-all hover:bg-[#ebe2d9] flex items-center justify-center">
-                            See Raceboard
+
+                        <Link
+                            to="#"
+                            className="w-full sm:w-auto px-8 py-3 bg-white/10 backdrop-blur-md text-white border border-white/20 font-bold uppercase tracking-widest text-sm rounded-full transition-colors hover:bg-white/20 text-center flex items-center justify-center leading-none"
+                        >
+                            See Race Track
                         </Link>
                     </div>
+
                 </div>
             </div>
         </section>

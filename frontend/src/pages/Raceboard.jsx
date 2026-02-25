@@ -1,34 +1,62 @@
 import { useState, useEffect } from "react";
-import { ArrowUp, ArrowDown, Minus } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 import LeaderboardTable from "@/components/raceboard/LeaderboardTable";
 import { getCreatorLeaderboard, getRankerLeaderboard, getTribeLeaderboard } from "@/services/leaderboardService";
 
-
-// The actual mapping will happen via the API inside the component
+// Helper Columns
 const creatorsColumns = [
     {
-        key: "rank", label: "Rank", render: (row) => (
-            <div className="flex items-center gap-1.5">
-                <span className="text-sm font-bold text-slate-900 dark:text-white">#{row.rank}</span>
-                {row.trend === 'up' && <ArrowUp size={16} className="text-green-500" />}
-                {row.trend === 'down' && <ArrowDown size={16} className="text-red-500" />}
-                {row.trend === 'neutral' && <Minus size={16} className="text-gray-400" />}
+        key: "rank", label: "RANK", render: (row) => (
+            <span className={`text-[17px] pl-2 ${row.isHighlighted ? 'text-[#3b82f6] font-normal' : 'text-white font-normal'}`}>{row.rank}</span>
+        )
+    },
+    {
+        key: "name", label: "CREATOR", render: (row) => (
+            <div className="flex items-center gap-4">
+                {row.avatar ? (
+                    <div className="size-10 rounded-full bg-cover bg-center" style={{ backgroundImage: `url('${row.avatar}')` }}></div>
+                ) : (
+                    <div className="size-10 rounded-full bg-white flex items-center justify-center text-sm font-bold text-slate-900 shadow-sm border border-black/10">
+                        {row.name ? row.name.charAt(0).toUpperCase() : ''}
+                    </div>
+                )}
+                <div className="flex flex-col">
+                    <span className={`text-[15px] leading-tight text-white font-medium`}>{row.name}</span>
+                    <span className={`text-[11px] mt-0.5 text-white/70 font-normal`}>{row.subtitle || "Active bbb"}</span>
+                </div>
             </div>
         )
     },
     {
-        key: "name", label: "Creator", render: (row) => (
-            <div className="flex items-center gap-3">
-                <div className="size-8 rounded-full bg-cover bg-center" style={{ backgroundImage: `url('${row.avatar}')` }}></div>
-                <span className="font-bold">{row.name}</span>
+        key: "tribe", label: "TRIBE", render: (row) => (
+            <div className="flex items-center gap-2">
+                <div className={`size-3 rounded-full ${row.color || "bg-[#dc2626]"}`}></div>
+                <span className={`text-[13px] uppercase tracking-wider text-white font-medium`}>{row.tribe}</span>
             </div>
         )
     },
-    { key: "id", label: "Racing ID", render: (row) => <span className="text-sm font-mono text-[#9c7349] dark:text-[#c5a17e]">{row.id}</span> },
-    { key: "tribe", label: "Tribe", render: (row) => <span className="px-3 py-1 bg-[#f4ede7] dark:bg-[#3d2d1e] text-slate-700 dark:text-[#c5a17e] rounded-full text-xs font-bold uppercase tracking-tighter">{row.tribe}</span> },
-    { key: "points", label: "Season Points", align: "right", render: (row) => <span className="font-black text-primary">{row.points}</span> },
+    { key: "points", label: "SCORE", align: "center", render: (row) => <span className={`text-[15px] ${row.isHighlighted ? 'text-white font-normal' : 'text-white font-normal'}`}>{row.points}</span> },
 ];
+
+const tribesColumns = [
+    {
+        key: "rank", label: "RANK", render: (row) => (
+            <span className={`text-[17px] pl-2 ${row.isHighlighted ? 'text-[#3b82f6] font-normal' : 'text-white font-normal'}`}>{row.rank}</span>
+        )
+    },
+    {
+        key: "name", label: "TRIBE", render: (row) => (
+            <div className="flex items-center gap-4">
+                <div className={`size-8 rounded-full bg-gradient-to-br ${row.avatar} shadow-sm border border-white/20`}></div>
+                <span className={`uppercase tracking-wide text-[15px] ${row.isHighlighted ? 'text-white font-medium' : 'text-white font-medium'}`}>{row.name}</span>
+            </div>
+        )
+    },
+    { key: "points", label: "SCORE", align: "center", render: (row) => <span className={`text-[15px] ${row.isHighlighted ? 'text-white font-normal' : 'text-white font-normal'}`}>{row.points}</span> },
+];
+
+const ratersColumns = creatorsColumns; // reuse UI style
 
 const DefaultTribesColorMap = {
     "IRON TRIBE": "from-[#434343] to-[#000000]",
@@ -43,60 +71,13 @@ const DefaultTribesColorMap = {
     "AZURE TRIBE": "from-[#007fff] to-[#000080]",
     "SILVER TRIBE": "from-[#c0c0c0] to-[#71706e]"
 };
-const tribesColumns = [
-    {
-        key: "rank", label: "Rank", render: (row) => (
-            <div className="flex items-center gap-1.5">
-                <span className="text-sm font-bold text-slate-900 dark:text-white">#{row.rank}</span>
-                {row.trend === 'up' && <ArrowUp size={16} className="text-green-500" />}
-                {row.trend === 'down' && <ArrowDown size={16} className="text-red-500" />}
-                {row.trend === 'neutral' && <Minus size={16} className="text-gray-400" />}
-            </div>
-        )
-    },
-    {
-        key: "name", label: "Tribe", render: (row) => (
-            <div className="flex items-center gap-3">
-                <div className={`size-8 rounded-lg bg-gradient-to-br ${row.color} shadow-sm border border-white/20`}></div>
-                <span className="font-black uppercase tracking-wide text-slate-900 dark:text-white">{row.name}</span>
-            </div>
-        )
-    },
-    { key: "members", label: "Members", render: (row) => <span className="text-sm font-medium text-slate-500 dark:text-gray-400">{row.members} Members</span> },
-    { key: "points", label: "Total Points", align: "right", render: (row) => <span className="font-black text-primary text-base">{row.points}</span> },
-];
-
-const rankersColumns = [
-    {
-        key: "rank", label: "Rank", render: (row) => (
-            <div className="flex items-center gap-1.5">
-                <span className="text-sm font-bold text-slate-900 dark:text-white">#{row.rank}</span>
-                {row.trend === 'up' && <ArrowUp size={16} className="text-green-500" />}
-                {row.trend === 'down' && <ArrowDown size={16} className="text-red-500" />}
-                {row.trend === 'neutral' && <Minus size={16} className="text-gray-400" />}
-            </div>
-        )
-    },
-    {
-        key: "name", label: "Ranker", render: (row) => (
-            <div className="flex items-center gap-3">
-                <div className="size-8 rounded-full bg-slate-200 dark:bg-white/10 flex items-center justify-center text-xs font-bold text-slate-500">
-                    {row.name[0]}
-                </div>
-                <span className="font-bold text-slate-900 dark:text-white">{row.name}</span>
-            </div>
-        )
-    },
-    { key: "reviews", label: "Reviews", render: (row) => <span className="text-sm font-mono text-[#9c7349] dark:text-[#c5a17e]">{row.reviews}</span> },
-    { key: "accuracy", label: "Accuracy", render: (row) => <span className="px-2 py-1 bg-green-500/10 text-green-600 rounded text-xs font-bold">{row.accuracy}</span> },
-    { key: "points", label: "Reputation Points", align: "right", render: (row) => <span className="font-black text-primary">{row.points}</span> },
-];
 
 export default function Raceboard() {
+    const { user } = useAuth();
     const [activeTab, setActiveTab] = useState('creators');
     const [dataState, setDataState] = useState({
         creatorsTableData: [],
-        rankersTableData: [],
+        ratersTableData: [],
         tribesTableData: []
     });
 
@@ -109,86 +90,58 @@ export default function Raceboard() {
                     getTribeLeaderboard()
                 ]);
 
-                // Make sure at least one of the top 3 shows a red down arrow so it's visible with few entries
-                const getMockTrend = (idx) => {
-                    if (idx === 0) return 'neutral';
-                    if (idx === 1) return 'down';   // 2nd place moved down
-                    if (idx === 2) return 'up';     // 3rd place moved up
-                    return idx % 2 === 0 ? 'down' : 'up';
+                const processData = (realData) => {
+                    return (realData || []).map((c, idx) => ({
+                        rank: idx + 1,
+                        name: c.name || `User ${idx + 1}`,
+                        points: c.points ? c.points.toLocaleString() : "0",
+                        avatar: c.avatar || null,
+                        subtitle: c.tribe ? "Active" : "Active",
+                        tribe: c.tribe || "No Tribe",
+                        color: "bg-[#dc2626]",
+                        isHighlighted: Boolean(user && (c.userId === user._id || c._id === user._id || c.name === user.name))
+                    }));
                 };
 
-                // Map results to UI format
-                // Creators
-                const creators = creatorsRes.data || [];
-                const fmtCreators = creators.map((c, idx) => ({
-                    rank: idx + 1,
-                    trend: getMockTrend(idx),
-                    name: c.name,
-                    id: c._id.slice(-6).toUpperCase(),
-                    points: `${c.points.toLocaleString()} PTS`,
-                    avatar: c.avatar || "https://i.pravatar.cc/150",
-                    subtitle: c.tribe || "No Tribe",
-                    tribe: c.tribe || "No Tribe"
-                }));
-
-                // Rankers
-                const rankers = rankersRes.data || [];
-                const fmtRankers = rankers.map((r, idx) => ({
-                    rank: idx + 1,
-                    trend: getMockTrend(idx),
-                    name: r.name,
-                    points: `${r.points.toLocaleString()} REP`,
-                    avatar: r.avatar || "https://i.pravatar.cc/150",
-                    subtitle: r.tribe || "Reviewer",
-                    reviews: Math.floor(r.points / 3) || 0, // Mock reviews
-                    accuracy: "98%"
-                }));
-
-                // Tribes
-                const tribes = tribesRes.data || [];
-                const fmtTribes = tribes.map((t, idx) => ({
-                    rank: idx + 1,
-                    name: t.name,
-                    trend: getMockTrend(idx),
-                    points: `${t.totalPoints.toLocaleString()} PTS`,
-                    avatar: DefaultTribesColorMap[t.name] || "from-[#434343] to-[#000000]",
-                    subtitle: "Dominating Force", // Mock
-                    color: DefaultTribesColorMap[t.name] || "from-[#434343] to-[#000000]",
-                    members: "1,000+" // Mock
-                }));
+                const processTribes = (realData) => {
+                    return (realData || []).map((t, idx) => ({
+                        rank: idx + 1,
+                        name: t.name,
+                        points: t.totalPoints ? t.totalPoints.toLocaleString() : "0",
+                        avatar: DefaultTribesColorMap[t.name] || "from-[#434343] to-[#000000]",
+                        isHighlighted: Boolean(user && user.tribe && t.name === user.tribe)
+                    }));
+                };
 
                 setDataState({
-                    creatorsTableData: fmtCreators,
-                    rankersTableData: fmtRankers,
-                    tribesTableData: fmtTribes
+                    creatorsTableData: processData(creatorsRes.data),
+                    ratersTableData: processData(rankersRes.data),
+                    tribesTableData: processTribes(tribesRes.data)
                 });
 
             } catch (err) {
                 console.error("Failed to fetch leaderboards", err);
             }
         };
-
         fetchAll();
-    }, []);
+    }, [user]);
 
     return (
         <AuthenticatedLayout>
-            <div className="max-w-[1000px] mx-auto px-4 py-10 pb-32">
-                {/* Page Heading */}
-                <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
-                    <div className="flex flex-col gap-1">
-                        <h2 className="text-4xl font-black tracking-tight text-slate-900 dark:text-white">Season Leaderboard</h2>
-                        <p className="text-[#9c7349] dark:text-[#c5a17e]">The global elite ranking for Season 08: Velocity.</p>
-                    </div>
-                    {/* Segmented Control */}
-                    <div className="flex bg-[#f4ede7] dark:bg-[#2d2116] p-1 rounded-xl w-full md:w-auto h-12">
-                        {['creators', 'tribes', 'rankers'].map((tab) => (
+            <div className="max-w-[1000px] mx-auto px-4 py-10 pb-32 pt-20">
+                {/* Header Card */}
+                <div className="bg-[#181920] rounded-2xl p-4 md:p-6 mb-6 flex flex-col md:flex-row md:items-center justify-between gap-6 border border-white/5 shadow-2xl">
+                    <h2 className="text-[28px] md:text-3xl font-medium tracking-wide text-[#3b82f6] px-2">Season Leaderboard</h2>
+
+                    {/* Segmented Control Pill */}
+                    <div className="flex bg-[#32323a] p-1.5 rounded-full w-full md:w-auto h-[46px] items-center">
+                        {['creators', 'tribes', 'raters'].map((tab) => (
                             <button
                                 key={tab}
                                 onClick={() => setActiveTab(tab)}
-                                className={`px-6 rounded-lg text-sm font-bold flex items-center justify-center transition-all capitalize ${activeTab === tab
-                                    ? "bg-white dark:bg-primary shadow-sm text-slate-900 dark:text-white"
-                                    : "text-[#9c7349] dark:text-[#c5a17e] hover:text-[#1c140d] dark:hover:text-white"
+                                className={`px-4 md:px-6 h-full rounded-full text-[13px] md:text-sm font-semibold flex items-center justify-center transition-all min-w-[80px] md:min-w-[100px] capitalize ${activeTab === tab
+                                    ? "bg-gradient-to-r from-[#70b1ff] to-[#59d5e0] shadow-[0_0_15px_rgba(112,177,255,0.3)] text-white"
+                                    : "text-white/70 hover:text-white"
                                     }`}
                             >
                                 {tab}
@@ -199,15 +152,15 @@ export default function Raceboard() {
 
                 {/* Content switching based on tab */}
                 {activeTab === 'creators' && (
-                    <LeaderboardTable data={dataState.creatorsTableData} columns={creatorsColumns} />
+                    <LeaderboardTable data={dataState.creatorsTableData} columns={creatorsColumns} enablePagination={true} />
                 )}
 
                 {activeTab === 'tribes' && (
-                    <LeaderboardTable data={dataState.tribesTableData} columns={tribesColumns} />
+                    <LeaderboardTable data={dataState.tribesTableData} columns={tribesColumns} enablePagination={false} />
                 )}
 
-                {activeTab === 'rankers' && (
-                    <LeaderboardTable data={dataState.rankersTableData} columns={rankersColumns} />
+                {activeTab === 'raters' && (
+                    <LeaderboardTable data={dataState.ratersTableData} columns={ratersColumns} enablePagination={true} />
                 )}
 
             </div>
