@@ -1,8 +1,46 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { getAllRandomSubmissions, rateSubmission, recordShare, rateDetailed } from "@/services/submissionService";
-import { Loader2, ArrowLeft, Volume2, VolumeX, Heart, ThumbsUp, ThumbsDown, Share2, Facebook, Instagram, MessageCircle, Link as LinkIcon, X, CheckSquare, Star } from "lucide-react";
-import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
+import { Loader2, ArrowLeft, Volume2, VolumeX, Heart, ThumbsUp, ThumbsDown, Share2, Facebook, Instagram, MessageCircle, Link as LinkIcon, X, CheckSquare, Star, Home, User } from "lucide-react";
+import { BottomNav } from "@/components/home/BottomNav";
+
+const FeedDesktopSidebar = () => {
+    const location = useLocation();
+    const isActive = (path) => {
+        if (path === '/' && location.pathname !== '/') return false;
+        return location.pathname.startsWith(path);
+    };
+
+    return (
+        <div className="hidden md:flex flex-col w-[250px] h-full border-r border-white/10 bg-black pt-8 px-4 flex-shrink-0 z-50">
+            <div className="mb-10 px-4">
+                <h1 className="text-2xl font-extrabold tracking-tight text-white drop-shadow-md cursor-pointer pb-2 border-b border-white/10">Grid Sports</h1>
+            </div>
+
+            <nav className="flex flex-col gap-2">
+                <Link to="/" className={`flex items-center gap-4 px-4 py-3 rounded-xl transition-all ${isActive('/') ? 'bg-white/10 text-white font-bold' : 'text-gray-400 hover:bg-white/5 hover:text-white'}`}>
+                    <Home size={24} />
+                    <span className="text-sm uppercase tracking-wider">Home</span>
+                </Link>
+
+                <Link to="/challenge/feed" className={`flex items-center gap-4 px-4 py-3 rounded-xl transition-all ${isActive('/challenge/feed') ? 'bg-white/10 text-white font-bold' : 'text-gray-400 hover:bg-white/5 hover:text-white'}`}>
+                    <span className="material-symbols-outlined text-[24px]">sports_score</span>
+                    <span className="text-sm uppercase tracking-wider">Discovery</span>
+                </Link>
+
+                <Link to="/raceboard" className={`flex items-center gap-4 px-4 py-3 rounded-xl transition-all ${isActive('/raceboard') ? 'bg-white/10 text-white font-bold' : 'text-gray-400 hover:bg-white/5 hover:text-white'}`}>
+                    <span className="material-symbols-outlined text-[24px]">leaderboard</span>
+                    <span className="text-sm uppercase tracking-wider">Rank</span>
+                </Link>
+
+                <Link to="/profile" className={`flex items-center gap-4 px-4 py-3 rounded-xl transition-all ${isActive('/profile') ? 'bg-white/10 text-white font-bold' : 'text-gray-400 hover:bg-white/5 hover:text-white'}`}>
+                    <User size={24} />
+                    <span className="text-sm uppercase tracking-wider">Profile</span>
+                </Link>
+            </nav>
+        </div>
+    );
+};
 
 const SubmissionFeed = () => {
     const location = useLocation();
@@ -208,208 +246,224 @@ const SubmissionFeed = () => {
     };
 
     return (
-        <AuthenticatedLayout>
-            {/* Vertical Scroll Snap Container */}
-            <div className="w-full h-[calc(100dvh-70px)] md:h-[calc(100vh-80px)] md:max-w-[420px] mx-auto bg-black overflow-y-scroll snap-y snap-mandatory no-scrollbar relative md:rounded-xl md:shadow-2xl" style={{ scrollBehavior: 'smooth' }}>
-                {feed.map((entry, index) => {
-                    return (
-                        <div
-                            key={`${entry._id}-${index}`}
-                            data-id={entry._id}
-                            className="submission-slide h-full w-full snap-start snap-always relative flex items-center justify-center bg-black"
-                        >
-                            {/* Media */}
-                            <div className="relative w-full h-full flex items-center justify-center cursor-pointer" onClick={toggleMute}>
-                                {entry.mediaType === 'video' ? (
-                                    <video
-                                        src={entry.mediaUrl}
-                                        className="h-full w-full object-contain"
-                                        playsInline
-                                        autoPlay={true}
-                                        muted={muted}
-                                        loop
-                                    />
-                                ) : (
-                                    <img
-                                        src={entry.mediaUrl}
-                                        className="h-full w-full object-contain"
-                                        alt="Submission"
-                                    />
-                                )}
+        <div className="flex w-full h-[100dvh] bg-black overflow-hidden relative">
+            <FeedDesktopSidebar />
 
-                                {/* Gradient Overlay */}
-                                <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none"></div>
-                            </div>
+            <main className="flex-1 h-full flex justify-center items-center relative z-10 w-full overflow-hidden">
+                {/* Back Button for mobile top-left over feed */}
+                <div className="absolute top-4 left-4 z-50 md:hidden">
+                    <Link to="/" className="w-10 h-10 rounded-full bg-black/50 backdrop-blur-md flex items-center justify-center text-white hover:bg-black/70 transition-colors">
+                        <ArrowLeft size={24} />
+                    </Link>
+                </div>
 
-                            {/* Actions Container */}
-                            <div className="absolute inset-x-0 bottom-6 z-20 pointer-events-none">
-                                {/* Vertical Sidebar (Share, Mute) positioned above Love icon */}
-                                <div className="absolute right-6 bottom-full mb-6 flex flex-col items-center gap-6 text-white pointer-events-auto">
-                                    <button onClick={(e) => handleShareClick(e, entry._id)} className="flex flex-col items-center gap-1 transition-transform active:scale-95">
-                                        <div className="p-3 bg-white/10 backdrop-blur-md rounded-full shadow-lg hover:bg-white/20">
-                                            <Share2 size={24} />
-                                        </div>
-                                        <span className="text-xs font-bold drop-shadow-md">Share</span>
-                                    </button>
+                {/* Vertical Scroll Snap Container */}
+                <div className="w-full h-full md:h-[calc(100vh-40px)] md:max-w-[420px] mx-auto bg-black overflow-y-scroll snap-y snap-mandatory no-scrollbar relative md:rounded-2xl md:shadow-[0_0_40px_transparent] md:border md:border-white/5" style={{ scrollBehavior: 'smooth' }}>
+                    {feed.map((entry, index) => {
+                        return (
+                            <div
+                                key={`${entry._id}-${index}`}
+                                data-id={entry._id}
+                                className="submission-slide h-full w-full snap-start snap-always relative flex items-center justify-center bg-black"
+                            >
+                                {/* Media */}
+                                <div className="relative w-full h-full flex items-center justify-center cursor-pointer" onClick={toggleMute}>
+                                    {entry.mediaType === 'video' ? (
+                                        <video
+                                            src={entry.mediaUrl}
+                                            className="h-full w-full object-cover"
+                                            playsInline
+                                            autoPlay={true}
+                                            muted={muted}
+                                            loop
+                                        />
+                                    ) : (
+                                        <img
+                                            src={entry.mediaUrl}
+                                            className="h-full w-full object-cover"
+                                            alt="Submission"
+                                        />
+                                    )}
 
-                                    {entry.mediaType === 'video' && (
-                                        <button onClick={toggleMute} className="p-3 bg-white/10 backdrop-blur-md rounded-full hover:bg-white/20">
-                                            {muted ? <VolumeX size={24} /> : <Volume2 size={24} />}
+                                    {/* Gradient Overlay */}
+                                    <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none"></div>
+                                </div>
+
+                                {/* Actions Container */}
+                                <div className="absolute inset-x-0 bottom-16 md:bottom-6 z-20 pointer-events-none">
+                                    {/* Vertical Sidebar (Share, Mute) positioned above Love icon */}
+                                    <div className="absolute right-4 md:right-6 bottom-full mb-6 flex flex-col items-center gap-6 text-white pointer-events-auto">
+                                        <button onClick={(e) => handleShareClick(e, entry._id)} className="flex flex-col items-center gap-1 transition-transform active:scale-95">
+                                            <div className="p-3 bg-white/10 backdrop-blur-md rounded-full shadow-lg hover:bg-white/20">
+                                                <Share2 size={24} />
+                                            </div>
+                                            <span className="text-xs font-bold drop-shadow-md">Share</span>
                                         </button>
+
+                                        {entry.mediaType === 'video' && (
+                                            <button onClick={toggleMute} className="p-3 bg-white/10 backdrop-blur-md rounded-full hover:bg-white/20">
+                                                {muted ? <VolumeX size={24} /> : <Volume2 size={24} />}
+                                            </button>
+                                        )}
+                                    </div>
+
+                                    {/* Conditionally Render Rating UI */}
+                                    {entry.challenge?.scoringType === 'DETAILED' ? (
+                                        <div className="flex flex-col w-full px-4 pb-0 text-white pointer-events-auto bg-transparent pt-4">
+                                            <div className="space-y-3">
+                                                {entry.challenge?.parameters?.map((param, pIdx) => {
+                                                    const maxPts = param.maxPoints;
+                                                    const tiles = 5; // Always show 5 stars
+                                                    const currentScore = detailedRatingsState[entry._id]?.[param.name] || 0;
+
+                                                    const paramSubtitles = {
+                                                        'Clarity': 'Fresh idea',
+                                                        'Execution': 'Clean / polished',
+                                                        'Impact': 'Wow / emotion'
+                                                    };
+                                                    // Try case-insensitive lookup
+                                                    const subKey = Object.keys(paramSubtitles).find(k => k.toLowerCase() === param.name.toLowerCase());
+                                                    const subtitle = subKey ? paramSubtitles[subKey] : '';
+
+                                                    return (
+                                                        <div key={pIdx} className="flex flex-col gap-1 w-full px-2">
+                                                            <div className="flex justify-between items-center pb-1">
+                                                                <div className="flex flex-col justify-center">
+                                                                    <span className="text-[17px] font-bold tracking-wide drop-shadow-md leading-tight">{param.name}</span>
+                                                                    {subtitle && <span className="text-[13px] text-[#8b8793] font-medium mt-0.5">{subtitle}</span>}
+                                                                </div>
+                                                                <div className="flex flex-row gap-2 ml-4">
+                                                                    {Array.from({ length: tiles }).map((_, tIdx) => {
+                                                                        const tileVal = Math.round(((tIdx + 1) / 5) * maxPts);
+                                                                        const isActive = currentScore >= tileVal;
+
+                                                                        return (
+                                                                            <button
+                                                                                key={tIdx}
+                                                                                onClick={(e) => handleDetailedRate(e, entry._id, param.name, tileVal)}
+                                                                                className="w-[30px] h-[30px] flex items-center justify-center rounded-lg transition-transform active:scale-90 border-none bg-transparent"
+                                                                            >
+                                                                                <Star
+                                                                                    size={26}
+                                                                                    className={`drop-shadow-md transition-colors ${isActive ? "fill-[#cca651] stroke-[#cca651] text-[#cca651]" : "fill-transparent stroke-white/40"}`}
+                                                                                />
+                                                                            </button>
+                                                                        );
+                                                                    })}
+                                                                </div>
+                                                            </div>
+                                                            {pIdx !== entry.challenge.parameters.length - 1 && (
+                                                                <div className="w-full h-[1px] bg-white/10 mt-2 mb-1"></div>
+                                                            )}
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="flex flex-row flex-nowrap items-center justify-between w-full px-8 text-white pointer-events-auto pb-4">
+                                            <button
+                                                onClick={(e) => handleRate(e, entry._id, 'DISLIKE')}
+                                                className="flex flex-col items-center gap-1 transition-transform active:scale-95 group"
+                                            >
+                                                <div className={`p-3 backdrop-blur-md rounded-full transition-colors flex items-center justify-center ${ratingsState[entry._id] === 'DISLIKE' ? 'bg-orange-500/20' : 'bg-white/10 group-hover:bg-white/20'}`}>
+                                                    <ThumbsDown size={28} className={ratingsState[entry._id] === 'DISLIKE' ? 'fill-orange-500 stroke-orange-500' : 'fill-transparent stroke-white'} />
+                                                </div>
+                                                <span className={`text-xs font-bold drop-shadow-md ${ratingsState[entry._id] === 'DISLIKE' ? 'text-orange-500' : 'text-white'}`}>Dislike</span>
+                                            </button>
+
+                                            <button
+                                                onClick={(e) => handleRate(e, entry._id, 'LIKE')}
+                                                className="flex flex-col items-center gap-1 transition-transform active:scale-95 group"
+                                            >
+                                                <div className={`p-3 backdrop-blur-md rounded-full transition-colors flex items-center justify-center ${ratingsState[entry._id] === 'LIKE' ? 'bg-yellow-400/20' : 'bg-white/10 group-hover:bg-white/20'}`}>
+                                                    <ThumbsUp size={28} className={ratingsState[entry._id] === 'LIKE' ? 'fill-yellow-400 stroke-yellow-400' : 'fill-transparent stroke-white'} />
+                                                </div>
+                                                <span className={`text-xs font-bold drop-shadow-md ${ratingsState[entry._id] === 'LIKE' ? 'text-yellow-400' : 'text-white'}`}>Like</span>
+                                            </button>
+
+                                            <button
+                                                onClick={(e) => handleRate(e, entry._id, 'LOVE')}
+                                                className="flex flex-col items-center gap-1 transition-transform active:scale-95 group"
+                                            >
+                                                <div className={`p-3 backdrop-blur-md rounded-full transition-colors flex items-center justify-center ${ratingsState[entry._id] === 'LOVE' ? 'bg-red-500/20' : 'bg-white/10 group-hover:bg-white/20'}`}>
+                                                    <Heart size={28} className={ratingsState[entry._id] === 'LOVE' ? 'fill-red-500 stroke-red-500' : 'fill-transparent stroke-white'} />
+                                                </div>
+                                                <span className={`text-xs font-bold drop-shadow-md ${ratingsState[entry._id] === 'LOVE' ? 'text-red-500' : 'text-white'}`}>Love</span>
+                                            </button>
+                                        </div>
                                     )}
                                 </div>
+                            </div>
+                        );
+                    })}
 
-                                {/* Conditionally Render Rating UI */}
-                                {entry.challenge?.scoringType === 'DETAILED' ? (
-                                    <div className="flex flex-col w-full px-4 pb-0 text-white pointer-events-auto bg-transparent pt-4">
-                                        <div className="space-y-3">
-                                            {entry.challenge?.parameters?.map((param, pIdx) => {
-                                                const maxPts = param.maxPoints;
-                                                const tiles = 5; // Always show 5 stars
-                                                const currentScore = detailedRatingsState[entry._id]?.[param.name] || 0;
+                    {loading && (
+                        <div className="h-20 w-full flex items-center justify-center absolute bottom-0 z-50">
+                            <Loader2 className="animate-spin-slow text-white w-8 h-8" />
+                        </div>
+                    )}
+                </div>
 
-                                                const paramSubtitles = {
-                                                    'Clarity': 'Fresh idea',
-                                                    'Execution': 'Clean / polished',
-                                                    'Impact': 'Wow / emotion'
-                                                };
-                                                // Try case-insensitive lookup
-                                                const subKey = Object.keys(paramSubtitles).find(k => k.toLowerCase() === param.name.toLowerCase());
-                                                const subtitle = subKey ? paramSubtitles[subKey] : '';
+                {/* Share Popup Overlay */}
+                {activeShare && (
+                    <div className="fixed inset-0 z-[100] flex items-end justify-center pointer-events-auto" onClick={() => setActiveShare(null)}>
+                        {/* Backdrop */}
+                        <div className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" />
 
-                                                return (
-                                                    <div key={pIdx} className="flex flex-col gap-1 w-full px-2">
-                                                        <div className="flex justify-between items-center pb-1">
-                                                            <div className="flex flex-col justify-center">
-                                                                <span className="text-[17px] font-bold tracking-wide drop-shadow-md leading-tight">{param.name}</span>
-                                                                {subtitle && <span className="text-[13px] text-[#8b8793] font-medium mt-0.5">{subtitle}</span>}
-                                                            </div>
-                                                            <div className="flex flex-row gap-2 ml-4">
-                                                                {Array.from({ length: tiles }).map((_, tIdx) => {
-                                                                    const tileVal = Math.round(((tIdx + 1) / 5) * maxPts);
-                                                                    const isActive = currentScore >= tileVal;
+                        {/* Popup Drawer style */}
+                        <div
+                            className="relative w-full md:max-w-[420px] bg-[#1c140d] dark:bg-zinc-900 rounded-t-3xl border-t border-white/10 shadow-2xl pb-[100px] pt-6 px-6 transform transition-transform"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <div className="w-12 h-1.5 bg-white/20 rounded-full mx-auto mb-6" />
 
-                                                                    return (
-                                                                        <button
-                                                                            key={tIdx}
-                                                                            onClick={(e) => handleDetailedRate(e, entry._id, param.name, tileVal)}
-                                                                            className="w-[30px] h-[30px] flex items-center justify-center rounded-lg transition-transform active:scale-90 border-none bg-transparent"
-                                                                        >
-                                                                            <Star
-                                                                                size={26}
-                                                                                className={`drop-shadow-md transition-colors ${isActive ? "fill-[#cca651] stroke-[#cca651] text-[#cca651]" : "fill-transparent stroke-white/40"}`}
-                                                                            />
-                                                                        </button>
-                                                                    );
-                                                                })}
-                                                            </div>
-                                                        </div>
-                                                        {pIdx !== entry.challenge.parameters.length - 1 && (
-                                                            <div className="w-full h-[1px] bg-white/10 mt-2 mb-1"></div>
-                                                        )}
-                                                    </div>
-                                                );
-                                            })}
-                                        </div>
+                            <div className="flex items-center justify-between mb-8">
+                                <h3 className="text-xl font-bold text-white tracking-tight">Share to</h3>
+                                <button onClick={() => setActiveShare(null)} className="p-2 bg-white/10 rounded-full hover:bg-white/20 transition-colors text-white">
+                                    <X size={20} />
+                                </button>
+                            </div>
+
+                            <div className="grid grid-cols-4 gap-4">
+                                <button onClick={() => handleSocialShare('whatsapp')} className="flex flex-col items-center gap-3 group">
+                                    <div className="w-14 h-14 rounded-full bg-[#25D366] flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform">
+                                        <MessageCircle size={28} />
                                     </div>
-                                ) : (
-                                    <div className="flex flex-row flex-nowrap items-center justify-between w-full px-8 text-white pointer-events-auto pb-4">
-                                        <button
-                                            onClick={(e) => handleRate(e, entry._id, 'DISLIKE')}
-                                            className="flex flex-col items-center gap-1 transition-transform active:scale-95 group"
-                                        >
-                                            <div className={`p-3 backdrop-blur-md rounded-full transition-colors flex items-center justify-center ${ratingsState[entry._id] === 'DISLIKE' ? 'bg-orange-500/20' : 'bg-white/10 group-hover:bg-white/20'}`}>
-                                                <ThumbsDown size={28} className={ratingsState[entry._id] === 'DISLIKE' ? 'fill-orange-500 stroke-orange-500' : 'fill-transparent stroke-white'} />
-                                            </div>
-                                            <span className={`text-xs font-bold drop-shadow-md ${ratingsState[entry._id] === 'DISLIKE' ? 'text-orange-500' : 'text-white'}`}>Dislike</span>
-                                        </button>
+                                    <span className="text-xs font-medium text-gray-300">WhatsApp</span>
+                                </button>
 
-                                        <button
-                                            onClick={(e) => handleRate(e, entry._id, 'LIKE')}
-                                            className="flex flex-col items-center gap-1 transition-transform active:scale-95 group"
-                                        >
-                                            <div className={`p-3 backdrop-blur-md rounded-full transition-colors flex items-center justify-center ${ratingsState[entry._id] === 'LIKE' ? 'bg-yellow-400/20' : 'bg-white/10 group-hover:bg-white/20'}`}>
-                                                <ThumbsUp size={28} className={ratingsState[entry._id] === 'LIKE' ? 'fill-yellow-400 stroke-yellow-400' : 'fill-transparent stroke-white'} />
-                                            </div>
-                                            <span className={`text-xs font-bold drop-shadow-md ${ratingsState[entry._id] === 'LIKE' ? 'text-yellow-400' : 'text-white'}`}>Like</span>
-                                        </button>
-
-                                        <button
-                                            onClick={(e) => handleRate(e, entry._id, 'LOVE')}
-                                            className="flex flex-col items-center gap-1 transition-transform active:scale-95 group"
-                                        >
-                                            <div className={`p-3 backdrop-blur-md rounded-full transition-colors flex items-center justify-center ${ratingsState[entry._id] === 'LOVE' ? 'bg-red-500/20' : 'bg-white/10 group-hover:bg-white/20'}`}>
-                                                <Heart size={28} className={ratingsState[entry._id] === 'LOVE' ? 'fill-red-500 stroke-red-500' : 'fill-transparent stroke-white'} />
-                                            </div>
-                                            <span className={`text-xs font-bold drop-shadow-md ${ratingsState[entry._id] === 'LOVE' ? 'text-red-500' : 'text-white'}`}>Love</span>
-                                        </button>
+                                <button onClick={() => handleSocialShare('instagram')} className="flex flex-col items-center gap-3 group">
+                                    <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-[#f09433] via-[#e6683c] to-[#bc1888] flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform">
+                                        <Instagram size={28} />
                                     </div>
-                                )}
+                                    <span className="text-xs font-medium text-gray-300">Instagram</span>
+                                </button>
+
+                                <button onClick={() => handleSocialShare('facebook')} className="flex flex-col items-center gap-3 group">
+                                    <div className="w-14 h-14 rounded-full bg-[#1877F2] flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform">
+                                        <Facebook size={28} />
+                                    </div>
+                                    <span className="text-xs font-medium text-gray-300">Facebook</span>
+                                </button>
+
+                                <button onClick={() => handleSocialShare('copy')} className="flex flex-col items-center gap-3 group">
+                                    <div className="w-14 h-14 rounded-full bg-zinc-700 flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform">
+                                        <LinkIcon size={28} />
+                                    </div>
+                                    <span className="text-xs font-medium text-gray-300">Copy Link</span>
+                                </button>
                             </div>
                         </div>
-                    );
-                })}
-
-                {loading && (
-                    <div className="h-20 w-full flex items-center justify-center absolute bottom-0 z-50">
-                        <Loader2 className="animate-spin-slow text-white w-8 h-8" />
                     </div>
                 )}
+            </main>
+
+            {/* Mobile Bottom Navigation (Floating over bottom) */}
+            <div className="md:hidden absolute bottom-0 left-0 right-0 z-50">
+                <BottomNav />
             </div>
-
-            {/* Share Popup Overlay */}
-            {activeShare && (
-                <div className="fixed inset-0 z-[100] flex items-end justify-center pointer-events-auto" onClick={() => setActiveShare(null)}>
-                    {/* Backdrop */}
-                    <div className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" />
-
-                    {/* Popup Drawer style */}
-                    <div
-                        className="relative w-full md:max-w-[420px] bg-[#1c140d] dark:bg-zinc-900 rounded-t-3xl border-t border-white/10 shadow-2xl pb-[100px] pt-6 px-6 transform transition-transform"
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        <div className="w-12 h-1.5 bg-white/20 rounded-full mx-auto mb-6" />
-
-                        <div className="flex items-center justify-between mb-8">
-                            <h3 className="text-xl font-bold text-white tracking-tight">Share to</h3>
-                            <button onClick={() => setActiveShare(null)} className="p-2 bg-white/10 rounded-full hover:bg-white/20 transition-colors text-white">
-                                <X size={20} />
-                            </button>
-                        </div>
-
-                        <div className="grid grid-cols-4 gap-4">
-                            <button onClick={() => handleSocialShare('whatsapp')} className="flex flex-col items-center gap-3 group">
-                                <div className="w-14 h-14 rounded-full bg-[#25D366] flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform">
-                                    <MessageCircle size={28} />
-                                </div>
-                                <span className="text-xs font-medium text-gray-300">WhatsApp</span>
-                            </button>
-
-                            <button onClick={() => handleSocialShare('instagram')} className="flex flex-col items-center gap-3 group">
-                                <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-[#f09433] via-[#e6683c] to-[#bc1888] flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform">
-                                    <Instagram size={28} />
-                                </div>
-                                <span className="text-xs font-medium text-gray-300">Instagram</span>
-                            </button>
-
-                            <button onClick={() => handleSocialShare('facebook')} className="flex flex-col items-center gap-3 group">
-                                <div className="w-14 h-14 rounded-full bg-[#1877F2] flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform">
-                                    <Facebook size={28} />
-                                </div>
-                                <span className="text-xs font-medium text-gray-300">Facebook</span>
-                            </button>
-
-                            <button onClick={() => handleSocialShare('copy')} className="flex flex-col items-center gap-3 group">
-                                <div className="w-14 h-14 rounded-full bg-zinc-700 flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform">
-                                    <LinkIcon size={28} />
-                                </div>
-                                <span className="text-xs font-medium text-gray-300">Copy Link</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
-        </AuthenticatedLayout>
+        </div>
     );
 };
 

@@ -83,17 +83,17 @@ export function Hero({ weekends }) {
                     </div>
 
                     {/* Buttons */}
-                    <div className="flex flex-col sm:flex-row items-center gap-4">
+                    <div className="flex flex-row items-center gap-3 sm:gap-4 w-full max-w-md">
                         <Link
                             to={activeWeekend ? `/weekend/${activeWeekend._id}` : "#"}
-                            className="w-full sm:w-auto px-8 py-3 bg-gradient-to-r from-[#3B82F6] to-[#2ED1B8] shadow-[0_0_25px_rgba(46,209,184,0.7)] hover:shadow-[0_0_15px_rgba(46,209,184,0.9)] text-white font-bold uppercase tracking-widest text-sm rounded-full transition-all active:scale-95 text-center flex items-center justify-center leading-none"
+                            className="flex-1 sm:flex-none px-2 sm:px-8 py-3 bg-gradient-to-r from-[#3B82F6] to-[#2ED1B8] shadow-[0_0_25px_rgba(46,209,184,0.7)] hover:shadow-[0_0_15px_rgba(46,209,184,0.9)] text-white font-bold uppercase tracking-widest text-[11px] sm:text-sm rounded-full transition-all active:scale-95 text-center flex items-center justify-center leading-none whitespace-nowrap"
                         >
                             Race Live
                         </Link>
 
                         <Link
                             to="#"
-                            className="w-full sm:w-auto px-8 py-3 bg-white/10 backdrop-blur-md text-white border border-white/20 font-bold uppercase tracking-widest text-sm rounded-full transition-colors hover:bg-white/20 text-center flex items-center justify-center leading-none"
+                            className="flex-1 sm:flex-none px-2 sm:px-8 py-3 bg-white/10 backdrop-blur-md text-white border border-white/20 font-bold uppercase tracking-widest text-[11px] sm:text-sm rounded-full transition-colors hover:bg-white/20 text-center flex items-center justify-center leading-none whitespace-nowrap"
                         >
                             See Race Track
                         </Link>

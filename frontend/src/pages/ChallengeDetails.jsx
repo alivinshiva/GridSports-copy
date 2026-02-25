@@ -45,73 +45,73 @@ export default function ChallengeDetails() {
 
     return (
         <AuthenticatedLayout>
-            {/* Main Container - Removed custom background decoration */}
-            <div className="w-full py-12 flex justify-center relative p-4">
+            <div className="flex flex-col items-center pb-8 pt-2 sm:pt-8 w-full sm:px-4 bg-[#0a0f16] min-h-screen">
+                <div className="w-full bg-[#181920] rounded-[32px] sm:rounded-3xl shadow-2xl border border-white/5 flex flex-col overflow-hidden relative">
 
-                {/* Unified "One Box" Card - Cleaner, No Zoom, No Harsh Shadows */}
-                <div className="relative z-10 w-full max-w-5xl bg-white dark:bg-[#18181b] rounded-2xl shadow-xl overflow-hidden border border-gray-100 dark:border-white/5 flex flex-col md:flex-row min-h-[500px]">
+                    {/* Back Button (Floating on Image) */}
+                    <div className="absolute top-4 left-4 sm:top-6 sm:left-6 z-20">
+                        <Link to="/" className="w-10 h-10 rounded-full bg-black/50 backdrop-blur-md flex items-center justify-center text-white hover:bg-black/70 transition-colors">
+                            <span className="material-symbols-outlined text-xl">arrow_back</span>
+                        </Link>
+                    </div>
 
-                    {/* Left/Top Side: Image (Static, Clean) */}
-                    <div className="w-full md:w-5/12 relative min-h-[250px] md:min-h-full bg-gray-100 dark:bg-[#202023]">
+                    {/* Top 30% Area: Image */}
+                    <div className="w-full h-[30vh] sm:h-[40vh] relative flex-shrink-0 bg-[#121212] flex items-center justify-center">
                         <img
                             src={challenge.imageUrl}
                             alt={challenge.name}
                             className="absolute inset-0 w-full h-full object-cover"
                         />
-                        {/* Subtle Gradient for Text Readability only at top/bottom edges if needed */}
-                        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-transparent"></div>
+                        {/* Gradient that fades exactly into the card's background color (#181920) */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#181920] via-transparent to-transparent"></div>
                     </div>
 
-                    {/* Right/Bottom Side: Details Content */}
-                    <div className="w-full md:w-7/12 p-6 md:p-10 flex flex-col gap-6 max-h-[90vh] overflow-y-auto custom-scrollbar bg-white dark:bg-[#18181b]">
+                    {/* Bottom 70% Area: Details Container */}
+                    <div className="flex-1 w-full px-6 sm:px-10 pb-8 sm:pb-12 pt-4 relative z-10 flex flex-col gap-6 max-w-7xl mx-auto">
 
-                        {/* Wrapper for Title & Weekend & Badges */}
-                        <div className="flex flex-col gap-1">
-                            {/* Top Row: Location/Season (Left) and Status (Right) */}
-                            <div className="flex items-center justify-between mb-1">
-                                {challenge.weekend && (
-                                    <div className="flex items-center gap-2 text-primary font-bold text-xs uppercase tracking-widest">
-                                        <span className="material-symbols-outlined text-sm">flag</span>
+                        {/* Header Info */}
+                        <div className="flex flex-col gap-2">
+                            <div className="flex items-center justify-between mb-2">
+                                {challenge.weekend ? (
+                                    <div className="flex items-center gap-2 text-[#3b82f6] font-bold text-[10px] sm:text-xs uppercase tracking-widest flex-wrap">
+                                        <span className="material-symbols-outlined text-sm hidden sm:inline-block">flag</span>
                                         <span>{challenge.weekend.location}</span>
-                                        <span className="text-gray-300 dark:text-gray-700 mx-1">•</span>
-                                        <span className="material-symbols-outlined text-sm">calendar_month</span>
-                                        <span>{challenge.weekend.season}<span className="hidden md:inline"> Season</span></span>
+                                        <span className="text-gray-500 mx-1">•</span>
+                                        <span className="material-symbols-outlined text-sm hidden sm:inline-block">calendar_month</span>
+                                        <span>{challenge.weekend.season}</span>
                                     </div>
-                                )}
+                                ) : <div />}
 
-                                <span className={`px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-widest shadow-sm border ${challenge.status === 'ACTIVE' ? 'bg-green-100/10 text-green-600 border-green-200 dark:border-green-900' : 'bg-gray-100 dark:bg-white/5 text-gray-500 border-gray-200 dark:border-white/10'
+                                <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-sm border ${challenge.status === 'ACTIVE'
+                                    ? 'bg-green-500/10 text-green-400 border-green-500/20'
+                                    : 'bg-white/5 text-gray-400 border-white/10'
                                     }`}>
                                     {challenge.status || 'UPCOMING'}
                                 </span>
                             </div>
 
-                            <h1 className="text-3xl md:text-5xl font-black text-gray-900 dark:text-white font-display leading-tight mb-2 tracking-tight">
+                            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white leading-tight tracking-wide drop-shadow-md">
                                 {challenge.name}
                             </h1>
-                            {challenge.weekend && (
-                                <p className="text-gray-500 dark:text-gray-400 font-medium text-sm">
-                                    Part of &nbsp; <span className="text-gray-900 dark:text-white font-bold">{challenge.weekend.title}</span>
-                                </p>
-                            )}
                         </div>
 
-                        {/* Stats Row - Cleaner Layout */}
-                        <div className="grid grid-cols-3 gap-4 py-6 border-y border-gray-100 dark:border-white/5">
-                            <div className="text-left">
-                                <p className="text-[10px] font-bold uppercase text-gray-400 tracking-wider mb-1">Type</p>
-                                <p className="font-bold text-gray-900 dark:text-white text-sm">{challenge.type}</p>
+                        {/* Stats Row */}
+                        <div className="flex flex-wrap gap-4 py-6 border-y border-white/5">
+                            <div className="flex-1 min-w-[100px]">
+                                <p className="text-[10px] font-bold uppercase text-gray-500 tracking-wider mb-1">Type</p>
+                                <p className="font-bold text-white text-sm">{challenge.type}</p>
                             </div>
-                            <div className="text-left pl-4 border-l border-gray-100 dark:border-white/5">
-                                <p className="text-[10px] font-bold uppercase text-gray-400 tracking-wider mb-1">Entries</p>
+                            <div className="flex-1 min-w-[100px] border-l border-white/5 pl-4">
+                                <p className="text-[10px] font-bold uppercase text-gray-500 tracking-wider mb-1">Entries</p>
                                 <div className="flex items-center gap-1.5">
-                                    <span className="material-symbols-outlined text-primary text-sm">groups</span>
-                                    <span className="font-bold text-gray-900 dark:text-white text-sm">{challenge.submissionCount || 0}</span>
+                                    <span className="material-symbols-outlined text-[#3b82f6] text-[16px]">groups</span>
+                                    <span className="font-bold text-white text-sm">{challenge.submissionCount || 0}</span>
                                 </div>
                             </div>
-                            <div className="text-left pl-4 border-l border-gray-100 dark:border-white/5">
-                                <p className="text-[10px] font-bold uppercase text-gray-400 tracking-wider mb-1">Ends</p>
+                            <div className="flex-1 min-w-[120px] border-l border-white/5 pl-4">
+                                <p className="text-[10px] font-bold uppercase text-gray-500 tracking-wider mb-1">Ends</p>
                                 <div className="flex flex-col">
-                                    <span className="font-bold text-red-600 text-sm">
+                                    <span className="font-bold text-red-500 text-sm">
                                         {new Date(challenge.endAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
                                     </span>
                                     <span className="text-[10px] font-medium text-gray-400">
@@ -123,23 +123,23 @@ export default function ChallengeDetails() {
 
                         {/* Description */}
                         <div>
-                            <h3 className="text-xs font-bold text-gray-900 dark:text-white mb-3 uppercase tracking-wide opacity-80">Description</h3>
-                            <p className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed">
+                            <h3 className="text-xs font-bold text-gray-400 mb-3 uppercase tracking-wide">Description</h3>
+                            <p className="text-gray-300 text-sm leading-relaxed whitespace-pre-line">
                                 {challenge.description}
                             </p>
                         </div>
 
                         {/* Rules */}
-                        <div className="flex-1">
-                            <h3 className="text-xs font-bold text-gray-900 dark:text-white mb-3 uppercase tracking-wide opacity-80 flex items-center gap-1">
+                        <div>
+                            <h3 className="text-xs font-bold text-gray-400 mb-3 uppercase tracking-wide flex items-center gap-1">
                                 Rules for Participation
-                                <span className="material-symbols-outlined text-red-600 text-sm">help</span>
+                                <span className="material-symbols-outlined text-red-500 text-[16px]">help</span>
                             </h3>
                             <ul className="grid gap-2">
                                 {challenge.rules && challenge.rules.length > 0 ? (
                                     challenge.rules.map((rule, index) => (
-                                        <li key={index} className="flex items-start gap-3 text-sm text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-white/5 p-3 rounded-lg border border-transparent hover:border-gray-200 dark:hover:border-white/10 transition-colors">
-                                            <span className="mt-1.5 size-1 rounded-full bg-primary flex-shrink-0 opacity-80" />
+                                        <li key={index} className="flex items-start gap-3 text-sm text-gray-300 bg-white/5 p-3 rounded-xl border border-transparent hover:border-white/10 transition-colors">
+                                            <span className="mt-1.5 size-1.5 rounded-full bg-[#3b82f6] flex-shrink-0" />
                                             <span className="leading-snug">{rule}</span>
                                         </li>
                                     ))
@@ -149,52 +149,36 @@ export default function ChallengeDetails() {
                             </ul>
                         </div>
 
-                        {/* Actions - Sticky Floating */}
-                        <div className="mt-6 pt-6 border-t border-gray-100 dark:border-white/5 flex gap-3 sticky bottom-0 bg-white/80 dark:bg-[#18181b]/95 backdrop-blur-sm -mb-2 pb-2">
+                        {/* Actions Row */}
+                        <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-transparent mt-2">
                             {challenge.status === 'UPCOMING' ? (
-                                <button
-                                    disabled
-                                    className="flex-1 h-12 flex items-center justify-center gap-2 rounded-xl font-bold text-gray-400 bg-gray-200 dark:bg-white/5 cursor-not-allowed transition-all text-sm"
-                                >
-                                    <span className="material-symbols-outlined text-lg">lock</span>
-                                    <span className="hidden md:inline">Entries Locked</span>
+                                <button disabled className="flex-1 py-4 flex items-center justify-center gap-2 rounded-full font-bold text-white/50 bg-white/5 cursor-not-allowed text-sm uppercase tracking-widest">
+                                    <span className="material-symbols-outlined text-[18px]">lock</span>
+                                    Entries Locked
                                 </button>
                             ) : (
-                                <Link
-                                    to={`/challenge/entries`}
-                                    className="flex-1 h-12 flex items-center justify-center gap-2 rounded-xl font-bold text-gray-700 dark:text-white bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 transition-all text-sm"
-                                >
-                                    <span className="material-symbols-outlined text-lg">visibility</span>
-                                    <span className="hidden md:inline">View Entries</span>
+                                <Link to={`/challenge/entries`} className="flex-1 py-4 flex items-center justify-center gap-2 rounded-full font-bold text-white bg-white/10 hover:bg-white/20 transition-all border border-white/10 shadow-lg backdrop-blur-sm text-sm uppercase tracking-widest">
+                                    <span className="material-symbols-outlined text-[18px]">visibility</span>
+                                    View Entries
                                 </Link>
                             )}
+
                             {challenge.status === 'ACTIVE' ? (
                                 hasSubmitted ? (
-                                    <button
-                                        disabled
-                                        className="flex-1 h-12 flex items-center justify-center gap-2 rounded-xl font-bold text-gray-400 bg-gray-200 dark:bg-white/5 cursor-not-allowed transition-all text-sm"
-                                    >
-                                        <span className="material-symbols-outlined text-lg">check_circle</span>
-                                        <span className="hidden md:inline">Already Submitted</span>
+                                    <button disabled className="flex-1 py-4 flex items-center justify-center gap-2 rounded-full font-bold text-white/50 bg-white/5 cursor-not-allowed text-sm uppercase tracking-widest">
+                                        <span className="material-symbols-outlined text-[18px]">check_circle</span>
+                                        Already Submitted
                                     </button>
                                 ) : (
-                                    <Link
-                                        to={`/upload/${challenge._id}`}
-                                        className="flex-1 h-12 flex items-center justify-center gap-2 rounded-xl font-bold text-white bg-primary hover:bg-primary/90 shadow-lg shadow-primary/25 transition-all text-sm active:scale-[0.98]"
-                                    >
-                                        <span className="material-symbols-outlined text-lg">upload</span>
-                                        <span className="hidden md:inline">Upload Entry</span>
+                                    <Link to={`/upload/${challenge._id}`} className="flex-1 py-4 flex items-center justify-center gap-2 rounded-full font-bold text-white bg-gradient-to-r from-[#3B82F6] to-[#2ED1B8] shadow-[0_0_20px_rgba(46,209,184,0.4)] hover:shadow-[0_0_25px_rgba(46,209,184,0.6)] transition-all active:scale-[0.98] text-sm uppercase tracking-widest">
+                                        <span className="material-symbols-outlined text-[18px]">upload</span>
+                                        Upload Entry
                                     </Link>
                                 )
                             ) : (
-                                <button
-                                    disabled
-                                    className="flex-1 h-12 flex items-center justify-center gap-2 rounded-xl font-bold text-gray-400 bg-gray-200 dark:bg-white/5 cursor-not-allowed transition-all text-sm"
-                                >
-                                    <span className="material-symbols-outlined text-lg">lock</span>
-                                    <span className="hidden md:inline">
-                                        {challenge.status === 'UPCOMING' ? 'Opens Soon' : 'Closed'}
-                                    </span>
+                                <button disabled className="flex-1 py-4 flex items-center justify-center gap-2 rounded-full font-bold text-white/50 bg-white/5 cursor-not-allowed text-sm uppercase tracking-widest">
+                                    <span className="material-symbols-outlined text-[18px]">lock</span>
+                                    {challenge.status === 'UPCOMING' ? 'Opens Soon' : 'Closed'}
                                 </button>
                             )}
                         </div>

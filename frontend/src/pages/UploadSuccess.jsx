@@ -208,7 +208,7 @@ export default function UploadSuccess() {
 
                             {/* Rate Fans -  Adjusted brightness/opacity */}
                             <button
-                                onClick={() => navigate('/challenge/entries')}
+                                onClick={() => navigate('/challenge/feed')}
                                 className="
                                     flex-1 flex items-center justify-center
                                     rounded-2xl md:rounded-xl

@@ -78,15 +78,13 @@ export function Layout({ children }) {
 
                 {/* Floating Action Button Style Center */}
                 <div className="-mt-12">
-                    <div className="-mt-12">
-                        <Link
-                            to="/challenge/entries"
-                            className="w-14 h-14 rounded-full shadow-lg flex items-center justify-center transform active:scale-95 transition-transform hover:scale-110 text-white"
-                            style={{ backgroundColor: tribe.color, boxShadow: `0 8px 24px ${tribe.color}40` }}
-                        >
-                            <Plus size={28} />
-                        </Link>
-                    </div>
+                    <Link
+                        to="/challenge/feed"
+                        className="w-14 h-14 rounded-full shadow-lg flex items-center justify-center transform active:scale-95 transition-transform hover:scale-110 text-white"
+                        style={{ backgroundColor: tribe.color, boxShadow: `0 8px 24px ${tribe.color}40` }}
+                    >
+                        <Plus size={28} />
+                    </Link>
                 </div>
 
                 <NavItem
@@ -103,7 +101,7 @@ export function Layout({ children }) {
                     isActive={location.pathname === "/profile"}
                     color={tribe.color}
                 />
-            </nav>
-        </div>
+            </nav >
+        </div >
     );
 }

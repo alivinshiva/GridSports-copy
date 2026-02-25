@@ -17,7 +17,7 @@ export function BottomNav() {
                 <span className="text-[10px] uppercase font-bold tracking-wider">Home</span>
             </Link>
 
-            <Link to="/challenge/entries" className={`flex flex-col items-center justify-center gap-1 ${isActive('/challenge/entries') ? 'text-white' : 'text-white/50 hover:text-white transition-colors'}`}>
+            <Link to="/challenge/feed" className={`flex flex-col items-center justify-center gap-1 ${isActive('/challenge/feed') ? 'text-white' : 'text-white/50 hover:text-white transition-colors'}`}>
                 <span className="material-symbols-outlined">sports_score</span>
                 <span className="text-[10px] font-bold uppercase tracking-widest">Discovery</span>
             </Link>

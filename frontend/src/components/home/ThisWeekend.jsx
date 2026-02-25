@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { getChallengesByWeekendId } from "../../services/challengeService";
+import { Lock } from "lucide-react";
 
 export function ThisWeekend({ weekend }) {
     const [challenges, setChallenges] = useState([]);
@@ -62,8 +63,7 @@ export function ThisWeekend({ weekend }) {
                         <Link
                             key={challenge._id}
                             to={challenge.status === "ACTIVE" ? `/challenge-details/${challenge._id}` : "#"}
-                            className={`aspect-[4/5] rounded-[24px] overflow-hidden flex flex-col relative group transition-transform hover:-translate-y-1 ${index === 0 ? 'shadow-[0_0_30px_rgba(59,130,246,0.6)] border-2 border-blue-400' : 'shadow-xl border border-transparent'
-                                } ${challenge.status !== "ACTIVE" ? 'cursor-not-allowed' : ''} bg-white`}
+                            className={`aspect-[4/5] rounded-[24px] overflow-hidden flex flex-col relative group transition-all duration-300 hover:-translate-y-1 shadow-xl hover:shadow-[0_0_30px_rgba(59,130,246,0.6)] ${challenge.status !== "ACTIVE" ? 'cursor-not-allowed' : ''} bg-white`}
                         >
                             {/* Top Area (Image/Placeholder) */}
                             <div className="flex-1 w-full relative p-4">
@@ -74,9 +74,9 @@ export function ThisWeekend({ weekend }) {
 
                                 {/* Lock Overlay for Upcoming/Closed Challenges */}
                                 {challenge.status !== "ACTIVE" && (
-                                    <div className="absolute inset-0 bg-white/30 group-hover:bg-white/40 transition-colors flex items-center justify-center backdrop-blur-[2px]">
+                                    <div className="absolute inset-0 bg-white/20 group-hover:bg-white/30 transition-colors flex items-center justify-center">
                                         <div className="bg-black/20 p-4 rounded-full flex items-center justify-center border border-black/10">
-                                            <span className="material-symbols-outlined text-black/70 text-4xl">lock</span>
+                                            <Lock className="text-black/70" size={32} />
                                         </div>
                                     </div>
                                 )}

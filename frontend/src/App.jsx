@@ -67,7 +67,8 @@ function App() {
           <Route path="/tribes" element={<ProtectedRoute><Tribes /></ProtectedRoute>} />
 
           {/* Catch-all: redirect unknown routes to home (which is protected) */}
-          <Route path="/challenge/entries" element={<ProtectedRoute><ChallengeEntries /></ProtectedRoute>} />
+          <Route path="/challenge/entries" element={<Navigate to="/challenge/feed" replace />} />
+          <Route path="/challenge/feed/:postId" element={<ProtectedRoute><SubmissionFeed /></ProtectedRoute>} />
           <Route path="/challenge/feed" element={<ProtectedRoute><SubmissionFeed /></ProtectedRoute>} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

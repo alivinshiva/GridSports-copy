@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 import { getWeekendById } from "@/services/weekendService";
 import { getChallengesByWeekendId } from "@/services/challengeService";
+import { Lock } from "lucide-react";
 
 const CountdownTimer = ({ targetDate }) => {
     const calculateTimeLeft = () => {
@@ -74,22 +75,22 @@ export default function WeekendPage() {
 
     return (
         <AuthenticatedLayout>
-            <div className="flex flex-col items-center py-8 px-4">
+            <div className="flex flex-col items-center pb-8 pt-2 sm:pt-8 w-full sm:px-4">
                 {/* Hero Section */}
-                <div className="relative w-full h-[55vh] sm:h-[450px] overflow-hidden rounded-3xl mb-8">
-                    {/* Image Background with Transition */}
-                    <div className="absolute inset-0 w-full h-full">
-                        <div className="absolute inset-0 bg-black/40 z-10"></div>
-                        <img
-                            src={weekend.imageUrl}
-                            alt={weekend.title}
-                            className="w-full h-full object-cover transition-all duration-700 ease-in-out transform scale-105"
-                        />
-                        {/* Overlay Gradient */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent z-10"></div>
+                <div className="relative w-full rounded-[32px] sm:rounded-3xl mb-8 overflow-hidden bg-black flex justify-center">
+                    {/* Image Background */}
+                    <img
+                        src={weekend.imageUrl}
+                        alt={weekend.title}
+                        className="w-full max-h-[60vh] sm:h-[450px] object-contain sm:object-cover transition-all duration-700 ease-in-out"
+                    />
 
-                        {/* Content */}
-                        <div className="absolute inset-0 flex flex-col justify-end p-6 sm:p-10 z-20">
+                    {/* Overlay Gradient */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent z-10 pointer-events-none"></div>
+
+                    {/* Content */}
+                    <div className="absolute inset-0 flex flex-col justify-end p-6 sm:p-10 z-20 pointer-events-none">
+                        <div className="w-full max-w-7xl mx-auto flex flex-col justify-end h-full">
                             {/* Live Indicator */}
                             <div className="flex items-center gap-2 mb-1 sm:mb-2 animate-in fade-in slide-in-from-bottom-3 duration-500">
                                 <span className="relative flex h-2 w-2 sm:h-2.5 sm:w-2.5">
@@ -107,7 +108,7 @@ export default function WeekendPage() {
                                 </span>
                             </h2>
 
-                            <p className="flex items-center gap-2 text-base sm:text-lg text-gray-200 font-medium mb-6 sm:mb-8 tracking-[1px] leading-relaxed drop-shadow-md animate-in fade-in slide-in-from-bottom-5 duration-700 delay-100 break-words w-full">
+                            <p className="flex items-center gap-2 text-base sm:text-lg text-gray-200 font-medium tracking-[1px] leading-relaxed drop-shadow-md animate-in fade-in slide-in-from-bottom-5 duration-700 delay-100 break-words w-full">
                                 <span className="material-symbols-outlined text-lg sm:text-xl flex-shrink-0">calendar_month</span>
                                 <span className="break-words">{weekend.season}</span>
                             </p>
@@ -116,25 +117,15 @@ export default function WeekendPage() {
                 </div>
 
                 {/* Challenges Grid */}
-                <div className="w-full max-w-7xl">
-                    <div className="flex flex-wrap justify-between items-end gap-3 py-6 px-2">
+                <div className="w-full max-w-7xl px-4 sm:px-0">
+                    <div className="flex flex-wrap justify-between items-end gap-3 py-6">
                         <div className="flex min-w-72 flex-col gap-2">
-                            {/* Title handles in hero, maybe remove this or keep as subheader? Keeping as subheader for context if needed or remove. 
-                                The design had a title here "Grid Race - Bahrain". 
-                                The Hero already shows the weekend title. 
-                                I'll keep the "Charges / Sessions" header but style it better or remove if redundant.
-                                The user design has a header section "PageHeading Component" inside the content.
-                                I'll try to adapt the design's filter/tabs area if possible or just the grid.
-                                The user said "show all the race... show name, description, imageUrl only... create this".
-                                I will focus on the grid of cards as requested.
-                             */}
-                            <div className="flex items-center gap-2 text-red-600 font-bold mb-4">
+                            <div className="flex items-center gap-2 text-white font-bold mb-4">
                                 <span className="material-symbols-outlined text-sm">schedule</span>
                                 <p className="text-base font-medium leading-normal">All Races of this Weekend</p>
                             </div>
                         </div>
                     </div>
-
 
                     {/* Challenge Cards Grid (Consolidated Design) */}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pb-10">
@@ -147,22 +138,21 @@ export default function WeekendPage() {
                             return (
                                 <div
                                     key={race._id}
-                                    className={`group flex flex-col rounded-2xl shadow-lg transition-all duration-300 overflow-hidden h-full transform ${isDeactive ? 'bg-gray-100 dark:bg-[#121212] opacity-75 cursor-not-allowed pointer-events-none' : 'bg-white dark:bg-[#1e1e1e] hover:shadow-2xl hover:-translate-y-1'
-                                        }`}
+                                    className={`rounded-[24px] overflow-hidden flex flex-col relative group transition-all duration-300 hover:-translate-y-1 shadow-xl hover:shadow-[0_0_30px_rgba(59,130,246,0.6)] ${isDeactive ? 'cursor-not-allowed opacity-80' : ''} bg-white dark:bg-[#1e1e1e]`}
                                 >
-                                    {/* Header Image Section - Taller & Link Wrapper */}
+                                    {/* Top Area (Image/Placeholder) */}
                                     <Link
                                         to={isDeactive ? '#' : `/challenge-details/${race._id}`}
-                                        className="relative h-72 w-full overflow-hidden block"
+                                        className="w-full relative block h-48 sm:h-56 overflow-hidden rounded-t-[24px]"
                                         onClick={(e) => isDeactive && e.preventDefault()}
                                     >
                                         <div
-                                            className="w-full h-full bg-center bg-cover transition-transform duration-700 group-hover:scale-105"
-                                            style={{ backgroundImage: `url(${race.imageUrl})` }}
+                                            className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat transition-transform group-hover:scale-105"
+                                            style={race.imageUrl ? { backgroundImage: `url(${race.imageUrl})` } : {}}
                                         ></div>
 
-                                        {/* Status Badge - Bottom Right */}
-                                        <div className="absolute bottom-4 right-4 z-10">
+                                        {/* Status Badge */}
+                                        <div className="absolute top-4 left-4 z-10 flex flex-col gap-2">
                                             <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider shadow-sm backdrop-blur-md ${isActive
                                                 ? 'bg-green-500/90 text-white'
                                                 : isDeactive
@@ -179,72 +169,53 @@ export default function WeekendPage() {
                                             </span>
                                         </div>
 
-                                        {/* Gradient Overlay */}
-                                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                        {/* Lock Overlay for Upcoming/Closed Challenges */}
+                                        {!isActive && (
+                                            <div className="absolute inset-0 bg-white/20 group-hover:bg-white/30 transition-colors flex items-center justify-center">
+                                                <div className="bg-black/20 p-4 rounded-full flex items-center justify-center border border-black/10">
+                                                    <Lock className="text-black/70" size={32} />
+                                                </div>
+                                            </div>
+                                        )}
                                     </Link>
 
-                                    {/* Content Section - Updated Padding & Spacing */}
-                                    <div className="px-8 py-4 flex flex-col flex-1 gap-3">
-                                        {/* Title & Desc */}
-                                        <div className="space-y-2">
-                                            <Link
-                                                to={isDeactive ? '#' : `/challenge-details/${race._id}`}
-                                                className="block"
-                                                onClick={(e) => isDeactive && e.preventDefault()}
-                                            >
-                                                <h3 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight font-display leading-tight group-hover:text-red-600 transition-colors line-clamp-1">
-                                                    {race.name}
-                                                </h3>
-                                            </Link>
-                                            <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed line-clamp-2 min-h-[40px]">
-                                                {race.description}
-                                            </p>
+                                    {/* Bottom Solid Area */}
+                                    <div className="h-44 bg-[#8f9096] dark:bg-[#1e1e1e] w-full p-5 flex flex-col justify-between relative overflow-hidden">
+                                        {/* Inner glow visually */}
+                                        <div className="absolute inset-0 bg-gradient-to-t from-blue-500/0 group-hover:from-blue-500/20 to-transparent pointer-events-none transition-all duration-300"></div>
 
-                                            {/* Timer Section - Below Description (Only for Upcoming) */}
-                                            {isUpcoming && (
-                                                <div className="flex items-center gap-2 text-yellow-600 font-medium text-sm pt-1">
-                                                    <span className="material-symbols-outlined text-lg">timer</span>
-                                                    <span className="text-gray-500 dark:text-gray-400 text-xs uppercase font-bold tracking-wider">Starts in:</span>
-                                                    <span className="font-bold font-mono"><CountdownTimer targetDate={race.startAt} /></span>
+                                        <div className="relative z-10">
+                                            <h4 className="text-white font-bold text-lg md:text-xl mb-1 truncate drop-shadow-sm">
+                                                {race.name}
+                                            </h4>
+
+                                            {/* Timer or Dates */}
+                                            {isUpcoming ? (
+                                                <div className="text-white/90 text-sm font-semibold flex items-center gap-1.5">
+                                                    <span className="material-symbols-outlined text-[16px]">timer</span>
+                                                    <span>Starts in: <CountdownTimer targetDate={race.startAt} /></span>
+                                                </div>
+                                            ) : (
+                                                <div className="text-white/90 text-[11px] sm:text-xs font-semibold flex flex-col gap-1 mt-1">
+                                                    <div className="flex items-center gap-1.5">
+                                                        <span className="material-symbols-outlined text-[14px]">calendar_today</span>
+                                                        <span>Start: {new Date(race.startAt).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-1.5">
+                                                        <span className="material-symbols-outlined text-[14px]">event_available</span>
+                                                        <span>End: {new Date(race.endAt).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                                                    </div>
                                                 </div>
                                             )}
                                         </div>
 
-                                        <div className="h-px w-full bg-gray-100 dark:bg-gray-800"></div>
-
-                                        {/* Timeline Grid */}
-                                        <div className="flex flex-col gap-3">
-                                            <div className="flex items-center gap-3">
-                                                <div className={`flex items-center justify-center w-10 h-10 rounded-lg ${isDeactive ? 'bg-gray-200 dark:bg-gray-800 text-gray-400' : 'bg-red-50 dark:bg-red-900/10 text-red-600'} shrink-0`}>
-                                                    <span className="material-symbols-outlined text-xl">calendar_today</span>
-                                                </div>
-                                                <div className="min-w-0">
-                                                    <p className="text-[10px] uppercase font-bold text-gray-400 tracking-wider truncate">Start</p>
-                                                    <p className="text-sm font-bold text-gray-900 dark:text-gray-100">
-                                                        {new Date(race.startAt).toLocaleString(undefined, { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                            <div className="flex items-center gap-3">
-                                                <div className={`flex items-center justify-center w-10 h-10 rounded-lg ${isDeactive ? 'bg-gray-200 dark:bg-gray-800 text-gray-400' : 'bg-red-50 dark:bg-red-900/10 text-red-600'} shrink-0`}>
-                                                    <span className="material-symbols-outlined text-xl">event_available</span>
-                                                </div>
-                                                <div className="min-w-0">
-                                                    <p className="text-[10px] uppercase font-bold text-gray-400 tracking-wider truncate">End</p>
-                                                    <p className="text-sm font-bold text-gray-900 dark:text-gray-100">
-                                                        {new Date(race.endAt).toLocaleString(undefined, { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        {/* Button - Updated Padding */}
-                                        <div className="mt-auto pt-3">
+                                        {/* Generic Action Button using Gradient Style */}
+                                        <div className="relative z-10 mt-3">
                                             <Link
                                                 to={isDeactive ? '#' : `/challenge-details/${race._id}`}
-                                                className={`w-full font-bold py-2 px-3 rounded-xl flex items-center justify-center gap-2 transition-all shadow-md active:scale-[0.98] ${isDeactive
-                                                    ? 'bg-red-100 text-red-400 shadow-none cursor-not-allowed'
-                                                    : 'bg-red-600 hover:bg-red-700 text-white text-sm shadow-red-600/10 hover:shadow-lg hover:shadow-red-600/20'
+                                                className={`w-full font-bold py-2 px-3 rounded-full flex items-center justify-center gap-2 transition-all shadow-md active:scale-[0.98] ${isDeactive
+                                                    ? 'bg-gray-400 text-white cursor-not-allowed shadow-none'
+                                                    : 'bg-gradient-to-r from-[#70b1ff] to-[#59d5e0] text-white shadow-[0_0_15px_rgba(112,177,255,0.3)] hover:brightness-110'
                                                     }`}
                                                 onClick={(e) => isDeactive && e.preventDefault()}
                                             >

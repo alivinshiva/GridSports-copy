@@ -81,7 +81,7 @@ export function HomeHeader() {
                         <Link to="/" className={`transition-opacity hover:opacity-100 ${isActive('/') ? 'text-white opacity-100' : 'text-white opacity-70'}`}>
                             HOME
                         </Link>
-                        <Link to="/challenge/entries" className={`transition-opacity hover:opacity-100 ${isActive('/challenge/entries') ? 'text-white opacity-100' : 'text-white opacity-70'}`}>
+                        <Link to="/challenge/feed" className={`transition-opacity hover:opacity-100 ${isActive('/challenge/feed') ? 'text-white opacity-100' : 'text-white opacity-70'}`}>
                             DISCOVERY
                         </Link>
                         <Link to="/raceboard" className={`transition-opacity hover:opacity-100 ${isActive('/raceboard') ? 'text-white opacity-100' : 'text-white opacity-70'}`}>
