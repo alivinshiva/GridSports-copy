@@ -2,9 +2,9 @@ import axios from 'axios';
 
 const API_URL = `${import.meta.env.VITE_MAIN_API_URL}/api/v1/leaderboard`;
 
-export const getCreatorLeaderboard = async () => {
+export const getCreatorLeaderboard = async (page = 1, limit = 15) => {
     try {
-        const response = await axios.get(`${API_URL}/creators`);
+        const response = await axios.get(`${API_URL}/creators?page=${page}&limit=${limit}`);
         return response.data;
     } catch (error) {
         console.error("Error fetching creator leaderboard:", error);
@@ -12,9 +12,9 @@ export const getCreatorLeaderboard = async () => {
     }
 };
 
-export const getRankerLeaderboard = async () => {
+export const getRankerLeaderboard = async (page = 1, limit = 15) => {
     try {
-        const response = await axios.get(`${API_URL}/rankers`);
+        const response = await axios.get(`${API_URL}/rankers?page=${page}&limit=${limit}`);
         return response.data;
     } catch (error) {
         console.error("Error fetching ranker leaderboard:", error);
@@ -22,9 +22,9 @@ export const getRankerLeaderboard = async () => {
     }
 };
 
-export const getTribeLeaderboard = async () => {
+export const getTribeLeaderboard = async (page = 1, limit = 15) => {
     try {
-        const response = await axios.get(`${API_URL}/tribes`);
+        const response = await axios.get(`${API_URL}/tribes?page=${page}&limit=${limit}`);
         return response.data;
     } catch (error) {
         console.error("Error fetching tribe leaderboard:", error);

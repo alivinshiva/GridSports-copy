@@ -6,6 +6,10 @@ import tribeModel from "../models/tribe.model.js";
 // @access Public
 export const getCreatorLeaderboard = async (req, res) => {
     try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 15;
+        const skip = (page - 1) * limit;
+
         const creators = await profileModel.aggregate([
             {
                 $lookup: {
@@ -18,7 +22,8 @@ export const getCreatorLeaderboard = async (req, res) => {
             { $unwind: "$userDetails" },
             { $match: { "userDetails.creatorPoints": { $gt: 0 } } },
             { $sort: { "userDetails.creatorPoints": -1 } },
-            { $limit: 100 },
+            { $skip: skip },
+            { $limit: limit },
             {
                 $project: {
                     _id: "$userDetails._id",
@@ -41,6 +46,10 @@ export const getCreatorLeaderboard = async (req, res) => {
 // @access Public
 export const getRankerLeaderboard = async (req, res) => {
     try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 15;
+        const skip = (page - 1) * limit;
+
         const rankers = await profileModel.aggregate([
             {
                 $lookup: {
@@ -53,7 +62,8 @@ export const getRankerLeaderboard = async (req, res) => {
             { $unwind: "$userDetails" },
             { $match: { "userDetails.rankerPoints": { $gt: 0 } } },
             { $sort: { "userDetails.rankerPoints": -1 } },
-            { $limit: 100 },
+            { $skip: skip },
+            { $limit: limit },
             {
                 $project: {
                     _id: "$userDetails._id",
@@ -76,9 +86,14 @@ export const getRankerLeaderboard = async (req, res) => {
 // @access Public
 export const getTribeLeaderboard = async (req, res) => {
     try {
-        // We can either fetch from Tribe model directly or aggregate all users.
-        // Since we created Tribe model and update its totalPoints dynamically:
-        const tribes = await tribeModel.find({ totalPoints: { $gt: 0 } }).sort({ totalPoints: -1 });
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 15;
+        const skip = (page - 1) * limit;
+
+        const tribes = await tribeModel.find({ totalPoints: { $gt: 0 } })
+            .sort({ totalPoints: -1 })
+            .skip(skip)
+            .limit(limit);
 
         return res.status(200).json({ success: true, message: "Tribe Leaderboard Fetched", data: tribes });
     } catch (error) {
