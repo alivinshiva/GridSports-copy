@@ -137,7 +137,7 @@ export default function Raceboard() {
             const userId = c.userId || c._id;
             const prevRank = previousRankMap[userId];
             const prevChange = previousChangeMap[userId];
-            
+
             let rankChange = null;
             if (prevRank !== undefined) {
                 if (currentRank < prevRank) {
@@ -149,7 +149,7 @@ export default function Raceboard() {
                     rankChange = prevChange || null;
                 }
             }
-            
+
             return {
                 rank: currentRank,
                 userId: userId,
@@ -170,7 +170,7 @@ export default function Raceboard() {
             const tribeName = t.name;
             const prevRank = previousRankMap[tribeName];
             const prevChange = previousChangeMap[tribeName];
-            
+
             let rankChange = null;
             if (prevRank !== undefined) {
                 if (currentRank < prevRank) {
@@ -182,7 +182,7 @@ export default function Raceboard() {
                     rankChange = prevChange || null;
                 }
             }
-            
+
             return {
                 rank: currentRank,
                 name: tribeName,
@@ -291,7 +291,7 @@ export default function Raceboard() {
                 res = await getCreatorLeaderboard(nextPage, LIMIT);
                 newData = processData(res.data, dataState.creatorsTableData.length, previousRanks.creators, previousRankChanges.creators);
                 setDataState(prev => ({ ...prev, creatorsTableData: [...prev.creatorsTableData, ...newData] }));
-                
+
                 // Update stored ranks and rank changes for newly loaded data
                 const updatedRanks = { ...previousRanks };
                 const updatedChanges = { ...previousRankChanges };
@@ -307,7 +307,7 @@ export default function Raceboard() {
                 res = await getRankerLeaderboard(nextPage, LIMIT);
                 newData = processData(res.data, dataState.ratersTableData.length, previousRanks.raters, previousRankChanges.raters);
                 setDataState(prev => ({ ...prev, ratersTableData: [...prev.ratersTableData, ...newData] }));
-                
+
                 // Update stored ranks and rank changes for newly loaded data
                 const updatedRanks = { ...previousRanks };
                 const updatedChanges = { ...previousRankChanges };
@@ -323,7 +323,7 @@ export default function Raceboard() {
                 res = await getTribeLeaderboard(nextPage, LIMIT);
                 newData = processTribes(res.data, dataState.tribesTableData.length, previousRanks.tribes, previousRankChanges.tribes);
                 setDataState(prev => ({ ...prev, tribesTableData: [...prev.tribesTableData, ...newData] }));
-                
+
                 // Update stored ranks and rank changes for newly loaded data
                 const updatedRanks = { ...previousRanks };
                 const updatedChanges = { ...previousRankChanges };

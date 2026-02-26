@@ -33,10 +33,13 @@ export default {
                 "racing-white": "#F8FAFC",
             },
             fontFamily: {
-                sans: ['"Outfit"', 'sans-serif'],
-                display: ['"Be Vietnam Pro"', "sans-serif"], // New
-                body: ['"Noto Sans"', "sans-serif"], // New
+                sans: ['"Sora-Regular"', 'sans-serif'],
+                display: ['"Sora-Regular"', "sans-serif"],
+                body: ['"Sora-Regular"', "sans-serif"],
                 feguropic: ['"Feguropic"', 'sans-serif'],
+                'sora': ['"Sora-Regular"', 'sans-serif'],
+                'sora-medium': ['"Sora-Medium"', 'sans-serif'],
+                'sora-semibold': ['"Sora-SemiBold"', 'sans-serif'],
             },
             borderRadius: { "DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px" }, // Validated from snippet
         },

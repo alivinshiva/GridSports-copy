@@ -7,6 +7,31 @@
   font-style: normal;
   font-display: swap;
 }
+
+@font-face {
+  font-family: 'Sora-Regular';
+  src: url('./assets/fonts/Sora-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Sora-Medium';
+  src: url('./assets/fonts/Sora-Medium.otf') format('opentype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Sora-SemiBold';
+  src: url('./assets/fonts/Sora-SemiBold.otf') format('opentype');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

@@ -253,10 +253,10 @@ export default function ProfilePage() {
                                     {!profileImage && <div className="h-full w-full flex items-center justify-center text-white/40 text-xs">No Image</div>}
                                 </div>
                                 <div className="flex flex-col items-start justify-center gap-1 sm:gap-2 flex-1 w-full">
-                                    <p className="text-white text-lg sm:text-2xl md:text-4xl font-bold leading-tight tracking-[0.5px] sm:tracking-[1px] uppercase drop-shadow-md">
+                                    <p className="font-sora-medium text-white text-lg sm:text-2xl md:text-4xl leading-tight tracking-[0.5px] sm:tracking-[1px] uppercase drop-shadow-md">
                                         {profileData?.user?.name || "RACING USER"}
                                     </p>
-                                    <p className="text-white/60 text-[11px] sm:text-sm md:text-base font-medium">
+                                    <p className="font-sora text-white/60 text-[11px] sm:text-sm md:text-base">
                                         Racing ID : {profileData?.user?._id?.substring(0, 6).toUpperCase() || "R22"}
                                     </p>
                                     <div className="flex items-center gap-1.5 sm:gap-2 mt-2 sm:mt-3 flex-wrap w-full">
@@ -274,7 +274,7 @@ export default function ProfilePage() {
                                         </div>
                                         <div className="flex items-center gap-1 sm:gap-2 bg-black/40 backdrop-blur-sm px-2 sm:px-4 py-1 sm:py-2 rounded-full border border-white/10">
                                             <LayoutGrid size={12} className="sm:size-4 text-gray-400" />
-                                            <span className="text-[10px] sm:text-sm font-bold text-white uppercase">{formatTribeName(profileData?.tribe || "RED GRID")}</span>
+                                            <span className="font-sora-semibold text-[10px] sm:text-sm text-white uppercase">{formatTribeName(profileData?.tribe || "RED GRID")}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -287,15 +287,15 @@ export default function ProfilePage() {
                     {profileData?.tribe && (
                         <div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            
+
                                 {/* User Contribution Section */}
                                 <div className="bg-black/30 rounded-xl p-4 sm:p-6 border border-white/5">
-                                    <p className="text-white/70 text-xs sm:text-sm font-semibold uppercase tracking-wider mb-3">Tribe Contribution</p>
+                                    <p className="font-sora-medium text-white/70 text-xs sm:text-sm uppercase tracking-wider mb-3">Tribe Contribution</p>
                                     <div className="flex items-baseline gap-3">
-                                        <span className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">
+                                        <span className="font-sora-medium text-2xl sm:text-3xl md:text-4xl text-white">
                                             {((profileData?.user?.creatorPoints || 0) + (profileData?.user?.rankerPoints || 0)).toLocaleString()} /  {tribeData?.totalPoints ? Math.round(tribeData.totalPoints).toLocaleString() : '0'}
                                         </span>
-                                        <span className="text-white/60 text-sm">points</span>
+                                        <span className="font-sora text-white/60 text-sm">points</span>
                                     </div>
                                     {tribeData?.totalPoints > 0 && (
                                         <div className="mt-4">
@@ -319,82 +319,82 @@ export default function ProfilePage() {
                             </div>
 
                             {/* Tribe Status Badge */}
-                            
+
                         </div>
                     )}
-                        {/* Main Tabs & Content */}
-                        <div className="flex flex-col gap-4 w-full px-1 sm:px-0">
-                            <div className="pb-3 bg-transparent rounded-none sm:rounded-t-xl">
-                                <div className="flex border-b border-white/10 px-4 sm:px-0 gap-8">
-                                    <button
-                                        onClick={() => setActiveTab("images")}
-                                        className={`flex flex-col items-center justify-center border-b-[3px] ${activeTab === "images" ? "border-b-white text-white" : "border-b-transparent text-white/50 hover:text-white/80"} pb-[13px] pt-4 transition-colors`}
-                                    >
-                                        <p className="text-sm font-bold leading-normal tracking-widest uppercase">Images</p>
-                                    </button>
-                                    <button
-                                        onClick={() => setActiveTab("videos")}
-                                        className={`flex flex-col items-center justify-center border-b-[3px] ${activeTab === "videos" ? "border-b-white text-white" : "border-b-transparent text-white/50 hover:text-white/80"} pb-[13px] pt-4 transition-colors`}
-                                    >
-                                        <p className="text-sm font-bold leading-normal tracking-widest uppercase">Videos</p>
-                                    </button>
-                                </div>
-                            </div>
-
-                            {/* Content Grid */}
-                            <div className="min-h-[200px]">
-                                {activeTab === "images" && (
-                                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                                        {imageSubmissions.map((submission) => (
-                                            <div
-                                                key={submission._id}
-                                                className="group relative aspect-square rounded-lg overflow-hidden bg-[#181920] border border-white/5 cursor-pointer shadow-lg hover:border-white/20 transition-all"
-                                                onClick={() => {
-                                                    setSelectedImage(submission.mediaUrl);
-                                                    setIsImageModalOpen(true);
-                                                }}
-                                            >
-                                                <img src={submission.mediaUrl} alt="User Submission" className="w-full h-full object-cover transition-transform group-hover:scale-105" />
-                                            </div>
-                                        ))}
-                                        {isImagesLoading && (
-                                            <div className="col-span-full flex justify-center py-4">
-                                                <Loader2 className="animate-spin text-primary" size={24} />
-                                            </div>
-                                        )}
-                                        {!isImagesLoading && imageSubmissions.length === 0 && (
-                                            <div className="col-span-full text-center py-8 text-gray-500">
-                                                No images found.
-                                            </div>
-                                        )}
-                                    </div>
-                                )}
-
-                                {activeTab === "videos" && (
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                        {videoSubmissions.map((submission) => (
-                                            <div key={submission._id} className="group relative aspect-video rounded-lg overflow-hidden bg-[#181920] border border-white/5 shadow-lg">
-                                                <video
-                                                    src={submission.mediaUrl}
-                                                    controls
-                                                    className="w-full h-full object-cover"
-                                                />
-                                            </div>
-                                        ))}
-                                        {isVideosLoading && (
-                                            <div className="col-span-full flex justify-center py-4">
-                                                <Loader2 className="animate-spin text-primary" size={24} />
-                                            </div>
-                                        )}
-                                        {!isVideosLoading && videoSubmissions.length === 0 && (
-                                            <div className="col-span-full text-center py-8 text-gray-500">
-                                                No videos found.
-                                            </div>
-                                        )}
-                                    </div>
-                                )}
+                    {/* Main Tabs & Content */}
+                    <div className="flex flex-col gap-4 w-full px-1 sm:px-0">
+                        <div className="pb-3 bg-transparent rounded-none sm:rounded-t-xl">
+                            <div className="flex border-b border-white/10 px-4 sm:px-0 gap-8">
+                                <button
+                                    onClick={() => setActiveTab("images")}
+                                    className={`flex flex-col items-center justify-center border-b-[3px] ${activeTab === "images" ? "border-b-white text-white" : "border-b-transparent text-white/50 hover:text-white/80"} pb-[13px] pt-4 transition-colors`}
+                                >
+                                    <p className="font-sora-semibold text-sm leading-normal tracking-widest uppercase">Images</p>
+                                </button>
+                                <button
+                                    onClick={() => setActiveTab("videos")}
+                                    className={`flex flex-col items-center justify-center border-b-[3px] ${activeTab === "videos" ? "border-b-white text-white" : "border-b-transparent text-white/50 hover:text-white/80"} pb-[13px] pt-4 transition-colors`}
+                                >
+                                    <p className="font-sora-semibold text-sm leading-normal tracking-widest uppercase">Videos</p>
+                                </button>
                             </div>
                         </div>
+
+                        {/* Content Grid */}
+                        <div className="min-h-[200px]">
+                            {activeTab === "images" && (
+                                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                                    {imageSubmissions.map((submission) => (
+                                        <div
+                                            key={submission._id}
+                                            className="group relative aspect-square rounded-lg overflow-hidden bg-[#181920] border border-white/5 cursor-pointer shadow-lg hover:border-white/20 transition-all"
+                                            onClick={() => {
+                                                setSelectedImage(submission.mediaUrl);
+                                                setIsImageModalOpen(true);
+                                            }}
+                                        >
+                                            <img src={submission.mediaUrl} alt="User Submission" className="w-full h-full object-cover transition-transform group-hover:scale-105" />
+                                        </div>
+                                    ))}
+                                    {isImagesLoading && (
+                                        <div className="col-span-full flex justify-center py-4">
+                                            <Loader2 className="animate-spin text-primary" size={24} />
+                                        </div>
+                                    )}
+                                    {!isImagesLoading && imageSubmissions.length === 0 && (
+                                        <div className="col-span-full text-center py-8 text-gray-500">
+                                            No images found.
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
+                            {activeTab === "videos" && (
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                    {videoSubmissions.map((submission) => (
+                                        <div key={submission._id} className="group relative aspect-video rounded-lg overflow-hidden bg-[#181920] border border-white/5 shadow-lg">
+                                            <video
+                                                src={submission.mediaUrl}
+                                                controls
+                                                className="w-full h-full object-cover"
+                                            />
+                                        </div>
+                                    ))}
+                                    {isVideosLoading && (
+                                        <div className="col-span-full flex justify-center py-4">
+                                            <Loader2 className="animate-spin text-primary" size={24} />
+                                        </div>
+                                    )}
+                                    {!isVideosLoading && videoSubmissions.length === 0 && (
+                                        <div className="col-span-full text-center py-8 text-gray-500">
+                                            No videos found.
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                    </div>
 
                 </div>
             </div>
