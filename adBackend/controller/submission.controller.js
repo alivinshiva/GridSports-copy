@@ -105,11 +105,12 @@ export const addSubmissionController = async (req, res) => {
 };
 
 
+import jwt from "jsonwebtoken";
+
 // desc get all submission
 // method GET
 // path /api/v1/submission/get-all-submission
 // access private
-// this is for all random video 
 // this is for all random video 
 export const getAllRandomSubmissionController = async (req, res) => {
     try {
@@ -124,7 +125,75 @@ export const getAllRandomSubmissionController = async (req, res) => {
         const resultSubmissions = await submissionModel.find({ _id: { $in: randomDocs.map(d => d._id) } })
             .populate("challenge", "name scoringType parameters comments");
 
-        return res.status(200).json({ success: true, message: "Submissions Fetched Successfully", data: resultSubmissions });
+        let submissionsWithRatings = resultSubmissions.map(sub => sub.toObject());
+
+        // Extract user from token if present, but don't fail if absent
+        let loggedInUserId = null;
+        try {
+            const token = req.cookies.TrIWOoeGridSports;
+            if (token) {
+                const decode = jwt.verify(token, process.env.JWT_TOKEN);
+                if (decode) loggedInUserId = decode.userId;
+            }
+        } catch (e) {
+            // ignore token errors for random feed
+        }
+
+        if (loggedInUserId) {
+            const subIds = submissionsWithRatings.map(sub => sub._id);
+
+            // Fetch normal ratings
+            const pointLedgers = await import("../model/pointLedger.model.js").then(m => m.default).then(model =>
+                model.find({
+                    user: loggedInUserId,
+                    submission: { $in: subIds },
+                    actionType: { $regex: /^RATE_/ }
+                })
+            ).catch(() => []);
+
+            // Fetch detailed ratings breakdown
+            const detailedRatings = await detailedRatingModel.find({
+                user: loggedInUserId,
+                submission: { $in: subIds }
+            }).catch(() => []);
+
+            const ledgerMap = {};
+            pointLedgers.forEach(pl => {
+                ledgerMap[pl.submission.toString()] = pl.actionType;
+            });
+
+            const detailedMap = {};
+            detailedRatings.forEach(dr => {
+                const breakdown = {};
+                dr.ratings.forEach(r => { breakdown[r.parameterName] = r.score; });
+                detailedMap[dr.submission.toString()] = { ratings: breakdown, comment: dr.comment };
+            });
+
+            // Map ratings onto the submissions
+            submissionsWithRatings = submissionsWithRatings.map(sub => {
+                const subIdStr = sub._id.toString();
+
+                // Normal ratings e.g., 'RATE_LOVE' -> 'LOVE'
+                const actionType = ledgerMap[subIdStr];
+                if (actionType) {
+                    if (actionType.startsWith('RATE_')) {
+                        sub.userRating = actionType.replace('RATE_', ''); // 'LOVE', 'LIKE', 'DISLIKE' or 'DETAILED'
+                    } else if (actionType && !sub.challenge.parameters) {
+                        sub.userRating = actionType;
+                    }
+                    // for custom simple parameters the frontend saves the param name, actually frontend uses the custom param name for rateSubmission ('RATE_' is only for love/like/dislike? Wait!
+                    // Let me check frontend handleRate)
+                }
+
+                if (detailedMap[subIdStr]) {
+                    sub.detailedUserRating = detailedMap[subIdStr];
+                }
+
+                return sub;
+            });
+        }
+
+        return res.status(200).json({ success: true, message: "Submissions Fetched Successfully", data: submissionsWithRatings });
     } catch (error) {
         return res.status(500).json({ success: false, message: "Internal Server Error", error: error.message });
     };
@@ -323,6 +392,18 @@ export const rateDetailedController = async (req, res) => {
         if (!processResult.success) {
             return res.status(400).json(processResult);
         }
+
+        // Save detailed rating breakdown to DB
+        await detailedRatingModel.findOneAndUpdate(
+            { user: loggedInUser, submission: submissionId },
+            {
+                challenge: challengeId,
+                ratings: ratings,
+                totalScore: totalScore,
+                comment: req.body.comment || null
+            },
+            { upsert: true, new: true }
+        );
 
         return res.status(200).json({
             success: true,
