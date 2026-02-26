@@ -10,6 +10,7 @@ import submissionRouter from "./router/submission.router.js";
 import heroRouter from "./router/hero.router.js";
 import tribeRouter from "./router/tribe.router.js";
 import tagRouter from "./router/tag.router.js";
+import commentRouter from "./router/comment.router.js";
 
 dotenv.config();
 
@@ -40,6 +41,7 @@ app.use("/api/v1/submission", submissionRouter);
 app.use("/api/v1/hero", heroRouter);
 app.use("/api/v1/tribe", tribeRouter);
 app.use("/api/v1/tag", tagRouter);
+app.use("/api/v1/comment", commentRouter);
 
 
 app.listen(PORT, () => {

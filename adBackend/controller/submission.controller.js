@@ -122,7 +122,7 @@ export const getAllRandomSubmissionController = async (req, res) => {
 
         // Hydrate and populate to get challenge parameters
         const resultSubmissions = await submissionModel.find({ _id: { $in: randomDocs.map(d => d._id) } })
-            .populate("challenge", "name scoringType parameters");
+            .populate("challenge", "name scoringType parameters comments");
 
         return res.status(200).json({ success: true, message: "Submissions Fetched Successfully", data: resultSubmissions });
     } catch (error) {

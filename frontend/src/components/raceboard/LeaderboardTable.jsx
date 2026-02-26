@@ -1,9 +1,19 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import { Loader2 } from 'lucide-react';
 
-const LeaderboardTable = ({ data, columns, hasMore, onLoadMore, isLoading, hideHeaders = false }) => {
+const LeaderboardTable = forwardRef(({ data, columns, hasMore, onLoadMore, isLoading, hideHeaders = false }, ref) => {
     return (
-        <div className="bg-[#101117] rounded-xl mx-1 sm:mx-0 border border-white/5 shadow-[0_0_30px_rgba(0,0,0,0.5)] overflow-hidden w-full">
+        <div ref={ref} className="bg-[#101117] rounded-xl mx-1 sm:mx-0 border border-white/5 shadow-[0_0_30px_rgba(0,0,0,0.5)] overflow-hidden w-full">
+            <style>{`
+                @keyframes highlightPulse {
+                    0% { background-color: rgba(59,130,246,0.3); }
+                    50% { background-color: rgba(59,130,246,0.15); }
+                    100% { background-color: rgba(59,130,246,0.3); }
+                }
+                .animate-highlight-pulse {
+                    animation: highlightPulse 0.8s ease-in-out 3;
+                }
+            `}</style>
             <div className="max-h-[60vh] overflow-y-auto overflow-x-hidden relative [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-white/10 [&::-webkit-scrollbar-thumb]:rounded-full w-full">
                 <table className="w-full border-collapse">
                     {!hideHeaders && (
@@ -28,7 +38,11 @@ const LeaderboardTable = ({ data, columns, hasMore, onLoadMore, isLoading, hideH
                                 : "hover:bg-white/[0.02] transition-colors";
 
                             return (
-                                <tr key={rowIndex} className={`${rowBg} group`}>
+                                <tr
+                                    key={rowIndex}
+                                    className={`${rowBg} group`}
+                                    {...(isHighlighted ? { 'data-user-row': 'true' } : {})}
+                                >
                                     {columns.map((col, colIndex) => (
                                         <td
                                             key={`${rowIndex}-${colIndex}`}
@@ -69,6 +83,9 @@ const LeaderboardTable = ({ data, columns, hasMore, onLoadMore, isLoading, hideH
             )}
         </div>
     );
-};
+});
+
+LeaderboardTable.displayName = 'LeaderboardTable';
 
 export default LeaderboardTable;
+

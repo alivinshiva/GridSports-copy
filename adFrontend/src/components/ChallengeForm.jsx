@@ -3,12 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { createChallenge } from '../services/challengeService';
 import { getAllWeekends } from '../services/weekendService';
 import { getAllTags } from '../services/tagService';
-import { Upload, Trophy, Plus, Trash2, X, Check } from 'lucide-react';
+import { getAllComments } from '../services/commentService';
+import { Upload, Trophy, Plus, Trash2, X, Check, MessageSquare } from 'lucide-react';
 
 const ChallengeForm = () => {
     const navigate = useNavigate();
     const [weekends, setWeekends] = useState([]);
     const [availableTags, setAvailableTags] = useState([]);
+    const [availableComments, setAvailableComments] = useState([]);
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
         weekend: '',
@@ -29,6 +31,10 @@ const ChallengeForm = () => {
     const [tags, setTags] = useState([]);
     const [currentTag, setCurrentTag] = useState('');
     const [tagError, setTagError] = useState('');
+
+    // Comments Management for Detailed Scoring
+    const [selectedComments, setSelectedComments] = useState([]);
+
     const [parameters, setParameters] = useState([]);
     const [currentParamName, setCurrentParamName] = useState('');
     const [currentParamPoints, setCurrentParamPoints] = useState(5);
@@ -39,9 +45,10 @@ const ChallengeForm = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [weekendRes, tagsRes] = await Promise.all([
+                const [weekendRes, tagsRes, commentsRes] = await Promise.all([
                     getAllWeekends(),
-                    getAllTags().catch(() => ({ success: false })) // fail gracefully
+                    getAllTags().catch(() => ({ success: false })), // fail gracefully
+                    getAllComments().catch(() => ({ success: false }))
                 ]);
 
                 if (weekendRes.success) {
@@ -49,6 +56,9 @@ const ChallengeForm = () => {
                 }
                 if (tagsRes.success) {
                     setAvailableTags(tagsRes.data);
+                }
+                if (commentsRes.success) {
+                    setAvailableComments(commentsRes.data);
                 }
             } catch (error) {
                 console.error("Failed to fetch initial data", error);
@@ -115,6 +125,15 @@ const ChallengeForm = () => {
         }
     };
 
+    // Pre-defined Comments Management
+    const handleToggleComment = (commentText) => {
+        if (selectedComments.includes(commentText)) {
+            setSelectedComments(selectedComments.filter(c => c !== commentText));
+        } else {
+            setSelectedComments([...selectedComments, commentText]);
+        }
+    };
+
     // Parameters Management
     const handleAddParameter = () => {
         if (currentParamName.trim() !== "") {
@@ -146,6 +165,11 @@ const ChallengeForm = () => {
 
         // Append Tags
         tags.forEach(tag => data.append('tags', tag));
+
+        // Append Comments (Only if Detailed Scoring is selected)
+        if (formData.scoringType === 'DETAILED') {
+            selectedComments.forEach(comment => data.append('comments', comment));
+        }
 
         // Append Parameters based on scoring type
         if (formData.scoringType === 'DETAILED') {
@@ -484,6 +508,39 @@ const ChallengeForm = () => {
                                 ))}
                             </ul>
                         )}
+
+                        {/* Pre-defined Comments Selection */}
+                        <div className="mt-8 border-t border-gray-100 pt-6">
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Pre-defined Comments / Quick Feedback</label>
+                            <p className="text-xs text-gray-500 mb-4">Select comments that voters can quickly tap to leave detailed feedback on a submission.</p>
+
+                            {availableComments.length === 0 ? (
+                                <div className="text-sm text-gray-500 italic p-4 bg-emerald-50 border border-emerald-100 rounded-lg text-center">
+                                    No pre-defined comments available. Create some in the Comments Management page.
+                                </div>
+                            ) : (
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                    {availableComments.map((comment) => {
+                                        const isSelected = selectedComments.includes(comment.text);
+                                        return (
+                                            <div
+                                                key={comment._id}
+                                                onClick={() => handleToggleComment(comment.text)}
+                                                className={`cursor-pointer p-3 rounded-lg border text-sm flex items-start transition-all ${isSelected
+                                                    ? 'bg-emerald-50 border-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.1)]'
+                                                    : 'bg-white border-gray-200 hover:border-emerald-300 hover:bg-gray-50'
+                                                    }`}
+                                            >
+                                                <div className={`mt-0.5 flex-shrink-0 w-4 h-4 rounded border flex items-center justify-center mr-3 ${isSelected ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-gray-300'}`}>
+                                                    {isSelected && <Check size={12} strokeWidth={3} />}
+                                                </div>
+                                                <span className={`${isSelected ? 'text-emerald-900 font-medium' : 'text-gray-700'}`}>{comment.text}</span>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            )}
+                        </div>
                     </div>
                 )}
 

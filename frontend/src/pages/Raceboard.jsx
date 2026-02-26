@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 import LeaderboardTable from "@/components/raceboard/LeaderboardTable";
@@ -96,6 +96,14 @@ export default function Raceboard() {
 
     const [loadingTab, setLoadingTab] = useState(null);
 
+    // Refs for each LeaderboardTable so we can scroll to the user row
+    const creatorsTableRef = useRef(null);
+    const ratersTableRef = useRef(null);
+    const tribesTableRef = useRef(null);
+
+    // Random target rank (1, 2, or 3) — stable per page load
+    const targetTopRank = useMemo(() => Math.floor(Math.random() * 3) + 1, []);
+
     const LIMIT = 15;
 
     const processData = (realData, offset = 0) => {
@@ -192,60 +200,91 @@ export default function Raceboard() {
         }
     };
 
-    const renderCurrentUserRow = () => {
+
+
+    // Compute the card data for the currently active tab
+    const getCardInfo = () => {
         if (!user || !currentUserRankData) return null;
 
-        let rowData = null;
-        let columns = [];
+        let rank = null;
+        let userPoints = 0;
+        let total = 0;
+        let top3Points = [];
+        let avatar = currentUserRankData.avatar;
 
         if (activeTab === 'creators') {
             if (!currentUserRankData.creatorPoints) return null;
-            rowData = {
-                rank: currentUserRankData.creatorRank || '-',
-                name: currentUserRankData.name,
-                points: currentUserRankData.creatorPoints ? currentUserRankData.creatorPoints.toLocaleString() : "0",
-                avatar: currentUserRankData.avatar,
-                tribe: currentUserRankData.tribe || "No Tribe",
-                color: DefaultTribesColorMap[currentUserRankData.tribe] || "from-[#434343] to-[#000000]",
-                isHighlighted: true
-            };
-            columns = creatorsColumns;
+            rank = currentUserRankData.creatorRank;
+            userPoints = currentUserRankData.creatorPoints;
+            total = currentUserRankData.totalCreators || 0;
+            top3Points = currentUserRankData.top3CreatorPoints || [];
         } else if (activeTab === 'raters') {
             if (!currentUserRankData.rankerPoints) return null;
-            rowData = {
-                rank: currentUserRankData.rankerRank || '-',
-                name: currentUserRankData.name,
-                points: currentUserRankData.rankerPoints ? currentUserRankData.rankerPoints.toLocaleString() : "0",
-                avatar: currentUserRankData.avatar,
-                tribe: currentUserRankData.tribe || "No Tribe",
-                color: DefaultTribesColorMap[currentUserRankData.tribe] || "from-[#434343] to-[#000000]",
-                isHighlighted: true
-            };
-            columns = ratersColumns;
+            rank = currentUserRankData.rankerRank;
+            userPoints = currentUserRankData.rankerPoints;
+            total = currentUserRankData.totalRankers || 0;
+            top3Points = currentUserRankData.top3RankerPoints || [];
         } else if (activeTab === 'tribes') {
             if (!currentUserRankData.tribe) return null;
-            rowData = {
-                rank: currentUserRankData.tribeRank || '-',
-                name: currentUserRankData.tribe,
-                points: currentUserRankData.tribePoints ? currentUserRankData.tribePoints.toLocaleString() : "0",
-                avatar: DefaultTribesColorMap[currentUserRankData.tribe] || "from-[#434343] to-[#000000]",
-                isHighlighted: true
-            };
-            columns = tribesColumns;
+            rank = currentUserRankData.tribeRank;
+            userPoints = currentUserRankData.tribePoints;
+            total = currentUserRankData.totalTribes || 0;
+            top3Points = currentUserRankData.top3TribePoints || [];
         }
 
-        if (!rowData) return null;
+        if (rank === null) return null;
+
+        // Percentile
+        const percentile = total > 0 ? Math.max(1, Math.ceil((rank / total) * 100)) : 100;
+
+        // Points to reach target rank (random 1–3)
+        const targetIdx = targetTopRank - 1; // 0-based
+        const targetPoints = top3Points[targetIdx] || 0;
+        const pointsNeeded = Math.max(0, targetPoints - userPoints);
+        const isInTop3 = rank <= 3;
+
+        return { rank, percentile, pointsNeeded, targetRank: targetTopRank, isInTop3, avatar };
+    };
+
+    const renderCurrentUserCard = () => {
+        const info = getCardInfo();
+        if (!info) return null;
+
+        const initial = user?.name ? user.name.charAt(0).toUpperCase() : '?';
 
         return (
-            <div className="mb-6">
-                <div className="text-[#3b82f6] text-[14px] md:text-[16px] mb-3 px-2 font-medium tracking-wide">Your Position</div>
-                <LeaderboardTable
-                    data={[rowData]}
-                    columns={columns}
-                    hasMore={false}
-                    isLoading={false}
-                    hideHeaders={true}
-                />
+            <div className="mb-6 mx-1 sm:mx-0">
+                <div className="bg-[#181920] rounded-2xl p-4 md:p-5 flex items-center gap-4 border border-white/5 shadow-2xl">
+                    {/* Avatar / Initial badge */}
+                    <div className="shrink-0">
+                        {info.avatar ? (
+                            <div
+                                className="size-12 sm:size-14 rounded-xl bg-cover bg-center border-2 border-white/10"
+                                style={{ backgroundImage: `url('${info.avatar}')` }}
+                            />
+                        ) : (
+                            <div className="size-12 sm:size-14 rounded-xl bg-[#23242d] border-2 border-white/10 flex items-center justify-center text-lg sm:text-xl font-bold text-white">
+                                {initial}
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Text content */}
+                    <div className="flex-1 min-w-0">
+                        <div className="text-white font-semibold text-[15px] sm:text-[17px] leading-tight">
+                            #{info.rank} in this round
+                        </div>
+                        <div className="text-white/60 text-[12px] sm:text-[13px] mt-1 leading-snug">
+                            {info.isInTop3 ? (
+                                <>You are in the <span className="text-green-400 font-medium">top {info.percentile}%</span>. You're in the top 3! 🎉</>
+                            ) : (
+                                <>You are in the <span className="text-green-400 font-medium">top {info.percentile}%</span>. only {info.pointsNeeded.toLocaleString()} points to reach <span className="text-white font-medium">#{info.targetRank}</span>!</>
+                            )}
+                        </div>
+                    </div>
+
+
+                </div>
             </div>
         );
     };
@@ -281,11 +320,12 @@ export default function Raceboard() {
                     </div>
                 </div>
 
-                {renderCurrentUserRow()}
+                {renderCurrentUserCard()}
 
                 {/* Content switching based on tab */}
                 {activeTab === 'creators' && (
                     <LeaderboardTable
+                        ref={creatorsTableRef}
                         data={dataState.creatorsTableData}
                         columns={creatorsColumns}
                         hasMore={pagination.creators.hasMore}
@@ -296,6 +336,7 @@ export default function Raceboard() {
 
                 {activeTab === 'tribes' && (
                     <LeaderboardTable
+                        ref={tribesTableRef}
                         data={dataState.tribesTableData}
                         columns={tribesColumns}
                         hasMore={pagination.tribes.hasMore}
@@ -306,6 +347,7 @@ export default function Raceboard() {
 
                 {activeTab === 'raters' && (
                     <LeaderboardTable
+                        ref={ratersTableRef}
                         data={dataState.ratersTableData}
                         columns={ratersColumns}
                         hasMore={pagination.raters.hasMore}
@@ -318,3 +360,4 @@ export default function Raceboard() {
         </AuthenticatedLayout>
     );
 }
+

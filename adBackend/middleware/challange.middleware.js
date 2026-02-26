@@ -27,6 +27,13 @@ export const createChallengeMiddleware = async (req, res, next) => {
         }
     }
 
+    // Handle comments array similarly
+    if (req.body.comments) {
+        if (typeof req.body.comments === 'string') {
+            req.body.comments = [req.body.comments];
+        }
+    }
+
     try {
         const schema = joi.object({
             weekend: joi.string().trim().length(24).pattern(/^[0-9a-fA-F]{24}$/).required(),
@@ -41,7 +48,8 @@ export const createChallengeMiddleware = async (req, res, next) => {
             season: joi.string().required(),
             scoringType: joi.string().valid("SIMPLE", "DETAILED").optional(),
             parameters: joi.string().optional(),
-            tags: joi.array().items(joi.string().trim()).optional()
+            tags: joi.array().items(joi.string().trim()).optional(),
+            comments: joi.array().items(joi.string().trim()).optional()
         });
 
         const { error } = schema.validate(req.body);

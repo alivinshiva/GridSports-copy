@@ -68,9 +68,12 @@ export const recordShare = async (submissionId) => {
     }
 };
 
-export const rateDetailed = async (submissionId, challengeId, ratings) => {
+export const rateDetailed = async (submissionId, challengeId, ratings, selectedComment = null) => {
     try {
-        const response = await axios.post(`${API_URL}/rate-detailed`, { submissionId, challengeId, ratings }, {
+        const payload = { submissionId, challengeId, ratings };
+        if (selectedComment) payload.comment = selectedComment;
+
+        const response = await axios.post(`${API_URL}/rate-detailed`, payload, {
             withCredentials: true,
         });
         return response.data;

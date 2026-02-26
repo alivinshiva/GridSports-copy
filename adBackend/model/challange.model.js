@@ -70,8 +70,13 @@ const challengeSchema = new mongoose.Schema({
             name: { type: String, required: true },
             maxPoints: { type: Number, required: true }
         }
+    ],
+    comments: [
+        {
+            type: String,
+            trim: true
+        }
     ]
-
 }, { timestamps: true });
 
 export default mongoose.model("challenge", challengeSchema);

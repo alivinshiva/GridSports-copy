@@ -54,6 +54,7 @@ const SubmissionFeed = () => {
     const [muted, setMuted] = useState(true);
     const [ratingsState, setRatingsState] = useState({}); // { [id]: 'LOVE'|'LIKE'|'DISLIKE' }
     const [detailedRatingsState, setDetailedRatingsState] = useState({}); // { [subId]: { [paramName]: score } }
+    const [selectedCommentState, setSelectedCommentState] = useState({}); // { [subId]: 'Comment string' }
     const [activeShare, setActiveShare] = useState(null); // ID of submission being shared
     const [activeSubmissionId, setActiveSubmissionId] = useState(null);
     const visibilityObserver = useRef();
@@ -148,15 +149,18 @@ const SubmissionFeed = () => {
             score
         }));
 
+        const selectedComment = selectedCommentState[submissionId] || null;
+
         try {
             // Log exactly what user requested
             const average = ratingsArray.length > 0 ? ratingsArray.reduce((acc, curr) => acc + curr.score, 0) / ratingsArray.length : 0;
             console.log(`--- Ratings Log for Submission ${submissionId} ---`);
             ratingsArray.forEach(r => console.log(`${r.parameterName}: ${r.score}`));
+            if (selectedComment) console.log(`Selected Comment: ${selectedComment}`);
             console.log(`Average Score: ${average}`);
             console.log(`-----------------------------------------------`);
 
-            await rateDetailed(submissionId, submission.challenge._id, ratingsArray);
+            await rateDetailed(submissionId, submission.challenge._id, ratingsArray, selectedComment);
             console.log(`Saved detailed ratings to backend for ${submissionId}`);
             // Optionally clear state to avoid resubmitting if swiped back and forth without changes:
             // But if user changes, it will re-record. Backend handles upsert.
@@ -174,6 +178,18 @@ const SubmissionFeed = () => {
                 [paramName]: score
             }
         }));
+    };
+
+    const handleCommentSelect = (e, submissionId, commentText) => {
+        e.stopPropagation();
+        setSelectedCommentState(prev => {
+            // Toggle off if already selected, otherwise set it
+            const isCurrentlySelected = prev[submissionId] === commentText;
+            return {
+                ...prev,
+                [submissionId]: isCurrentlySelected ? null : commentText
+            };
+        });
     };
 
     // Toggle mute
@@ -359,6 +375,30 @@ const SubmissionFeed = () => {
                                                     );
                                                 })}
                                             </div>
+
+                                            {/* Predefined Comments UI for DETAILED Scoring */}
+                                            {entry.challenge?.comments && entry.challenge.comments.length > 0 && (
+                                                <div className="mt-4 pt-4 border-t border-white/10 w-full px-2">
+                                                    <p className="text-xs font-semibold text-white/50 mb-3 uppercase tracking-wider">Quick Feedback</p>
+                                                    <div className="flex flex-wrap gap-2">
+                                                        {entry.challenge.comments.map((comment, cIdx) => {
+                                                            const isSelected = selectedCommentState[entry._id] === comment;
+                                                            return (
+                                                                <button
+                                                                    key={cIdx}
+                                                                    onClick={(e) => handleCommentSelect(e, entry._id, comment)}
+                                                                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 border ${isSelected
+                                                                            ? 'bg-[#cca651]/20 border-[#cca651] text-[#cca651] shadow-[0_0_10px_rgba(204,166,81,0.2)]'
+                                                                            : 'bg-white/5 border-white/10 text-white/70 hover:bg-white/10 hover:text-white'
+                                                                        }`}
+                                                                >
+                                                                    {comment}
+                                                                </button>
+                                                            )
+                                                        })}
+                                                    </div>
+                                                </div>
+                                            )}
                                         </div>
                                     ) : (
                                         <div className="flex flex-row flex-nowrap items-stretch justify-center gap-4 w-full px-4 text-white pointer-events-auto pb-6">
@@ -369,8 +409,8 @@ const SubmissionFeed = () => {
                                                         key={`simple-param-${pIdx}`}
                                                         onClick={(e) => handleRate(e, entry._id, param.name)}
                                                         className={`flex-1 flex flex-col items-center justify-center p-4 rounded-2xl backdrop-blur-md transition-all border ${ratingsState[entry._id] === param.name
-                                                                ? 'bg-indigo-600/40 border-indigo-500 scale-105 shadow-[0_0_15px_rgba(99,102,241,0.5)]'
-                                                                : 'bg-black/40 border-white/10 hover:bg-white/10 hover:border-white/30 active:scale-95'
+                                                            ? 'bg-indigo-600/40 border-indigo-500 scale-105 shadow-[0_0_15px_rgba(99,102,241,0.5)]'
+                                                            : 'bg-black/40 border-white/10 hover:bg-white/10 hover:border-white/30 active:scale-95'
                                                             }`}
                                                     >
                                                         <span className="text-2xl mb-1">{param.name.replace(/^[a-zA-Z0-9\s]+$/, '') || '✨'}</span>

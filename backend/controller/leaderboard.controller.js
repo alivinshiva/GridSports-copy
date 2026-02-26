@@ -114,23 +114,43 @@ export const getCurrentUserRank = async (req, res) => {
 
         const profile = await profileModel.findOne({ user: userId });
 
+        // --- Creator rank & totals ---
         let creatorRank = null;
+        const totalCreators = await userModel.countDocuments({ creatorPoints: { $gt: 0 } });
         if (user.creatorPoints > 0) {
             creatorRank = await userModel.countDocuments({
                 creatorPoints: { $gt: user.creatorPoints }
             }) + 1;
         }
 
+        // Top-3 creator points
+        const top3Creators = await userModel.find({ creatorPoints: { $gt: 0 } })
+            .sort({ creatorPoints: -1 })
+            .limit(3)
+            .select("creatorPoints");
+        const top3CreatorPoints = top3Creators.map(u => u.creatorPoints);
+
+        // --- Ranker rank & totals ---
         let rankerRank = null;
+        const totalRankers = await userModel.countDocuments({ rankerPoints: { $gt: 0 } });
         if (user.rankerPoints > 0) {
             rankerRank = await userModel.countDocuments({
                 rankerPoints: { $gt: user.rankerPoints }
             }) + 1;
         }
 
+        // Top-3 ranker points
+        const top3Rankers = await userModel.find({ rankerPoints: { $gt: 0 } })
+            .sort({ rankerPoints: -1 })
+            .limit(3)
+            .select("rankerPoints");
+        const top3RankerPoints = top3Rankers.map(u => u.rankerPoints);
+
+        // --- Tribe rank & totals ---
         let tribeRank = null;
         let tribePoints = 0;
         let tribeAvatar = null;
+        const totalTribes = await tribeModel.countDocuments({ totalPoints: { $gt: 0 } });
         if (profile && profile.tribe) {
             const userTribe = await tribeModel.findOne({ name: profile.tribe });
             if (userTribe) {
@@ -144,16 +164,29 @@ export const getCurrentUserRank = async (req, res) => {
             }
         }
 
+        // Top-3 tribe points
+        const top3Tribes = await tribeModel.find({ totalPoints: { $gt: 0 } })
+            .sort({ totalPoints: -1 })
+            .limit(3)
+            .select("totalPoints");
+        const top3TribePoints = top3Tribes.map(t => t.totalPoints);
+
         return res.status(200).json({
             success: true,
             data: {
                 creatorRank,
                 creatorPoints: user.creatorPoints,
+                totalCreators,
+                top3CreatorPoints,
                 rankerRank,
                 rankerPoints: user.rankerPoints,
+                totalRankers,
+                top3RankerPoints,
                 tribe: profile ? profile.tribe : null,
                 tribeRank,
                 tribePoints,
+                totalTribes,
+                top3TribePoints,
                 tribeAvatar,
                 avatar: profile ? profile.imageUrl : null,
                 name: user.name
