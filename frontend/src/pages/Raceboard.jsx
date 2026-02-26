@@ -446,7 +446,7 @@ export default function Raceboard() {
             <div className="max-w-[1000px] mx-auto px-0 sm:px-4 py-10 pb-32 pt-20">
                 {/* Header Card */}
                 <div className="bg-[#181920] rounded-2xl mx-1 sm:mx-0 p-4 md:p-6 mb-6 flex flex-wrap items-center justify-between gap-4 md:gap-6 border border-white/5 shadow-2xl">
-                    <h2 className="text-[20px] md:text-3xl font-medium tracking-wide text-[#3b82f6] px-2 leading-none">Season Leaderboard</h2>
+                    <h2 className="text-[20px] md:text-3xl font-medium tracking-wide text-[#3b82f6] px-2 leading-none">Leaderboard</h2>
 
                     {/* Segmented Control Pill */}
                     <div className="flex bg-[#32323a] p-1.5 rounded-full w-auto max-w-full overflow-x-auto h-[46px] items-center">

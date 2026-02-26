@@ -4,20 +4,16 @@ import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 import { useNavigate } from "react-router-dom";
 import {
     Edit2,
-    Medal,
     Trophy,
-    TrendingUp,
     LayoutGrid,
-    PlayCircle,
-    Users,
-    ShieldCheck,
-    Award,
-    PartyPopper,
     Zap,
     X,
-    Loader2
+    Loader2,
+    Users,
+    Crown
 } from "lucide-react";
-import { getRankerLeaderboard } from "@/services/leaderboardService";
+import { getRankerLeaderboard, getTribeLeaderboard, getCurrentUserRank } from "@/services/leaderboardService";
+import { getAllActiveWeekends } from "@/services/weekendService";
 
 export default function ProfilePage() {
     const navigate = useNavigate();
@@ -27,6 +23,9 @@ export default function ProfilePage() {
     const [profileData, setProfileData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [userRank, setUserRank] = useState(null);
+    const [tribeRank, setTribeRank] = useState(null);
+    const [tribeData, setTribeData] = useState(null);
+    const [activeWeekendImage, setActiveWeekendImage] = useState(null);
 
     const [activeTab, setActiveTab] = useState("images"); // 'images' or 'videos'
 
@@ -83,22 +82,58 @@ export default function ProfilePage() {
             const profile = await fetchProfile();
             if (profile) {
                 setProfileData(profile);
-                // Fetch leaderboard to determine rank based on points
+                // Fetch current user rank info including tribe rank
                 try {
-                    const leaderboardData = await getRankerLeaderboard();
-                    if (leaderboardData && leaderboardData.data) {
-                        const rankInfo = leaderboardData.data.findIndex(u => u._id === profile.user._id);
-                        if (rankInfo !== -1) {
-                            setUserRank(rankInfo + 1);
-                        } else {
-                            // If not in the list (e.g., 0 points), we just show a dash or calculate based on total known users
-                            setUserRank("Unranked");
+                    const rankData = await getCurrentUserRank();
+                    if (rankData && rankData.success && rankData.data) {
+                        setUserRank(rankData.data.rankerRank || "Unranked");
+                        setTribeRank(rankData.data.tribeRank || "-");
+                    } else {
+                        // Fallback: fetch from leaderboard
+                        try {
+                            const leaderboardData = await getRankerLeaderboard();
+                            if (leaderboardData && leaderboardData.data) {
+                                const rankInfo = leaderboardData.data.findIndex(u => u._id === profile.user._id);
+                                if (rankInfo !== -1) {
+                                    setUserRank(rankInfo + 1);
+                                } else {
+                                    setUserRank("Unranked");
+                                }
+                            }
+                        } catch (error) {
+                            console.error("Failed to fetch leaderboard for rank:", error);
                         }
                     }
                 } catch (error) {
-                    console.error("Failed to fetch leaderboard for rank:", error);
+                    console.error("Failed to fetch current user rank:", error);
                 }
             }
+
+            // Fetch Active Weekend for background
+            try {
+                const weekendRes = await getAllActiveWeekends();
+                if (weekendRes && weekendRes.success && weekendRes.data && weekendRes.data.length > 0) {
+                    setActiveWeekendImage(weekendRes.data[0].imageUrl);
+                }
+            } catch (err) {
+                console.error("Failed to fetch active weekends for profile background", err);
+            }
+
+            // 3. Fetch Tribe Data
+            if (profile?.tribe) {
+                try {
+                    const tribesRes = await getTribeLeaderboard(1, 100);
+                    if (tribesRes && tribesRes.data) {
+                        const userTribe = tribesRes.data.find(t => t.name === profile.tribe);
+                        if (userTribe) {
+                            setTribeData(userTribe);
+                        }
+                    }
+                } catch (err) {
+                    console.error("Failed to fetch tribe data:", err);
+                }
+            }
+
             setLoading(false);
 
             // 2. Fetch Images & Videos
@@ -178,94 +213,130 @@ export default function ProfilePage() {
                 </div>
             )}
             <div className="flex flex-1 justify-center sm:py-8">
-                <div className="layout-content-container flex flex-col max-w-[1024px] flex-1 w-full">
+                <div className="layout-content-container flex flex-col max-w-[1200px] flex-1 w-full px-0 sm:px-4">
 
                     {/* Profile Header Section */}
-                    <div className="flex p-4 bg-white dark:bg-white/5 rounded-none sm:rounded-xl mb-6 shadow-sm border-b sm:border border-[#e8dbce] dark:border-white/10">
-                        <div className="flex w-full flex-col gap-6 md:flex-row md:justify-between md:items-center">
-                            <div className="flex flex-col md:flex-row gap-4 md:gap-6 items-center w-full md:w-auto">
+                    <div
+                        className="flex p-4 sm:p-8 rounded-none sm:rounded-2xl mb-6 shadow-2xl border border-white/10 relative overflow-visible w-full"
+                    >
+                        {/* Background Image and Overlays */}
+                        {activeWeekendImage && (
+                            <div className="absolute inset-0 z-0">
+                                <img src={activeWeekendImage} alt="Active Weekend" className="w-full h-full object-cover opacity-30" />
+                                <div className="absolute inset-0 bg-gradient-to-r from-[#101117]/90 via-[#101117]/70 to-transparent"></div>
+                                <div className="absolute inset-0 bg-gradient-to-t from-[#101117] via-transparent to-transparent"></div>
+                            </div>
+                        )}
+                        {!activeWeekendImage && (
+                            <div className="absolute inset-0 bg-[#181920] z-0"></div>
+                        )}
+
+                        {/* Edit Profile Button - Top Right */}
+                        <button
+                            onClick={() => navigate("/profile/edit")}
+                            className="absolute top-3 right-3 sm:top-6 sm:right-6 z-20 flex items-center justify-center gap-1 sm:gap-2 h-8 sm:h-9 md:h-10 px-2.5 sm:px-4 md:px-5 bg-white text-[#101117] text-[10px] sm:text-xs md:text-sm font-bold leading-normal tracking-wide hover:bg-gray-200 transition-all shadow-lg rounded-full"
+                        >
+                            <Edit2 size={14} className="sm:size-4" />
+                            <span className="hidden sm:inline">Edit</span>
+                        </button>
+
+                        <div className="flex w-full flex-col gap-2 sm:gap-4 md:gap-8 relative z-10">
+                            <div className="flex flex-col md:flex-row gap-3 sm:gap-6 items-start md:items-center w-full">
                                 <div
-                                    className="bg-center bg-no-repeat aspect-square bg-cover rounded-full min-h-32 w-32 md:min-h-32 md:w-32 border-4 border-primary cursor-pointer hover:opacity-90 transition-opacity"
+                                    className="bg-center bg-no-repeat aspect-square bg-cover rounded-lg sm:rounded-xl w-20 sm:w-[120px] md:w-[160px] lg:w-[180px] h-20 sm:h-[120px] md:h-[160px] lg:h-[180px] border-2 sm:border-3 border-white/20 cursor-pointer hover:opacity-90 transition-opacity bg-[#181920] shadow-xl flex-shrink-0"
                                     onClick={() => {
                                         setSelectedImage(profileImage);
                                         setIsImageModalOpen(true);
                                     }}
                                     style={{ backgroundImage: profileImage ? `url("${profileImage}")` : "none" }}
                                 >
-                                    {!profileImage && <div className="h-full w-full flex items-center justify-center bg-gray-200 dark:bg-gray-800 rounded-full text-gray-400 text-xs">No Image</div>}
+                                    {!profileImage && <div className="h-full w-full flex items-center justify-center text-white/40 text-xs">No Image</div>}
                                 </div>
-                                <div className="flex flex-col items-center md:items-start justify-center gap-2">
-                                    <p className="text-[#1c140d] dark:text-white text-xl md:text-3xl font-bold leading-tight tracking-[-0.015em]">
-                                        {profileData?.user?.name || "Racing User"}
+                                <div className="flex flex-col items-start justify-center gap-1 sm:gap-2 flex-1 w-full">
+                                    <p className="text-white text-lg sm:text-2xl md:text-4xl font-bold leading-tight tracking-[0.5px] sm:tracking-[1px] uppercase drop-shadow-md">
+                                        {profileData?.user?.name || "RACING USER"}
                                     </p>
-                                    <div className="flex items-center gap-2 text-primary">
-                                        <LayoutGrid size={18} />
-                                        <span className="text-sm font-bold uppercase tracking-wider">
-                                            {formatTribeName(profileData?.tribe || "Red Grid")}
-                                        </span>
+                                    <p className="text-white/60 text-[11px] sm:text-sm md:text-base font-medium">
+                                        Racing ID : {profileData?.user?._id?.substring(0, 6).toUpperCase() || "R22"}
+                                    </p>
+                                    <div className="flex items-center gap-1.5 sm:gap-2 mt-2 sm:mt-3 flex-wrap w-full">
+                                        <div className="flex items-center gap-1 sm:gap-2 bg-black/40 backdrop-blur-sm px-2 sm:px-4 py-1 sm:py-2 rounded-full border border-white/10">
+                                            <Trophy size={12} className="sm:size-4 text-yellow-500" />
+                                            <span className="text-[10px] sm:text-sm font-bold text-white">#{userRank || '-'}</span>
+                                        </div>
+                                        <div className="flex items-center gap-1 sm:gap-2 bg-black/40 backdrop-blur-sm px-2 sm:px-4 py-1 sm:py-2 rounded-full border border-white/10">
+                                            <Users size={12} className="sm:size-4 text-purple-400" />
+                                            <span className="text-[10px] sm:text-sm font-bold text-white">T#{tribeRank || '-'}</span>
+                                        </div>
+                                        <div className="flex items-center gap-1 sm:gap-2 bg-black/40 backdrop-blur-sm px-2 sm:px-4 py-1 sm:py-2 rounded-full border border-white/10">
+                                            <Zap size={12} className="sm:size-4 text-blue-400" />
+                                            <span className="text-[10px] sm:text-sm font-bold text-white">{((profileData?.user?.creatorPoints || 0) + (profileData?.user?.rankerPoints || 0)).toLocaleString()}</span>
+                                        </div>
+                                        <div className="flex items-center gap-1 sm:gap-2 bg-black/40 backdrop-blur-sm px-2 sm:px-4 py-1 sm:py-2 rounded-full border border-white/10">
+                                            <LayoutGrid size={12} className="sm:size-4 text-gray-400" />
+                                            <span className="text-[10px] sm:text-sm font-bold text-white uppercase">{formatTribeName(profileData?.tribe || "RED GRID")}</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                            <button
-                                onClick={() => navigate("/profile/edit")}
-                                className="flex min-w-[100px] md:min-w-[120px] cursor-pointer items-center justify-center overflow-hidden rounded-xl h-9 md:h-11 px-4 md:px-6 bg-primary text-white text-xs md:text-sm font-bold leading-normal tracking-[0.015em] hover:bg-primary/90 transition-all shadow-lg shadow-primary/20"
-                            >
-                                <Edit2 size={16} className="mr-2 md:size-[18px]" />
-                                <span className="truncate">Edit Profile</span>
-                            </button>
                         </div>
                     </div>
 
-                    {/* Stats Section */}
-                    <div className="flex flex-wrap gap-4 mb-8 px-4 sm:px-0">
-                        {/* Overall Points */}
-                        <div className="flex min-w-[200px] flex-1 flex-col gap-2 rounded-xl p-6 bg-white dark:bg-white/5 border border-[#e8dbce] dark:border-white/10 shadow-sm hover:border-primary/40 transition-colors">
-                            <div className="flex items-center justify-between">
-                                <p className="text-[#9c7349] dark:text-[#c4a17d] text-sm font-medium leading-normal">Overall Points</p>
-                                <Zap size={24} className="text-primary opacity-60" />
-                            </div>
-                            <p className="text-green-600 dark:text-green-400 tracking-light text-3xl font-bold leading-tight">
-                                {((profileData?.user?.creatorPoints || 0) + (profileData?.user?.rankerPoints || 0)).toLocaleString()}
-                            </p>
-                        </div>
-                        {/* Tribe Rank */}
-                        <div className="flex min-w-[200px] flex-1 flex-col gap-2 rounded-xl p-6 bg-white dark:bg-white/5 border border-[#e8dbce] dark:border-white/10 shadow-sm hover:border-primary/40 transition-colors">
-                            <div className="flex items-center justify-between">
-                                <p className="text-[#9c7349] dark:text-[#c4a17d] text-sm font-medium leading-normal">Tribe Rank</p>
-                                <Trophy size={24} className="text-primary opacity-60" />
-                            </div>
-                            <p className="text-[#1c140d] dark:text-white tracking-light text-3xl font-bold leading-tight">
-                                {userRank ? (typeof userRank === 'number' ? `#${userRank}` : userRank) : '-'}
-                            </p>
-                        </div>
-                        {/* Season Rank (Locked) */}
-                        <div className="flex min-w-[200px] flex-1 flex-col gap-2 rounded-xl p-6 bg-slate-50 dark:bg-white/5 border border-[#e8dbce] dark:border-white/10 shadow-sm opacity-70">
-                            <div className="flex items-center justify-between">
-                                <p className="text-[#9c7349] dark:text-[#c4a17d] text-sm font-medium leading-normal">Season Rank</p>
-                                <span className="material-symbols-outlined text-gray-400 text-xl">lock</span>
-                            </div>
-                            <p className="text-gray-500 tracking-light text-xl font-bold leading-tight mt-1 flex items-center gap-2">
-                                Locked
-                            </p>
-                        </div>
-                    </div>
 
-                    <div className="flex flex-col gap-8">
+                    {/* Tribe Contribution Card */}
+                    {profileData?.tribe && (
+                        <div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            
+                                {/* User Contribution Section */}
+                                <div className="bg-black/30 rounded-xl p-4 sm:p-6 border border-white/5">
+                                    <p className="text-white/70 text-xs sm:text-sm font-semibold uppercase tracking-wider mb-3">Tribe Contribution</p>
+                                    <div className="flex items-baseline gap-3">
+                                        <span className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">
+                                            {((profileData?.user?.creatorPoints || 0) + (profileData?.user?.rankerPoints || 0)).toLocaleString()} /  {tribeData?.totalPoints ? Math.round(tribeData.totalPoints).toLocaleString() : '0'}
+                                        </span>
+                                        <span className="text-white/60 text-sm">points</span>
+                                    </div>
+                                    {tribeData?.totalPoints > 0 && (
+                                        <div className="mt-4">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <span className="text-white/60 text-xs font-medium">Contribution %</span>
+                                                <span className="text-white font-bold text-sm">
+                                                    {Math.round(((((profileData?.user?.creatorPoints || 0) + (profileData?.user?.rankerPoints || 0)) / tribeData.totalPoints) * 100) * 10) / 10}%
+                                                </span>
+                                            </div>
+                                            <div className="w-full bg-white/10 rounded-full h-2 overflow-hidden">
+                                                <div
+                                                    className="bg-white h-full rounded-full transition-all duration-300"
+                                                    style={{
+                                                        width: `${Math.min(100, ((((profileData?.user?.creatorPoints || 0) + (profileData?.user?.rankerPoints || 0)) / tribeData.totalPoints) * 100))}%`
+                                                    }}
+                                                />
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Tribe Status Badge */}
+                            
+                        </div>
+                    )}
                         {/* Main Tabs & Content */}
-                        <div className="flex flex-col gap-4 w-full">
-                            <div className="pb-3 bg-white dark:bg-white/5 rounded-none sm:rounded-t-xl">
-                                <div className="flex border-b border-[#e8dbce] dark:border-white/10 px-4 sm:px-0 gap-8">
+                        <div className="flex flex-col gap-4 w-full px-1 sm:px-0">
+                            <div className="pb-3 bg-transparent rounded-none sm:rounded-t-xl">
+                                <div className="flex border-b border-white/10 px-4 sm:px-0 gap-8">
                                     <button
                                         onClick={() => setActiveTab("images")}
-                                        className={`flex flex-col items-center justify-center border-b-[3px] ${activeTab === "images" ? "border-b-primary text-[#1c140d] dark:text-white" : "border-b-transparent text-[#9c7349] dark:text-[#c4a17d]"} pb-[13px] pt-4 transition-colors`}
+                                        className={`flex flex-col items-center justify-center border-b-[3px] ${activeTab === "images" ? "border-b-white text-white" : "border-b-transparent text-white/50 hover:text-white/80"} pb-[13px] pt-4 transition-colors`}
                                     >
-                                        <p className="text-sm font-bold leading-normal tracking-[0.015em]">Images</p>
+                                        <p className="text-sm font-bold leading-normal tracking-widest uppercase">Images</p>
                                     </button>
                                     <button
                                         onClick={() => setActiveTab("videos")}
-                                        className={`flex flex-col items-center justify-center border-b-[3px] ${activeTab === "videos" ? "border-b-primary text-[#1c140d] dark:text-white" : "border-b-transparent text-[#9c7349] dark:text-[#c4a17d]"} pb-[13px] pt-4 transition-colors`}
+                                        className={`flex flex-col items-center justify-center border-b-[3px] ${activeTab === "videos" ? "border-b-white text-white" : "border-b-transparent text-white/50 hover:text-white/80"} pb-[13px] pt-4 transition-colors`}
                                     >
-                                        <p className="text-sm font-bold leading-normal tracking-[0.015em]">Videos</p>
+                                        <p className="text-sm font-bold leading-normal tracking-widest uppercase">Videos</p>
                                     </button>
                                 </div>
                             </div>
@@ -277,7 +348,7 @@ export default function ProfilePage() {
                                         {imageSubmissions.map((submission) => (
                                             <div
                                                 key={submission._id}
-                                                className="group relative aspect-square rounded-lg overflow-hidden bg-black/10 dark:bg-white/10 border border-[#e8dbce] dark:border-white/10 cursor-pointer"
+                                                className="group relative aspect-square rounded-lg overflow-hidden bg-[#181920] border border-white/5 cursor-pointer shadow-lg hover:border-white/20 transition-all"
                                                 onClick={() => {
                                                     setSelectedImage(submission.mediaUrl);
                                                     setIsImageModalOpen(true);
@@ -302,7 +373,7 @@ export default function ProfilePage() {
                                 {activeTab === "videos" && (
                                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                         {videoSubmissions.map((submission) => (
-                                            <div key={submission._id} className="group relative aspect-video rounded-lg overflow-hidden bg-black/10 dark:bg-white/10 border border-[#e8dbce] dark:border-white/10">
+                                            <div key={submission._id} className="group relative aspect-video rounded-lg overflow-hidden bg-[#181920] border border-white/5 shadow-lg">
                                                 <video
                                                     src={submission.mediaUrl}
                                                     controls
@@ -324,7 +395,6 @@ export default function ProfilePage() {
                                 )}
                             </div>
                         </div>
-                    </div>
 
                 </div>
             </div>
