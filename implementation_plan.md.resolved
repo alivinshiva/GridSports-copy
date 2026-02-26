@@ -1,0 +1,62 @@
+# Implementing Weighted Percentage Detailed Rating
+
+This plan outlines the changes required to implement a weighted percentage calculation for detailed ratings in GridSports.
+
+## Goal Description
+
+Currently, the admin dashboard allows setting detailed parameters for a challenge, but these parameters don't have individual weights that sum to 100. The rating is calculated simply as a sum of points. The goal is to:
+1. Allow admins to set a "weightage" (points) for each parameter such that the total sum of all parameters is 100.
+2. In the frontend feed, users will rate each parameter (e.g., 1-5 stars).
+3. The system will calculate the score for each parameter based on stars (e.g., 2 stars = 2/5 max points).
+4. The system will then calculate a percentage for each parameter based on its weightage (e.g., if weightage is 50, calculate 50% of the score).
+5. The sum of all percentage scores will be divided by 10 and this final value will be added to the rater's and tribe's points (utilizing the existing multiplier logic).
+6. Update the browser console log to reflect this new calculation.
+
+## User Review Required
+
+- **Data Schema Change**: Creating challenges currently doesn't enforce parameters to sum to 100 or have a specific "weightage" structure. We'll need to modify the `challengeModel` or at least how the frontend admin panel sends the `parameters` array to include this weightage.
+- **Existing Data Compatibility**: Existing challenges may not have this weightage defined. We need to handle backward compatibility gracefully or state that this only applies to new challenges.
+
+## Proposed Changes
+
+### Admin Frontend (`adFrontend`)
+
+#### [MODIFY] [adFrontend/src/components/ChallengeForm.jsx](file:///Users/alivin/Developer/work/untitled%20folder/GridSports/adFrontend/src/components/ChallengeForm.jsx)
+- Repurpose the `maxPoints` dropdown in the Dynamic Parameters section to be a **Weightage (%)** input (1 to 100).
+- Add validation in [handleSubmit](file:///Users/alivin/Developer/work/untitled%20folder/GridSports/adFrontend/src/components/ChallengeForm.jsx#154-210) to count the sum of all weightages in the `parameters` array. If the sum is not exactly 100, show a warning in a toast for 3 seconds and prevent creation.
+
+### Database Schema
+
+#### [MODIFY] [adBackend/model/challange.model.js](file:///Users/alivin/Developer/work/untitled%20folder/GridSports/adBackend/model/challange.model.js) and `backend/models/challenge.model.js`
+- The `parameters` array already stores `name` and `maxPoints`. We will transparently repurpose the `maxPoints` field to represent the "Weightage" (out of 100). No database migration is necessary as we will interpret this number as a percentage from now on.
+
+### Rater Frontend (`frontend`)
+
+#### [MODIFY] [frontend/src/pages/SubmissionFeed.jsx](file:///Users/alivin/Developer/work/untitled%20folder/GridSports/frontend/src/pages/SubmissionFeed.jsx)
+- Currently, the frontend UI dynamically draws stars up to `param.maxPoints` which defaults to 5. Since `maxPoints` is now representing weightage (e.g. 50), we must hardcode the frontend UI to **always display exactly 5 rating stars** for detailed ratings.
+- Update [submitDetailedRatings](file:///Users/alivin/Developer/work/untitled%20folder/GridSports/frontend/src/pages/SubmissionFeed.jsx#197-230):
+    - Let the existing log statement print the new *percentage-based* math instead of an average.
+
+### Backend Scoring Service (`adBackend`)
+
+#### [MODIFY] [adBackend/service/scoring.service.js](file:///Users/alivin/Developer/work/untitled%20folder/GridSports/adBackend/service/scoring.service.js)
+- Inside [processDetailedRating](file:///Users/alivin/Developer/work/untitled%20folder/GridSports/adBackend/service/scoring.service.js#276-335), intercept the `ratingsArray` provided by the frontend.
+- **The calculation:**
+    - For each parameter rated by the user, we know the user gave `S` stars out of a maximum of 5.
+    - We grab the weightage (`W`) from the `challenge.parameters` array.
+    - The weighted score for that parameter is: `Score = (S / 5) * W` (Since weightages sum to 100, the maximum possible sum of scores is 100).
+    - Example: Admin sets `Audio` weightage to `50`. User gives `2` stars. Score = [(2/5) * 50 = 20](file:///Users/alivin/Developer/work/untitled%20folder/GridSports/frontend/src/pages/SubmissionFeed.jsx#10-14).
+- **Final Points Distribution:**
+    - Sum all the calculated parameter scores to get a `Total Percentage Score` (out of 100).
+    - Divide this `Total Percentage Score` by 10 to get the `Ranker Base Points`. (Example: If Total Score is 54, Ranker Base Points = 5.4).
+    - Add the +2 comment bonus if applicable.
+    - Multiply by the existing `rankerMultiplier` (1.0 or 0.25).
+    - Log this new point value into `pointLedgerModel` using the [logPointTransaction](file:///Users/alivin/Developer/work/untitled%20folder/GridSports/adBackend/service/scoring.service.js#61-84) function which automatically handles adding to the `user` and their `tribe`.
+
+### Verification Plan
+- Deploy changes locally.
+- Use `adFrontend` to create a new DETAILED challenge with parameters adding up to 100 (e.g., A=50, B=30, C=20).
+- Wait for a submission.
+- Enter the frontend as a ranker, rate the submission 2/5 for A, 3/5 for B, 4/5 for C.
+- Verify through console logs that points calculated are exactly: A=20, B=18, C=16. Total = 54. Base points = 5.4.
+- Check MongoDB `pointLedgers` to ensure 5.4 (multiplied) points were deposited.

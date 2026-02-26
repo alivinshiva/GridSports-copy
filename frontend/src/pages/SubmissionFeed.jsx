@@ -211,12 +211,30 @@ const SubmissionFeed = () => {
         const selectedComment = selectedCommentState[submissionId] || null;
 
         try {
-            // Log exactly what user requested
-            const average = ratingsArray.length > 0 ? ratingsArray.reduce((acc, curr) => acc + curr.score, 0) / ratingsArray.length : 0;
+            // Log exactly what user requested (Percentage math)
             console.log(`--- Ratings Log for Submission ${submissionId} ---`);
-            ratingsArray.forEach(r => console.log(`${r.parameterName}: ${r.score}`));
+            let totalWeightedScore = 0;
+
+            ratingsArray.forEach(r => {
+                // Find weightage from challenge parameters
+                const paramDef = submission.challenge.parameters.find(p => p.name === r.parameterName);
+                const weightage = paramDef ? paramDef.maxPoints : 0; // maxPoints stores weightage now
+
+                // 1. Calculate the user's base score for this parameter out of its weightage
+                // e.g. 4/5 stars on a 35 weightage parameter = 28 points
+                const baseScore = (r.score / 5) * weightage;
+
+                // 2. Calculate the final percentage based on the weightage 
+                // e.g. 35% of those 28 points = 9.8 points
+                const finalPercentScore = (weightage / 100) * baseScore;
+
+                totalWeightedScore += finalPercentScore;
+
+                console.log(`${r.parameterName}: ${r.score} stars = ${baseScore} base points. ${weightage}% of ${baseScore} = +${finalPercentScore.toFixed(2)} to total score.`);
+            });
+
             if (selectedComment) console.log(`Selected Comment: ${selectedComment}`);
-            console.log(`Average Score: ${average}`);
+            console.log(`Total Percentage Score added to scoreboard: ${totalWeightedScore.toFixed(2)} / 100`);
             console.log(`-----------------------------------------------`);
 
             await rateDetailed(submissionId, submission.challenge._id, ratingsArray, selectedComment);
@@ -398,7 +416,7 @@ const SubmissionFeed = () => {
                                         <div className="flex flex-col w-full px-4 pb-0 text-white pointer-events-auto bg-transparent pt-4">
                                             <div className="space-y-3 px-2">
                                                 {entry.challenge?.parameters?.map((param, pIdx) => {
-                                                    const maxPts = param.maxPoints || 5;
+                                                    const maxPts = 5; // Hardcoded to 5 stars for detailed rating
                                                     const currentScore = detailedRatingsState[entry._id]?.[param.name] || 0;
 
                                                     return (

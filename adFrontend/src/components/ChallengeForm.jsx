@@ -4,6 +4,7 @@ import { createChallenge } from '../services/challengeService';
 import { getAllWeekends } from '../services/weekendService';
 import { getAllTags } from '../services/tagService';
 import { getAllComments } from '../services/commentService';
+import { toast } from 'react-hot-toast';
 import { Upload, Trophy, Plus, Trash2, X, Check, MessageSquare } from 'lucide-react';
 
 const ChallengeForm = () => {
@@ -37,7 +38,7 @@ const ChallengeForm = () => {
 
     const [parameters, setParameters] = useState([]);
     const [currentParamName, setCurrentParamName] = useState('');
-    const [currentParamPoints, setCurrentParamPoints] = useState(5);
+    const [currentParamWeightage, setCurrentParamWeightage] = useState(10);
     const [paramError, setParamError] = useState('');
     const [image, setImage] = useState(null);
     const [preview, setPreview] = useState(null);
@@ -137,9 +138,9 @@ const ChallengeForm = () => {
     // Parameters Management
     const handleAddParameter = () => {
         if (currentParamName.trim() !== "") {
-            setParameters([...parameters, { name: currentParamName.trim(), maxPoints: parseInt(currentParamPoints) }]);
+            setParameters([...parameters, { name: currentParamName.trim(), maxPoints: parseInt(currentParamWeightage) }]);
             setCurrentParamName("");
-            setCurrentParamPoints(5);
+            setCurrentParamWeightage(10);
             setParamError("");
         } else {
             setParamError("Parameter name cannot be empty");
@@ -173,6 +174,15 @@ const ChallengeForm = () => {
 
         // Append Parameters based on scoring type
         if (formData.scoringType === 'DETAILED') {
+            const totalWeightage = parameters.reduce((sum, param) => sum + parseInt(param.maxPoints), 0);
+            if (parameters.length > 0 && totalWeightage !== 100) {
+                toast(`Warning: Parameter weightages sum to ${totalWeightage}%, but must equal exactly 100%`, {
+                    duration: 3000,
+                    icon: '⚠️',
+                });
+                setLoading(false);
+                return;
+            }
             data.append('parameters', JSON.stringify(parameters));
         } else if (formData.scoringType === 'SIMPLE') {
             // For simple, ensure exactly 3 are provided and not empty
@@ -453,7 +463,7 @@ const ChallengeForm = () => {
                 {formData.scoringType === 'DETAILED' && (
                     <div className="border-t border-gray-200 pt-6 mt-6">
                         <label className="block text-sm font-medium text-gray-700 mb-2">Scoring Parameters</label>
-                        <p className="text-xs text-gray-500 mb-3">Add criteria for the AI to grade the user on, along with max points.</p>
+                        <p className="text-xs text-gray-500 mb-3">Add criteria for the AI to grade the user on, along with a weightage (1-100%). The total weightage must equal exactly 100%.</p>
                         <div className="flex gap-2 mb-3">
                             <input
                                 type="text"
@@ -468,15 +478,15 @@ const ChallengeForm = () => {
                                     }
                                 }}
                             />
-                            <select
-                                value={currentParamPoints}
-                                onChange={(e) => setCurrentParamPoints(e.target.value)}
-                                className="w-32 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border"
-                            >
-                                {Array.from({ length: 20 }, (_, i) => (i + 1) * 5).map(val => (
-                                    <option key={val} value={val}>{val} Pts</option>
-                                ))}
-                            </select>
+                            <input
+                                type="number"
+                                min="1"
+                                max="100"
+                                value={currentParamWeightage}
+                                onChange={(e) => setCurrentParamWeightage(e.target.value)}
+                                className="w-24 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border"
+                                placeholder="%"
+                            />
                             <button
                                 type="button"
                                 onClick={handleAddParameter}
@@ -494,7 +504,7 @@ const ChallengeForm = () => {
                                         <div className="flex items-center w-full pr-4">
                                             <span className="font-bold mr-2 text-blue-500">{index + 1}.</span>
                                             <span className="flex-1">{param.name}</span>
-                                            <span className="font-bold text-green-600 bg-green-50 px-2 py-1 rounded">Max: {param.maxPoints} pts</span>
+                                            <span className="font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded">Weightage: {param.maxPoints}%</span>
                                         </div>
                                         <button
                                             type="button"
