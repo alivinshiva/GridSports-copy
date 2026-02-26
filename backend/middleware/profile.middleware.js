@@ -3,7 +3,7 @@ import joi from "joi";
 export const createTribeMiddleware = async (req, res, next) => {
     try {
         const schema = joi.object({
-            tribe: joi.string().valid("IRON TRIBE", "ROYAL TRIBE", "INDIGO TRIBE", "EMERALD TRIBE", "ORANGE TRIBE", "SCARLET TRIBE", "CRIMSON TRIBE", "PLATINUM TRIBE", "TITANIUM TRIBE", "AZURE TRIBE").required()
+            tribe: joi.string().valid("ORANGE TRIBE", "SCARLET TRIBE", "AZURE TRIBE", "SILVER TRIBE", "GREEN TRIBE", "BLUE TRIBE", "PINK TRIBE", "WHITE TRIBE", "CARBON TRIBE", "GRAPHITE TRIBE", "ONYX TRIBE").required()
         });
 
         const { error } = schema.validate(req.body);

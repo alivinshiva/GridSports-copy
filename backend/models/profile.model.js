@@ -8,7 +8,7 @@ const profileSchema = new mongoose.Schema({
     },
     tribe: {
         type: String,
-        enum: ["IRON TRIBE", "ROYAL TRIBE", "INDIGO TRIBE", "EMERALD TRIBE", "ORANGE TRIBE", "SCARLET TRIBE", "CRIMSON TRIBE", "PLATINUM TRIBE", "TITANIUM TRIBE", "AZURE TRIBE", "SILVER TRIBE"],
+        enum: ["ORANGE TRIBE", "SCARLET TRIBE", "AZURE TRIBE", "SILVER TRIBE", "GREEN TRIBE", "BLUE TRIBE", "PINK TRIBE", "WHITE TRIBE", "CARBON TRIBE", "GRAPHITE TRIBE", "ONXY TRIBE"],
         required: true
     },
     imageUrl: {
