@@ -205,12 +205,12 @@ export default function UploadChallenge() {
             {/* Success Popup Modal */}
             {showSuccess && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-300">
-                    <div className="bg-white dark:bg-[#2d2218] rounded-2xl p-8 flex flex-col items-center gap-4 shadow-xl border border-primary/20 max-w-sm w-full mx-4 animate-in zoom-in-95 duration-300">
-                        <div className="size-16 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-2">
+                    <div className="bg-[#111118] rounded-2xl p-8 flex flex-col items-center gap-4 shadow-xl border border-white/10 max-w-sm w-full mx-4 animate-in zoom-in-95 duration-300">
+                        <div className="size-16 rounded-full bg-green-500/10 flex items-center justify-center text-green-500 mb-2">
                             <Check size={32} strokeWidth={3} />
                         </div>
-                        <h3 className="text-xl font-bold text-center">Uploaded Successfully!</h3>
-                        <p className="text-center text-sm opacity-70">Redirecting to success page...</p>
+                        <h3 className="text-xl font-bold text-white text-center">Uploaded Successfully!</h3>
+                        <p className="text-center text-gray-400 text-sm">Redirecting to success page...</p>
                     </div>
                 </div>
             )}
@@ -218,285 +218,291 @@ export default function UploadChallenge() {
             {/* Error Popup Modal */}
             {errorMsg && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-300">
-                    <div className="bg-white dark:bg-[#2d2218] rounded-2xl p-8 flex flex-col items-center gap-4 shadow-xl border border-red-500/20 max-w-sm w-full mx-4 animate-in zoom-in-95 duration-300">
-                        <div className="size-16 rounded-full bg-red-100 dark:bg-red-900/20 flex items-center justify-center text-red-500 mb-2">
+                    <div className="bg-[#111118] rounded-2xl p-8 flex flex-col items-center gap-4 shadow-xl border border-red-500/20 max-w-sm w-full mx-4 animate-in zoom-in-95 duration-300">
+                        <div className="size-16 rounded-full bg-red-900/20 flex items-center justify-center text-red-500 mb-2">
                             <X size={32} strokeWidth={3} />
                         </div>
-                        <h3 className="text-xl font-bold text-center text-red-600 dark:text-red-400">Upload Failed</h3>
-                        <p className="text-center text-sm opacity-70 px-4">{errorMsg}</p>
-                        <p className="text-xs text-center opacity-50 mt-2">Redirecting back...</p>
+                        <h3 className="text-xl font-bold text-center text-red-400">Upload Failed</h3>
+                        <p className="text-center text-sm text-gray-400 px-4">{errorMsg}</p>
+                        <p className="text-xs text-center text-gray-500 mt-2">Redirecting back...</p>
                     </div>
                 </div>
             )}
 
-            <main className="flex-1 flex flex-col items-center py-4 px-4 w-full">
-                {/* Header Actions */}
-                <div className="w-full max-w-[800px] flex items-center justify-between mb-6">
-                    <h2 className="text-2xl font-bold leading-tight tracking-tight">{challenge ? challenge.name : "Challenge Upload"}</h2>
-                    <button
-                        onClick={() => navigate(-1)}
-                        className="flex items-center justify-center rounded-xl h-10 w-10 bg-[#f4ede7] dark:bg-[#3d2e1f] text-[#1c140d] dark:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
-                    >
-                        <X size={24} />
-                    </button>
-                </div>
-
-                <div className="max-w-[800px] w-full flex flex-col gap-8">
-
-                    {/* Progress Bar */}
-                    <div className="flex flex-col gap-3">
-                        <div className="flex gap-6 justify-between items-end">
-                            <p className="text-base font-medium leading-normal">
-                                {mode === 'select' ? 'Choosing Format' : mode === 'record' ? 'Recording' : 'Review'}
-                            </p>
-                            <p className="text-sm font-normal leading-normal opacity-70">
-                                {mode === 'select' ? 'Step 1 of 3' : mode === 'record' ? 'Step 2 of 3' : 'Step 3 of 3'}
-                            </p>
-                        </div>
-                        <div className="rounded-full bg-[#e8dbce] dark:bg-[#3d2e1f] h-2 w-full overflow-hidden">
-                            <div className="h-full bg-primary transition-all duration-500" style={{ width: mode === 'select' ? "33%" : mode === 'record' ? "66%" : "100%" }}></div>
-                        </div>
+            <div className="flex flex-col min-h-screen">
+                <main className="flex-1 max-w-3xl mx-auto w-full flex flex-col items-center py-4 px-4">
+                    {/* Header Actions */}
+                    <div className="w-full flex items-center justify-end mb-6">
+                        <button
+                            onClick={() => navigate(-1)}
+                            className="flex items-center justify-center rounded-xl h-10 w-10 bg-[#111118] border border-white/5 text-gray-400 hover:text-white hover:bg-white/10 transition-colors"
+                        >
+                            <X size={24} />
+                        </button>
                     </div>
 
-                    {/* Headline & Intro Section */}
-                    {mode === 'select' && (
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            className="text-center"
-                        >
-                            <h1 className="text-4xl md:text-5xl font-black leading-tight pb-4 pt-4 tracking-tight">{challenge ? challenge.name : "Loading..."}</h1>
-                            <p className="text-lg font-medium opacity-70 mb-8 max-w-2xl mx-auto leading-relaxed">{challenge ? challenge.description : "Preparing challenge..."}</p>
+                    <div className="max-w-[800px] w-full flex flex-col gap-8">
 
-                            {rulesList.length > 0 && (
-                                <div className="bg-primary/5 dark:bg-primary/10 p-6 rounded-2xl text-left border-l-4 border-primary max-w-2xl mx-auto shadow-sm">
-                                    <h3 className="font-bold text-sm uppercase tracking-widest text-primary mb-4 flex items-center gap-2">
-                                        <Info size={18} />
-                                        Rules & Instructions
-                                    </h3>
-                                    <ul className="flex flex-col gap-3">
-                                        {rulesList.map((rule, index) => (
-                                            <motion.li
-                                                key={index}
-                                                initial={{ opacity: 0, x: -10 }}
-                                                animate={{ opacity: 1, x: 0 }}
-                                                transition={{ delay: index * 0.15 }}
-                                                className="flex items-start gap-3 text-sm font-bold opacity-90 text-[#1c140d] dark:text-gray-100"
-                                            >
-                                                <span className="mt-1.5 size-1.5 rounded-full bg-primary shrink-0" />
-                                                {rule}
-                                            </motion.li>
-                                        ))}
-                                    </ul>
-                                </div>
-                            )}
-                        </motion.div>
-                    )}
+                        {/* Progress Bar */}
+                        <div className="flex flex-col gap-3">
+                            <div className="flex gap-6 justify-between items-end">
+                                <p className="text-base font-medium leading-normal text-white">
+                                    {mode === 'select' ? 'Choosing Format' : mode === 'record' ? 'Recording' : 'Review'}
+                                </p>
+                                <p className="text-sm font-normal leading-normal text-gray-500">
+                                    {mode === 'select' ? 'Step 1 of 3' : mode === 'record' ? 'Step 2 of 3' : 'Step 3 of 3'}
+                                </p>
+                            </div>
+                            <div className="rounded-full bg-[#111118] h-2 w-full overflow-hidden border border-white/5">
+                                <div className="h-full bg-primary transition-all duration-500" style={{ width: mode === 'select' ? "33%" : mode === 'record' ? "66%" : "100%" }}></div>
+                            </div>
+                        </div>
 
-                    {/* MODE: SELECT */}
-                    {mode === 'select' && (
-                        <>
+                        {/* Headline & Intro Section */}
+                        {mode === 'select' && (
                             <motion.div
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.3 }}
-                                className="grid grid-cols-1 md:grid-cols-2 gap-6 py-4"
+                                className="text-center"
                             >
-                                {/* Camera / Record Button */}
-                                <button
-                                    onClick={handleCameraClick}
-                                    className="group flex flex-col items-center gap-6 p-10 rounded-2xl border-2 border-dashed border-[#e8dbce] dark:border-[#3d2e1f] bg-white dark:bg-[#2d2218] hover:border-primary hover:bg-primary/5 transition-all text-center relative overflow-hidden"
-                                >
-                                    <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                                <h1 className="text-4xl md:text-5xl font-black leading-tight pb-4 pt-4 tracking-tight text-white">{challenge ? challenge.name : "Loading..."}</h1>
+                                <p className="text-lg font-medium text-gray-400 mb-8 max-w-2xl mx-auto leading-relaxed">{challenge ? challenge.description : "Preparing challenge..."}</p>
 
-                                    <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center text-primary group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300 relative z-10">
-                                        {isPhotoChallenge ? <Camera size={48} /> : <Video size={48} />}
-                                    </div>
-                                    <div className="relative z-10">
-                                        <p className="text-xl font-bold leading-normal mb-2">
-                                            {isPhotoChallenge ? "Take Photo" : "Record Video"}
-                                        </p>
-                                        <p className="text-[#9c7349] dark:text-[#c4a484] text-sm font-medium leading-relaxed">
-                                            {isPhotoChallenge ? "Capture the moment now" : "Record a clip directly"}
-                                        </p>
-                                    </div>
-                                </button>
-
-                                {/* Upload Gallery Button */}
-                                <button
-                                    onClick={handleGalleryClick}
-                                    className="group flex flex-col items-center gap-6 p-10 rounded-2xl border-2 border-dashed border-[#e8dbce] dark:border-[#3d2e1f] bg-white dark:bg-[#2d2218] hover:border-primary hover:bg-primary/5 transition-all text-center relative overflow-hidden"
-                                >
-                                    <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-
-                                    <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center text-primary group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-300 relative z-10">
-                                        {isPhotoChallenge ? <ImageIcon size={48} /> : <Upload size={48} />}
-                                    </div>
-                                    <div className="relative z-10">
-                                        <p className="text-xl font-bold leading-normal mb-2">
-                                            {isPhotoChallenge ? "Upload Photo" : "Upload Video"}
-                                        </p>
-                                        <p className="text-[#9c7349] dark:text-[#c4a484] text-sm font-medium leading-relaxed">
-                                            Select from your gallery
-                                        </p>
-                                    </div>
-                                </button>
-
-                                {/* Hidden Inputs */}
-                                <input
-                                    type="file"
-                                    accept={isPhotoChallenge ? "image/*" : "video/*"}
-                                    ref={fileInputRef}
-                                    onChange={handleFileChange}
-                                    hidden
-                                />
-                            </motion.div>
-
-                            {/* Bottom Note */}
-                            <motion.div
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                transition={{ delay: 0.5 }}
-                                className="flex flex-col items-center gap-4 mt-8"
-                            >
-                                <div className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-white/5 rounded-full">
-                                    <Info size={16} className="text-gray-500" />
-                                    <p className="text-sm font-medium text-gray-500">
-                                        {isPhotoChallenge ? "Photos can be PNG or JPG." : "Videos up to 45s."} Keep it fun!
-                                    </p>
-                                </div>
-                            </motion.div>
-                        </>
-                    )}
-
-                    {/* MODE: RECORD (Only for Video) */}
-                    {mode === 'record' && (
-                        <div className="flex flex-col items-center gap-6">
-                            <div className="relative w-full aspect-video bg-black rounded-2xl overflow-hidden shadow-lg border-2 border-[#f4ede7] dark:border-[#3d2e1f]">
-                                <video ref={videoRef} autoPlay muted playsInline className="w-full h-full object-cover" />
-                                {isRecording && (
-                                    <div className="absolute top-4 right-4 flex items-center gap-2 bg-red-600 text-white px-3 py-1 rounded-full animate-pulse">
-                                        <div className="size-2 bg-white rounded-full" />
-                                        <span className="text-xs font-bold uppercase tracking-wider">REC</span>
-                                    </div>
-                                )}
-                            </div>
-
-                            <div className="flex gap-6 items-center">
-                                {isPhotoChallenge ? (
-                                    <button
-                                        onClick={takePhoto}
-                                        className="size-20 rounded-full bg-white dark:bg-[#e8dbce] border-4 border-primary shadow-xl flex items-center justify-center hover:scale-105 transition-transform active:scale-95"
-                                    >
-                                        <div className="size-16 rounded-full bg-primary" />
-                                    </button>
-                                ) : (
-                                    !isRecording ? (
-                                        <button
-                                            onClick={startRecording}
-                                            className="size-20 rounded-full bg-red-600 border-4 border-white dark:border-[#2d2218] shadow-xl flex items-center justify-center hover:scale-105 transition-transform"
-                                        >
-                                            <Circle className="text-white fill-current" size={32} />
-                                        </button>
-                                    ) : (
-                                        <button
-                                            onClick={stopRecording}
-                                            className="size-20 rounded-full bg-white dark:bg-[#e8dbce] border-4 border-red-600 shadow-xl flex items-center justify-center hover:scale-105 transition-transform"
-                                        >
-                                            <Square className="text-red-600 fill-current" size={32} />
-                                        </button>
-                                    )
-                                )}
-                            </div>
-                            <button onClick={reset} className="text-[#9c7349] dark:text-[#c4a484] hover:underline text-sm font-bold tracking-wide uppercase">
-                                Cancel & Return
-                            </button>
-                        </div>
-                    )}
-
-                    {/* MODE: PREVIEW */}
-                    {mode === 'preview' && (
-                        <div className="flex flex-col items-center gap-6">
-                            {previewUrl && (
-                                <div className="w-full aspect-[4/3] md:aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl border-2 border-[#f4ede7] dark:border-[#3d2e1f]">
-                                    {selectedFile?.type.startsWith('video') ? (
-                                        <video src={previewUrl} controls className="w-full h-full object-contain" />
-                                    ) : (
-                                        <img src={previewUrl} alt="Preview" className="w-full h-full object-contain" />
-                                    )}
-                                </div>
-                            )}
-
-                            {fileWarning && (
-                                <div className="w-full max-w-md bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400 border border-red-500/20 rounded-xl p-4 flex items-center justify-center gap-2 font-medium">
-                                    {fileWarning}
-                                </div>
-                            )}
-
-                            {/* Optional Tags Selection */}
-                            {challenge?.tags && challenge.tags.length > 0 && (
-                                <div className="w-full max-w-md mt-2">
-                                    <p className="text-sm font-bold text-center mb-3">Select Optional Tags</p>
-                                    <div className="flex flex-wrap items-center justify-center gap-2">
-                                        {challenge.tags.map((tag, tIdx) => {
-                                            const isSelected = selectedTags.includes(tag);
-                                            return (
-                                                <button
-                                                    key={`tag-${tIdx}`}
-                                                    onClick={() => {
-                                                        if (isSelected) {
-                                                            setSelectedTags(prev => prev.filter(t => t !== tag));
-                                                        } else {
-                                                            setSelectedTags(prev => [...prev, tag]);
-                                                        }
-                                                    }}
-                                                    className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all ${isSelected
-                                                            ? 'bg-primary text-white shadow-md shadow-primary/20 scale-105'
-                                                            : 'bg-[#e8dbce] dark:bg-[#3d2e1f] text-[#1c140d] dark:text-gray-200 hover:bg-[#d6c7b5] dark:hover:bg-[#4d3c2b]'
-                                                        }`}
+                                {rulesList.length > 0 && (
+                                    <div className="bg-[#111118] p-6 rounded-2xl text-left border border-white/5 max-w-2xl mx-auto shadow-sm relative overflow-hidden">
+                                        <div className="absolute left-0 top-0 bottom-0 w-1 bg-gray-500"></div>
+                                        <h3 className="font-bold text-sm uppercase tracking-widest text-white mb-4 flex items-center gap-2">
+                                            <Info size={18} />
+                                            Rules & Instructions
+                                        </h3>
+                                        <ul className="flex flex-col gap-3">
+                                            {rulesList.map((rule, index) => (
+                                                <motion.li
+                                                    key={index}
+                                                    initial={{ opacity: 0, x: -10 }}
+                                                    animate={{ opacity: 1, x: 0 }}
+                                                    transition={{ delay: index * 0.15 }}
+                                                    className="flex items-start gap-3 text-sm font-medium text-gray-300"
                                                 >
-                                                    {tag}
-                                                </button>
-                                            )
-                                        })}
+                                                    <span className="mt-1.5 size-1.5 rounded-full bg-gray-500 shrink-0" />
+                                                    {rule}
+                                                </motion.li>
+                                            ))}
+                                        </ul>
                                     </div>
-                                </div>
-                            )}
+                                )}
+                            </motion.div>
+                        )}
 
-                            <div className="flex gap-4 w-full max-w-md mt-4">
-                                <button
-                                    onClick={reset}
-                                    disabled={isUploading}
-                                    className="flex-1 flex items-center justify-center gap-2 py-4 px-6 rounded-xl border border-[#e8dbce] dark:border-[#3d2e1f] bg-white dark:bg-[#2d2218] font-bold text-[#1c140d] dark:text-white hover:bg-[#f4ede7] dark:hover:bg-[#3d2e21] transition-colors disabled:opacity-50"
+                        {/* MODE: SELECT */}
+                        {mode === 'select' && (
+                            <>
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.3 }}
+                                    className="grid grid-cols-1 md:grid-cols-2 gap-6 py-4"
                                 >
-                                    <RotateCcw size={20} />
-                                    Retake
-                                </button>
-                                <button
-                                    onClick={handleUpload}
-                                    disabled={isUploading || !!fileWarning}
-                                    className="flex-1 flex items-center justify-center gap-2 py-4 px-6 rounded-xl bg-primary text-white font-bold shadow-lg shadow-primary/25 hover:brightness-110 hover:translate-y-[-2px] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                                    {/* Camera / Record Button */}
+                                    <button
+                                        onClick={handleCameraClick}
+                                        className="group flex flex-col items-center gap-6 p-10 rounded-2xl border border-white/5 bg-[#111118] hover:border-white/20 hover:bg-white/5 transition-all text-center relative overflow-hidden"
+                                    >
+                                        <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+
+                                        <div className="w-24 h-24 rounded-full bg-white/5 flex items-center justify-center text-white group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300 relative z-10 border border-white/10 group-hover:border-white/30">
+                                            {isPhotoChallenge ? <Camera size={48} /> : <Video size={48} />}
+                                        </div>
+                                        <div className="relative z-10">
+                                            <p className="text-xl font-bold leading-normal mb-2 text-white">
+                                                {isPhotoChallenge ? "Take Photo" : "Record Video"}
+                                            </p>
+                                            <p className="text-gray-500 text-sm font-medium leading-relaxed">
+                                                {isPhotoChallenge ? "Capture the moment now" : "Record a clip directly"}
+                                            </p>
+                                        </div>
+                                    </button>
+
+                                    {/* Upload Gallery Button */}
+                                    <button
+                                        onClick={handleGalleryClick}
+                                        className="group flex flex-col items-center gap-6 p-10 rounded-2xl border border-white/5 bg-[#111118] hover:border-white/20 hover:bg-white/5 transition-all text-center relative overflow-hidden"
+                                    >
+                                        <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+
+                                        <div className="w-24 h-24 rounded-full bg-white/5 flex items-center justify-center text-white group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-300 relative z-10 border border-white/10 group-hover:border-white/30">
+                                            {isPhotoChallenge ? <ImageIcon size={48} /> : <Upload size={48} />}
+                                        </div>
+                                        <div className="relative z-10">
+                                            <p className="text-xl font-bold leading-normal mb-2 text-white">
+                                                {isPhotoChallenge ? "Upload Photo" : "Upload Video"}
+                                            </p>
+                                            <p className="text-gray-500 text-sm font-medium leading-relaxed">
+                                                Select from your gallery
+                                            </p>
+                                        </div>
+                                    </button>
+
+                                    {/* Hidden Inputs */}
+                                    <input
+                                        type="file"
+                                        accept={isPhotoChallenge ? "image/*" : "video/*"}
+                                        ref={fileInputRef}
+                                        onChange={handleFileChange}
+                                        hidden
+                                    />
+                                </motion.div>
+
+                                {/* Bottom Note */}
+                                <motion.div
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    transition={{ delay: 0.5 }}
+                                    className="flex flex-col items-center gap-4 mt-8"
                                 >
-                                    {isUploading ? (
-                                        <span>Uploading...</span>
-                                    ) : (
-                                        <>
-                                            <Check size={20} />
-                                            Confirm Upload
-                                        </>
+                                    <div className="flex items-center gap-2 px-4 py-2 bg-[#111118] border border-white/5 rounded-full">
+                                        <Info size={16} className="text-gray-400" />
+                                        <p className="text-sm font-medium text-gray-400">
+                                            {isPhotoChallenge ? "Photos can be PNG or JPG." : "Videos up to 45s."} Keep it fun!
+                                        </p>
+                                    </div>
+                                </motion.div>
+                            </>
+                        )}
+
+                        {/* MODE: RECORD (Only for Video) */}
+                        {mode === 'record' && (
+                            <div className="flex flex-col items-center gap-6">
+                                <div className="relative w-full aspect-video bg-black rounded-2xl overflow-hidden shadow-lg border border-white/10">
+                                    <video ref={videoRef} autoPlay muted playsInline className="w-full h-full object-cover" />
+                                    {isRecording && (
+                                        <div className="absolute top-4 right-4 flex items-center gap-2 bg-red-600 text-white px-3 py-1 rounded-full animate-pulse">
+                                            <div className="size-2 bg-white rounded-full" />
+                                            <span className="text-xs font-bold uppercase tracking-wider">REC</span>
+                                        </div>
                                     )}
+                                </div>
+
+                                <div className="flex gap-6 items-center">
+                                    {isPhotoChallenge ? (
+                                        <button
+                                            onClick={takePhoto}
+                                            className="size-20 rounded-full bg-[#111118] border-4 border-white/20 shadow-xl flex items-center justify-center hover:scale-105 transition-transform active:scale-95"
+                                        >
+                                            <div className="size-16 rounded-full bg-white/10 border-2 border-white/50" />
+                                        </button>
+                                    ) : (
+                                        !isRecording ? (
+                                            <button
+                                                onClick={startRecording}
+                                                className="size-20 rounded-full bg-red-600 border-4 border-[#111118] shadow-xl flex items-center justify-center hover:scale-105 transition-transform"
+                                            >
+                                                <Circle className="text-white fill-current" size={32} />
+                                            </button>
+                                        ) : (
+                                            <button
+                                                onClick={stopRecording}
+                                                className="size-20 rounded-full bg-[#111118] border-4 border-red-600 shadow-xl flex items-center justify-center hover:scale-105 transition-transform"
+                                            >
+                                                <Square className="text-red-600 fill-current" size={32} />
+                                            </button>
+                                        )
+                                    )}
+                                </div>
+                                <button onClick={reset} className="text-gray-500 hover:text-white transition-colors text-sm font-bold tracking-wide uppercase mt-4">
+                                    Cancel & Return
                                 </button>
                             </div>
-                        </div>
-                    )}
+                        )}
 
-                </div>
-            </main>
+                        {/* MODE: PREVIEW */}
+                        {mode === 'preview' && (
+                            <div className="flex flex-col items-center gap-6">
+                                {previewUrl && (
+                                    <div className="w-full aspect-[4/3] md:aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl border border-white/10">
+                                        {selectedFile?.type.startsWith('video') ? (
+                                            <video src={previewUrl} controls className="w-full h-full object-contain" />
+                                        ) : (
+                                            <img src={previewUrl} alt="Preview" className="w-full h-full object-contain" />
+                                        )}
+                                    </div>
+                                )}
 
-            {/* Footer */}
-            <footer className="p-8 text-center text-xs opacity-50">
-                © 2024 Race Start Reaction. Built for speed.
-            </footer>
+                                {fileWarning && (
+                                    <div className="w-full max-w-md bg-red-900/20 text-red-400 border border-red-500/20 rounded-xl p-4 flex items-center justify-center gap-2 font-medium">
+                                        {fileWarning}
+                                    </div>
+                                )}
+
+                                {/* Optional Tags Selection */}
+                                {challenge?.tags && challenge.tags.length > 0 && (
+                                    <div className="w-full max-w-md mt-2">
+                                        <p className="text-sm font-bold text-center text-white mb-3">Select Optional Tags</p>
+                                        <div className="flex flex-wrap items-center justify-center gap-2">
+                                            {challenge.tags.map((tag, tIdx) => {
+                                                const isSelected = selectedTags.includes(tag);
+                                                return (
+                                                    <button
+                                                        key={`tag-${tIdx}`}
+                                                        onClick={() => {
+                                                            if (isSelected) {
+                                                                setSelectedTags(prev => prev.filter(t => t !== tag));
+                                                            } else {
+                                                                setSelectedTags(prev => [...prev, tag]);
+                                                            }
+                                                        }}
+                                                        className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all border border-white/10 ${isSelected
+                                                            ? 'bg-yellow-500 text-black shadow-md shadow-yellow-500/20 scale-105'
+                                                            : 'bg-[#111118] text-gray-300 hover:bg-white/10 hover:text-white'
+                                                            }`}
+                                                    >
+                                                        {tag}
+                                                    </button>
+                                                )
+                                            })}
+                                        </div>
+                                    </div>
+                                )}
+
+                                <div className="flex flex-col md:flex-row gap-4 w-full mt-4">
+                                    <button
+                                        onClick={reset}
+                                        disabled={isUploading}
+                                        className="flex-1 flex items-center justify-center gap-2 py-4 px-6 rounded-xl bg-[#111118] border border-white/10 font-bold text-gray-300 hover:bg-white/5 hover:text-white transition-colors disabled:opacity-50"
+                                    >
+                                        <RotateCcw size={20} />
+                                        Retake
+                                    </button>
+                                    <button
+                                        onClick={handleUpload}
+                                        disabled={isUploading || !!fileWarning}
+                                        className="flex-1 flex items-center justify-center gap-2 py-4 px-6 rounded-xl text-[#1c140d] font-bold shadow-lg hover:brightness-110 hover:translate-y-[-2px] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                                        style={{
+                                            background: "linear-gradient(135deg, #8c6a00 0%, #facc15 50%, #f5d76e 100%)",
+                                            boxShadow: (isUploading || !!fileWarning) ? "none" : "0 4px 20px rgba(250, 204, 21, 0.3)"
+                                        }}
+                                    >
+                                        {isUploading ? (
+                                            <span>Uploading...</span>
+                                        ) : (
+                                            <>
+                                                <Check size={20} />
+                                                Confirm Upload
+                                            </>
+                                        )}
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
+                    </div>
+                </main>
+
+                {/* Footer */}
+                <footer className="p-8 text-center text-xs opacity-50 text-white">
+                    © 2024 Race Start Reaction. Built for speed.
+                </footer>
+            </div>
         </AuthenticatedLayout>
     );
 }
