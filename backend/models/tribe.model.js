@@ -10,6 +10,10 @@ const tribeSchema = new mongoose.Schema({
     totalPoints: {
         type: Number,
         default: 0
+    },
+    previousRank: {
+        type: Number,
+        default: 0
     }
 }, { timestamps: true });
 

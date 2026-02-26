@@ -40,7 +40,7 @@ const LeaderboardTable = forwardRef(({ data, columns, hasMore, onLoadMore, isLoa
                             return (
                                 <tr
                                     key={rowIndex}
-                                    className={`${rowBg} group`}
+                                    className={`${rowBg} group `}
                                     {...(isHighlighted ? { 'data-user-row': 'true' } : {})}
                                 >
                                     {columns.map((col, colIndex) => (

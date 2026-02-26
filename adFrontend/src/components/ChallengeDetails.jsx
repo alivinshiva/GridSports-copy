@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getChallengeById, updateChallenge, deleteChallenge } from '../services/challengeService';
-import { Trophy, Calendar, MapPin, Trash2, ArrowLeft, CheckCircle, Clock, XCircle } from 'lucide-react';
+import { Trophy, Calendar, MapPin, Trash2, ArrowLeft, CheckCircle, Clock, XCircle, MessageSquare, Star } from 'lucide-react';
 
 const ChallengeDetails = () => {
     const { id } = useParams();
@@ -190,6 +190,66 @@ const ChallengeDetails = () => {
                                                 {tag}
                                             </span>
                                         ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Scoring Type & Parameters */}
+                            <div className="mt-6">
+                                <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-3 flex items-center">
+                                    <Star size={16} className="mr-2" />
+                                    Scoring Configuration
+                                </h3>
+                                <div className="bg-gray-50 rounded-xl p-5 border border-gray-200 space-y-4">
+                                    <div className="flex items-center gap-3">
+                                        <span className="text-sm text-gray-500">Type:</span>
+                                        <span className={`px-3 py-1 rounded-full text-xs font-bold border ${challenge.scoringType === 'DETAILED'
+                                            ? 'bg-purple-100 text-purple-700 border-purple-200'
+                                            : 'bg-blue-100 text-blue-700 border-blue-200'
+                                            }`}>
+                                            {challenge.scoringType || 'SIMPLE'}
+                                        </span>
+                                    </div>
+
+                                    {challenge.parameters && challenge.parameters.length > 0 && (
+                                        <div>
+                                            <p className="text-xs text-gray-500 font-semibold uppercase mb-2">Parameters</p>
+                                            <div className="space-y-2">
+                                                {challenge.parameters.map((param, idx) => (
+                                                    <div key={idx} className="flex items-center justify-between bg-white p-3 rounded-lg border border-gray-100 shadow-sm">
+                                                        <span className="text-sm font-medium text-gray-800">
+                                                            <span className="text-blue-500 font-bold mr-2">{idx + 1}.</span>
+                                                            {param.name}
+                                                        </span>
+                                                        {challenge.scoringType === 'DETAILED' && (
+                                                            <span className="text-xs font-bold text-green-600 bg-green-50 px-2 py-1 rounded">
+                                                                Max: {param.maxPoints} pts
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Pre-defined Comments */}
+                            {challenge.comments && challenge.comments.length > 0 && (
+                                <div className="mt-6">
+                                    <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-3 flex items-center">
+                                        <MessageSquare size={16} className="mr-2" />
+                                        Pre-defined Comments ({challenge.comments.length})
+                                    </h3>
+                                    <div className="bg-emerald-50 rounded-xl p-5 border border-emerald-100">
+                                        <div className="space-y-2">
+                                            {challenge.comments.map((comment, index) => (
+                                                <div key={index} className="flex items-center bg-white p-3 rounded-lg border border-emerald-100 shadow-sm">
+                                                    <span className="text-emerald-600 font-bold mr-3 text-sm">{index + 1}.</span>
+                                                    <span className="text-sm font-medium text-gray-800">"{comment}"</span>
+                                                </div>
+                                            ))}
+                                        </div>
                                     </div>
                                 </div>
                             )}

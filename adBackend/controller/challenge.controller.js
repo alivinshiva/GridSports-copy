@@ -117,6 +117,26 @@ export const getSingleChallengeController = async (req, res) => {
 
         const submissionCount = await submissionModel.countDocuments({ challenge: id });
 
+        // Log all challenge details
+        console.log("========= CHALLENGE DETAILS =========");
+        console.log("ID:", challenge._id);
+        console.log("Name:", challenge.name);
+        console.log("Type:", challenge.type);
+        console.log("Status:", challenge.status);
+        console.log("Scoring Type:", challenge.scoringType);
+        console.log("Season:", challenge.season);
+        console.log("Round:", challenge.round);
+        console.log("Start At:", challenge.startAt);
+        console.log("End At:", challenge.endAt);
+        console.log("Description:", challenge.description);
+        console.log("Rules:", challenge.rules);
+        console.log("Tags:", challenge.tags);
+        console.log("Parameters:", JSON.stringify(challenge.parameters, null, 2));
+        console.log("Comments:", challenge.comments);
+        console.log("Submission Count:", submissionCount);
+        console.log("Weekend:", challenge.weekend?.title);
+        console.log("=====================================");
+
         return res.status(200).json({
             success: true,
             message: "Challenge Fetched Successfully",
