@@ -28,4 +28,7 @@ const notificationSchema = new mongoose.Schema({
     }
 }, { timestamps: true });
 
+// TTL Index: Automatically delete documents 3 days (259200 seconds) after they are created
+notificationSchema.index({ createdAt: 1 }, { expireAfterSeconds: 259200 });
+
 export default mongoose.model("Notification", notificationSchema);
