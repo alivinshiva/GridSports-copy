@@ -45,14 +45,6 @@ const userSchema = new mongoose.Schema({
     rankerPoints: {
         type: Number,
         default: 0
-    },
-    previousCreatorRank: {
-        type: Number,
-        default: 0
-    },
-    previousRankerRank: {
-        type: Number,
-        default: 0
     }
 }, { timestamps: true, minimize: true });
 

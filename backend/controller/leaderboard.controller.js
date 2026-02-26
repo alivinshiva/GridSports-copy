@@ -31,25 +31,18 @@ export const getCreatorLeaderboard = async (req, res) => {
                     name: "$userDetails.name",
                     avatar: "$imageUrl",
                     tribe: 1,
-                    points: "$userDetails.creatorPoints",
-                    previousCreatorRank: "$userDetails.previousCreatorRank"
+                    points: "$userDetails.creatorPoints"
                 }
             }
         ]);
 
-        // Return raw data for frontend to compute rankChange
-        // Compute rank and rankChange for each creator
         const data = creators.map((c, idx) => {
-            const currentRank = skip + idx + 1;
-            const prev = c.previousCreatorRank || 0;
-            const rankChange = prev > 0 ? prev - currentRank : 0;
             return {
                 _id: c._id,
                 name: c.name,
                 avatar: c.avatar,
                 tribe: c.tribe,
-                points: c.points,
-                rankChange
+                points: c.points
             };
         });
 
@@ -88,23 +81,18 @@ export const getRankerLeaderboard = async (req, res) => {
                     name: "$userDetails.name",
                     avatar: "$imageUrl",
                     tribe: 1,
-                    points: "$userDetails.rankerPoints",
-                    previousRankerRank: "$userDetails.previousRankerRank"
+                    points: "$userDetails.rankerPoints"
                 }
             }
         ]);
 
         const data = rankers.map((r, idx) => {
-            const currentRank = skip + idx + 1;
-            const prev = r.previousRankerRank || 0;
-            const rankChange = prev > 0 ? prev - currentRank : 0;
             return {
                 _id: r._id,
                 name: r.name,
                 avatar: r.avatar,
                 tribe: r.tribe,
-                points: r.points,
-                rankChange
+                points: r.points
             };
         });
 
@@ -129,14 +117,10 @@ export const getTribeLeaderboard = async (req, res) => {
             .limit(limit);
 
         const data = tribes.map((t, idx) => {
-            const currentRank = skip + idx + 1;
-            const prev = t.previousRank || 0;
-            const rankChange = prev > 0 ? prev - currentRank : 0;
             return {
                 _id: t._id,
                 name: t.name,
-                totalPoints: t.totalPoints,
-                rankChange
+                totalPoints: t.totalPoints
             };
         });
 
@@ -240,53 +224,4 @@ export const getCurrentUserRank = async (req, res) => {
         return res.status(500).json({ success: false, message: "Internal Server Error", error: error.message });
     }
 };
-
-// --- Individual snapshot helpers (used by auto-snapshot in each endpoint) ---
-
-const snapshotCreatorRanks = async () => {
-    const allCreators = await userModel.find({ creatorPoints: { $gt: 0 } })
-        .sort({ creatorPoints: -1 })
-        .select("_id");
-    const bulkOps = allCreators.map((u, i) => ({
-        updateOne: { filter: { _id: u._id }, update: { previousCreatorRank: i + 1 } }
-    }));
-    if (bulkOps.length > 0) await userModel.bulkWrite(bulkOps);
-};
-
-const snapshotRankerRanks = async () => {
-    const allRankers = await userModel.find({ rankerPoints: { $gt: 0 } })
-        .sort({ rankerPoints: -1 })
-        .select("_id");
-    const bulkOps = allRankers.map((u, i) => ({
-        updateOne: { filter: { _id: u._id }, update: { previousRankerRank: i + 1 } }
-    }));
-    if (bulkOps.length > 0) await userModel.bulkWrite(bulkOps);
-};
-
-const snapshotTribeRanks = async () => {
-    const allTribes = await tribeModel.find({ totalPoints: { $gt: 0 } })
-        .sort({ totalPoints: -1 })
-        .select("_id");
-    const bulkOps = allTribes.map((t, i) => ({
-        updateOne: { filter: { _id: t._id }, update: { previousRank: i + 1 } }
-    }));
-    if (bulkOps.length > 0) await tribeModel.bulkWrite(bulkOps);
-};
-
-// @desc Snapshot current ranks as previous ranks for rank-change arrows
-// @route POST /api/v1/leaderboard/snapshot-ranks
-// @access Private (admin)
-export const snapshotRanks = async (req, res) => {
-    try {
-        await Promise.all([
-            snapshotCreatorRanks(),
-            snapshotRankerRanks(),
-            snapshotTribeRanks()
-        ]);
-        return res.status(200).json({ success: true, message: "Ranks snapshot saved successfully" });
-    } catch (error) {
-        return res.status(500).json({ success: false, message: "Internal Server Error", error: error.message });
-    }
-};
-
 

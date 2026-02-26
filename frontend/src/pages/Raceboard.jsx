@@ -3,26 +3,13 @@ import { useAuth } from "@/context/AuthContext";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 import LeaderboardTable from "@/components/raceboard/LeaderboardTable";
 import { getCreatorLeaderboard, getRankerLeaderboard, getTribeLeaderboard, getCurrentUserRank } from "@/services/leaderboardService";
-import { User, Users, Star, ChevronUp, ChevronDown } from "lucide-react";
-
-// Rank change arrow component
-const RankArrow = ({ rankChange }) => {
-    if (rankChange > 0) {
-        return <ChevronUp size={14} className="text-green-400 shrink-0" />;
-    } else if (rankChange < 0) {
-        return <ChevronDown size={14} className="text-red-400 shrink-0" />;
-    }
-    return null;
-};
+import { User, Users, Star } from "lucide-react";
 
 // Helper Columns
 const creatorsColumns = [
     {
         key: "rank", label: "RANK", render: (row) => (
-            <div className="flex items-center gap-0.5 sm:gap-1 pl-1 sm:pl-2">
-                <RankArrow rankChange={row.rankChange} />
-                <span className={`text-[13px] sm:text-[17px] ${row.isHighlighted ? 'text-[#3b82f6] font-normal' : 'text-white font-normal'}`}>{row.rank}</span>
-            </div>
+            <span className={`text-[13px] sm:text-[17px] pl-1 sm:pl-2 ${row.isHighlighted ? 'text-[#3b82f6] font-normal' : 'text-white font-normal'}`}>{row.rank}</span>
         )
     },
     {
@@ -60,10 +47,7 @@ const creatorsColumns = [
 const tribesColumns = [
     {
         key: "rank", label: "RANK", render: (row) => (
-            <div className="flex items-center gap-0.5 sm:gap-1 pl-1 sm:pl-2">
-                <RankArrow rankChange={row.rankChange} />
-                <span className={`text-[13px] sm:text-[17px] ${row.isHighlighted ? 'text-[#3b82f6] font-normal' : 'text-white font-normal'}`}>{row.rank}</span>
-            </div>
+            <span className={`text-[13px] sm:text-[17px] pl-1 sm:pl-2 ${row.isHighlighted ? 'text-[#3b82f6] font-normal' : 'text-white font-normal'}`}>{row.rank}</span>
         )
     },
     {
@@ -130,7 +114,6 @@ export default function Raceboard() {
             avatar: c.avatar || null,
             tribe: c.tribe || "No Tribe",
             color: DefaultTribesColorMap[c.tribe] || "from-[#434343] to-[#000000]",
-            rankChange: c.rankChange || 0,
             isHighlighted: Boolean(user && (c.userId === user._id || c._id === user._id || c.name === user.name))
         }));
     };
@@ -141,7 +124,6 @@ export default function Raceboard() {
             name: t.name,
             points: t.totalPoints ? Math.round(t.totalPoints).toString() : "0",
             avatar: DefaultTribesColorMap[t.name] || "from-[#434343] to-[#000000]",
-            rankChange: t.rankChange || 0,
             isHighlighted: Boolean(user && user.tribe && t.name === user.tribe)
         }));
     };
