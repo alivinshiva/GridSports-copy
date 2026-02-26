@@ -383,7 +383,21 @@ export const rateDetailedController = async (req, res) => {
             return res.status(400).json({ success: false, message: "Missing required fields" });
         }
 
-        const totalScore = ratings.reduce((acc, curr) => acc + curr.score, 0);
+        // Find challenge to get weightage parameters
+        const challenge = await require('../model/challange.model.js').default.findById(challengeId);
+        if (!challenge) {
+            return res.status(404).json({ success: false, message: "Challenge not found" });
+        }
+
+        // Calculate total percentage score
+        let totalScore = 0;
+        ratings.forEach(r => {
+            const paramDef = challenge.parameters.find(p => p.name === r.parameterName);
+            const weightage = paramDef ? paramDef.maxPoints : 0;
+            const baseScore = (r.score / 5) * weightage;
+            const finalPercentScore = (weightage / 100) * baseScore;
+            totalScore += finalPercentScore;
+        });
 
         const hasComment = !!req.body.comment || !!req.body.comments;
         // Use the scoring service to process and award points

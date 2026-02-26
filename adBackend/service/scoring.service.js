@@ -299,13 +299,34 @@ export const processDetailedRating = async (rankerId, submissionId, challengeId,
     const isCapped = !(await checkDailyCap(rankerId, "RATE_DETAILED", 60));
 
     let rankerMultiplier = (rankerTribe === creatorTribe) ? 1.0 : 0.25;
-    let rankerBasePoints = 7;
+
+    // Calculate total weighted percentage score
+    let totalWeightedScore = 0;
+    ratingsArray.forEach(r => {
+        const paramDef = challenge.parameters.find(p => p.name === r.parameterName);
+        const weightage = paramDef ? paramDef.maxPoints : 0; // maxPoints stores weightage now
+
+        // 1. Calculate the user's base score for this parameter out of its weightage
+        // e.g. 4/5 stars on a 35 weightage parameter = 28 points
+        const baseScore = (r.score / 5) * weightage;
+
+        // 2. Calculate the final percentage based on the weightage 
+        // e.g. 35% of those 28 points = 9.8 points
+        const finalPercentScore = (weightage / 100) * baseScore;
+
+        totalWeightedScore += finalPercentScore;
+    });
+
+    let rankerBasePoints = totalWeightedScore / 10;
+
+    // Add bonus points
     if (hasComment) rankerBasePoints += 2;
 
     const hoursSinceUpload = (Date.now() - new Date(submission.createdAt).getTime()) / (1000 * 60 * 60);
     if (hoursSinceUpload < 24) rankerBasePoints += 2;
     else if (hoursSinceUpload < 48) rankerBasePoints += 1;
 
+    // Early Traction Bonus
     const firstRatingsCount = await pointLedgerModel.countDocuments({
         submission: submissionId,
         actionType: { $regex: /^RATE_/ }
@@ -317,6 +338,7 @@ export const processDetailedRating = async (rankerId, submissionId, challengeId,
         }
     }
 
+    // Multiply the base points (from the percentage calculation) using the multiplier rule
     const rankerFinal = await logPointTransaction(rankerId, rankerTribe, challengeId, weekendId, submissionId, 'RATE_DETAILED', rankerBasePoints, rankerMultiplier, isCapped);
 
     await checkSubmissionMilestones(submissionId, creatorId, creatorTribe, challengeId, weekendId);
