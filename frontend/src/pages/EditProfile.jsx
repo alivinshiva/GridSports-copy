@@ -41,8 +41,6 @@ export default function EditProfile() {
 
     const handleSave = async () => {
         if (!selectedFile) {
-            // No new file selected, just navigate back (or show message)
-            navigate("/profile");
             return;
         }
 
@@ -98,21 +96,23 @@ export default function EditProfile() {
 
     return (
         <AuthenticatedLayout>
-            <div className="flex flex-1 justify-center py-8">
-                <div className="layout-content-container flex flex-col max-w-[600px] flex-1 px-4 w-full">
+            <div className="flex flex-col min-h-screen items-center py-6 md:py-10">
+                <div className="flex flex-col max-w-[600px] w-full px-4 sm:px-6">
 
                     {/* Header */}
-                    <div className="flex items-center gap-4 mb-8">
+                    <div className="flex items-center gap-4 mb-6 md:mb-8">
                         <button
                             onClick={() => navigate("/profile")}
-                            className="p-2 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
+                            className="p-2 rounded-xl bg-[#111118] hover:bg-white/10 transition-colors border border-white/5"
                         >
-                            <ArrowLeft size={24} className="text-[#1c140d] dark:text-white" />
+                            <ArrowLeft size={24} className="text-white" />
                         </button>
-                        <h1 className="text-[#1c140d] dark:text-white text-2xl font-bold tracking-tight">Edit Profile</h1>
+                        <h1 className="text-white text-2xl md:text-3xl font-black tracking-widest uppercase" style={{ fontFamily: "'Sora-SemiBold', sans-serif" }}>
+                            Edit Profile
+                        </h1>
                     </div>
 
-                    <div className="bg-white dark:bg-white/5 rounded-2xl p-6 border border-[#e8dbce] dark:border-white/10 shadow-sm flex flex-col gap-8">
+                    <div className="bg-[#111118] rounded-2xl p-6 md:p-8 border border-white/5 shadow-2xl flex flex-col gap-8">
 
                         {/* Avatar Section */}
                         <div className="flex flex-col items-center gap-4">
@@ -133,37 +133,37 @@ export default function EditProfile() {
                                 </label>
                                 <button
                                     onClick={handleDeleteImage}
-                                    className="absolute bottom-0 right-0 bg-red-500 text-white p-2.5 rounded-full shadow-lg hover:bg-red-600 transition-colors z-10"
+                                    className="absolute bottom-0 right-0 bg-red-600 text-white p-2.5 rounded-full shadow-lg hover:bg-red-500 transition-colors z-10 border-2 border-[#111118]"
                                     title="Delete Profile Image"
                                 >
                                     <Trash2 size={16} />
                                 </button>
                             </div>
-                            <p className="text-[#9c7349] dark:text-[#c4a17d] text-sm font-medium">Tap image to change</p>
+                            <p className="text-gray-400 text-sm font-medium tracking-wide">Tap image to change</p>
                         </div>
 
                         {/* Name Input */}
                         <div className="flex flex-col gap-2">
-                            <label className="text-[#1c140d] dark:text-white text-sm font-bold">Display Name</label>
+                            <label className="text-gray-300 text-sm font-bold tracking-wider uppercase ml-1">Display Name</label>
                             <input
                                 type="text"
                                 value={name}
                                 readOnly
-                                className="w-full px-4 py-3 rounded-xl bg-[#f4ede7]/50 dark:bg-white/5 border border-transparent text-[#1c140d]/70 dark:text-white/70 font-medium cursor-not-allowed select-none focus:outline-none"
+                                className="w-full px-5 py-4 rounded-xl bg-[#0B0B0F] border border-white/10 text-white font-medium cursor-not-allowed select-none focus:outline-none"
                             />
                         </div>
 
                         {/* Locked Tribe Section */}
                         <div className="flex flex-col gap-2 opacity-80">
-                            <label className="text-[#1c140d] dark:text-white text-sm font-bold flex items-center justify-between">
+                            <label className="text-gray-300 text-sm font-bold flex items-center justify-between tracking-wider uppercase ml-1">
                                 <span>Tribe</span>
                             </label>
-                            <div className="w-full px-4 py-3 rounded-xl bg-[#f4ede7]/50 dark:bg-white/5 border border-dashed border-[#9c7349]/30 dark:border-white/20 flex items-center justify-between cursor-not-allowed">
+                            <div className="w-full px-5 py-4 rounded-xl bg-[#0B0B0F]/50 border border-dashed border-white/20 flex items-center justify-between cursor-not-allowed">
                                 <div className="flex items-center gap-3">
-                                    <div className="size-8 rounded-lg bg-primary/20 flex items-center justify-center text-primary">
+                                    <div className="size-9 rounded-lg bg-white/5 flex items-center justify-center text-gray-400">
                                         <LayoutGrid size={18} />
                                     </div>
-                                    <span className="text-[#1c140d] dark:text-white font-bold">{tribe || "Loading..."}</span>
+                                    <span className="text-white font-bold tracking-wide">{tribe || "Loading..."}</span>
                                 </div>
                                 <span className="sr-only">Locked</span>
                             </div>
@@ -172,31 +172,44 @@ export default function EditProfile() {
                     </div>
 
                     {/* Actions */}
-                    <div className="mt-8 flex gap-4">
+                    <div className="mt-8 flex flex-col sm:flex-row gap-4">
                         <button
                             onClick={() => navigate("/profile")}
-                            className="flex-1 py-3.5 rounded-xl font-bold text-[#9c7349] dark:text-[#c4a17d] hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+                            className="flex-1 py-4 rounded-xl font-bold text-gray-400 bg-[#111118] border border-white/10 hover:bg-white/5 hover:text-white transition-colors"
                         >
                             Cancel
                         </button>
                         <button
                             onClick={handleSave}
-                            className="flex-1 py-3.5 rounded-xl font-bold bg-primary text-white shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
-                            disabled={isUploading}
+                            className={`flex-1 py-4 rounded-xl font-bold text-[#1c140d] shadow-lg transition-all flex items-center justify-center gap-2 ${!selectedFile || isUploading
+                                    ? "cursor-not-allowed"
+                                    : "hover:opacity-90"
+                                }`}
+                            style={{
+                                background: "linear-gradient(135deg, #8c6a00 0%, #facc15 50%, #f5d76e 100%)",
+                                boxShadow: "0 4px 20px rgba(250, 204, 21, 0.3)"
+                            }}
+                            disabled={!selectedFile || isUploading}
                         >
-                            {isUploading ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
+                            {isUploading ? (
+                                <Loader2 size={18} className="animate-spin" />
+                            ) : !selectedFile ? (
+                                <Lock size={18} />
+                            ) : (
+                                <Save size={18} />
+                            )}
                             {isUploading ? "Uploading..." : "Save Changes"}
                         </button>
                     </div>
 
                     {/* Logout Button */}
-                    <div className="mt-8 pt-8 border-t border-[#e8dbce] dark:border-white/10 flex justify-center">
+                    <div className="mt-10 pt-8 border-t border-white/10 flex justify-center">
                         <button
                             onClick={logout}
-                            className="flex items-center gap-2 text-red-500 hover:text-red-600 font-bold transition-colors"
+                            className="flex items-center gap-2 text-red-500 hover:text-red-400 font-bold transition-colors py-2 px-4 rounded-lg hover:bg-red-500/10"
                         >
                             <LogOut size={18} />
-                            Log Out
+                            LOG OUT
                         </button>
                     </div>
 
