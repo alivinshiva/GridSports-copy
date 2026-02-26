@@ -40,6 +40,12 @@ const challengeSchema = new mongoose.Schema({
             trim: true
         }
     ],
+    tags: [
+        {
+            type: String,
+            trim: true
+        }
+    ],
     season: {
         type: String,
         required: true

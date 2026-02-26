@@ -20,6 +20,13 @@ export const createChallengeMiddleware = async (req, res, next) => {
         }
     }
 
+    // Handle tags array similarly to rules
+    if (req.body.tags) {
+        if (typeof req.body.tags === 'string') {
+            req.body.tags = [req.body.tags];
+        }
+    }
+
     try {
         const schema = joi.object({
             weekend: joi.string().trim().length(24).pattern(/^[0-9a-fA-F]{24}$/).required(),
@@ -33,7 +40,8 @@ export const createChallengeMiddleware = async (req, res, next) => {
             status: joi.string().valid("UPCOMING", "ACTIVE", "CLOSED").required(),
             season: joi.string().required(),
             scoringType: joi.string().valid("SIMPLE", "DETAILED").optional(),
-            parameters: joi.string().optional()
+            parameters: joi.string().optional(),
+            tags: joi.array().items(joi.string().trim()).optional()
         });
 
         const { error } = schema.validate(req.body);

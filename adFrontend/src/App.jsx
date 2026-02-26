@@ -17,6 +17,7 @@ import AllHeroes from './components/AllHeroes';
 import HeroForm from './components/HeroForm';
 import HeroUpdate from './components/HeroUpdate';
 import TribePointsForm from './components/TribePointsForm';
+import Tags from './components/Tags';
 
 function App() {
   return (
@@ -37,6 +38,7 @@ function App() {
           <Route path="/add-hero" element={<HeroForm />} />
           <Route path="/update-hero" element={<HeroUpdate />} />
           <Route path="/manage-tribe-points" element={<TribePointsForm />} />
+          <Route path="/tags" element={<Tags />} />
         </Routes>
       </Layout>
     </BrowserRouter>

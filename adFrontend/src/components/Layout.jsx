@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Users, Trophy, Menu, X, Plus, Calendar, Home, MapPin, Target } from 'lucide-react';
+import { Users, Trophy, Menu, X, Plus, Calendar, Home, MapPin, Target, Tag as TagIcon } from 'lucide-react';
 
 const Layout = ({ children }) => {
     const location = useLocation();
@@ -19,6 +19,7 @@ const Layout = ({ children }) => {
         { path: '/add-challenge', label: 'Create Challenge', icon: Trophy },
         { path: '/add-hero', label: 'Create Hero', icon: Plus },
         { path: '/manage-tribe-points', label: 'Manage Tribe Points', icon: Target },
+        { path: '/tags', label: 'Manage Tags', icon: TagIcon },
     ];
 
     const isActive = (path) => {

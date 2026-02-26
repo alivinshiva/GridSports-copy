@@ -180,6 +180,19 @@ const ChallengeDetails = () => {
                                     </ul>
                                 </div>
                             )}
+
+                            {challenge.tags && challenge.tags.length > 0 && (
+                                <div className="mt-6">
+                                    <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-3">Tags</h3>
+                                    <div className="flex flex-wrap gap-2">
+                                        {challenge.tags.map((tag, index) => (
+                                            <span key={index} className="px-3 py-1 bg-gray-100 text-gray-700 text-sm font-medium rounded-full border border-gray-200">
+                                                {tag}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
                         <div className="md:col-span-1 space-y-6">

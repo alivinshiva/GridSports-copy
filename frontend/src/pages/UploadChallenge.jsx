@@ -20,6 +20,7 @@ export default function UploadChallenge() {
     const [showSuccess, setShowSuccess] = useState(false);
     const [errorMsg, setErrorMsg] = useState("");
     const [fileWarning, setFileWarning] = useState("");
+    const [selectedTags, setSelectedTags] = useState([]);
 
     const { challengeId } = useParams();
     const [challenge, setChallenge] = useState(null);
@@ -147,6 +148,7 @@ export default function UploadChallenge() {
         setIsRecording(false);
         setChunks([]);
         setFileWarning("");
+        setSelectedTags([]);
         if (videoRef.current && videoRef.current.srcObject) {
             videoRef.current.srcObject.getTracks().forEach(track => track.stop());
         }
@@ -159,6 +161,11 @@ export default function UploadChallenge() {
         const formData = new FormData();
         formData.append("challenge", challengeId);
         formData.append("image", selectedFile);
+
+        // Append all selected tags
+        selectedTags.forEach(tag => {
+            formData.append("tags", tag);
+        });
 
         try {
             const response = await addSubmission(formData);
@@ -426,7 +433,37 @@ export default function UploadChallenge() {
                                 </div>
                             )}
 
-                            <div className="flex gap-4 w-full max-w-md">
+                            {/* Optional Tags Selection */}
+                            {challenge?.tags && challenge.tags.length > 0 && (
+                                <div className="w-full max-w-md mt-2">
+                                    <p className="text-sm font-bold text-center mb-3">Select Optional Tags</p>
+                                    <div className="flex flex-wrap items-center justify-center gap-2">
+                                        {challenge.tags.map((tag, tIdx) => {
+                                            const isSelected = selectedTags.includes(tag);
+                                            return (
+                                                <button
+                                                    key={`tag-${tIdx}`}
+                                                    onClick={() => {
+                                                        if (isSelected) {
+                                                            setSelectedTags(prev => prev.filter(t => t !== tag));
+                                                        } else {
+                                                            setSelectedTags(prev => [...prev, tag]);
+                                                        }
+                                                    }}
+                                                    className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all ${isSelected
+                                                            ? 'bg-primary text-white shadow-md shadow-primary/20 scale-105'
+                                                            : 'bg-[#e8dbce] dark:bg-[#3d2e1f] text-[#1c140d] dark:text-gray-200 hover:bg-[#d6c7b5] dark:hover:bg-[#4d3c2b]'
+                                                        }`}
+                                                >
+                                                    {tag}
+                                                </button>
+                                            )
+                                        })}
+                                    </div>
+                                </div>
+                            )}
+
+                            <div className="flex gap-4 w-full max-w-md mt-4">
                                 <button
                                     onClick={reset}
                                     disabled={isUploading}

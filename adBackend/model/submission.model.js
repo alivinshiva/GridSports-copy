@@ -23,7 +23,13 @@ const submissionSchema = new mongoose.Schema({
         type: String,
         enum: ['image', 'video'],
         required: true
-    }
+    },
+    tags: [
+        {
+            type: String,
+            trim: true
+        }
+    ]
 }, { timestamps: true });
 
 export default mongoose.model("submission", submissionSchema);

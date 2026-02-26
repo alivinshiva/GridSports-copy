@@ -48,7 +48,7 @@ export function HomeHeader() {
                 {/* --- MOBILE LAYOUT (md:hidden) --- */}
                 <div className="flex md:hidden items-center justify-between w-full h-full">
                     {/* Left: Notifications */}
-                    <Link to="/notifications" className="relative p-2 rounded-xl bg-white/10 text-white backdrop-blur-md transition-colors hover:bg-white/20">
+                    <Link to="/notifications" className="relative text-white transition-colors hover:text-white/80 flex items-center justify-center">
                         <span className="material-symbols-outlined text-[24px]">notifications</span>
                         {unreadCount > 0 && (
                             <span className="absolute top-1.5 right-1.5 size-2.5 bg-primary rounded-full border-2 border-background-dark animate-pulse"></span>
@@ -94,7 +94,7 @@ export function HomeHeader() {
 
                     {/* Right: Profile Only as per clean Figma layout (Notifications removed or subtle if needed, keeping for robustness if user wants) */}
                     <div className="flex-1 flex items-center justify-end h-full gap-4">
-                        <Link to="/notifications" className="relative p-2 rounded-xl bg-white/5 text-white backdrop-blur-md transition-colors hover:bg-white/10">
+                        <Link to="/notifications" className="relative text-white transition-colors hover:text-white/80 flex items-center justify-center">
                             <span className="material-symbols-outlined text-[24px]">notifications</span>
                             {unreadCount > 0 && (
                                 <span className="absolute top-1.5 right-1.5 size-2.5 bg-primary rounded-full border-2 border-background-dark animate-pulse"></span>

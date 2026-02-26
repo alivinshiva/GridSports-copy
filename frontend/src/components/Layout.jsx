@@ -42,7 +42,7 @@ export function Layout({ children }) {
                     </div>
 
                     <div className="flex items-center space-x-3">
-                        <button className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors">
+                        <button className="transition-colors hover:opacity-80 flex items-center justify-center">
                             <Bell size={20} className="text-gray-600" />
                         </button>
                         <Link to="/profile" className="p-0.5 rounded-full border-2 hover:shadow-lg transition-all" style={{ borderColor: tribe.color }}>

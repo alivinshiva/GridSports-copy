@@ -21,7 +21,7 @@ export const createChallenge = async (challengeData) => {
         });
         return response.data;
     } catch (error) {
-        console.error("Error creating challenge:", error);
+        console.error("Error creating challenge:", error.response?.data || error.message);
         throw error;
     }
 };

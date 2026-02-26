@@ -361,36 +361,58 @@ const SubmissionFeed = () => {
                                             </div>
                                         </div>
                                     ) : (
-                                        <div className="flex flex-row flex-nowrap items-center justify-between w-full px-8 text-white pointer-events-auto pb-4">
-                                            <button
-                                                onClick={(e) => handleRate(e, entry._id, 'DISLIKE')}
-                                                className="flex flex-col items-center gap-1 transition-transform active:scale-95 group"
-                                            >
-                                                <div className={`p-3 backdrop-blur-md rounded-full transition-colors flex items-center justify-center ${ratingsState[entry._id] === 'DISLIKE' ? 'bg-orange-500/20' : 'bg-white/10 group-hover:bg-white/20'}`}>
-                                                    <ThumbsDown size={28} className={ratingsState[entry._id] === 'DISLIKE' ? 'fill-orange-500 stroke-orange-500' : 'fill-transparent stroke-white'} />
-                                                </div>
-                                                <span className={`text-xs font-bold drop-shadow-md ${ratingsState[entry._id] === 'DISLIKE' ? 'text-orange-500' : 'text-white'}`}>Dislike</span>
-                                            </button>
+                                        <div className="flex flex-row flex-nowrap items-stretch justify-center gap-4 w-full px-4 text-white pointer-events-auto pb-6">
+                                            {/* Render Custom Simple Parameters if they exist (should be 3) */}
+                                            {entry.challenge?.parameters && entry.challenge.parameters.length === 3 ? (
+                                                entry.challenge.parameters.map((param, pIdx) => (
+                                                    <button
+                                                        key={`simple-param-${pIdx}`}
+                                                        onClick={(e) => handleRate(e, entry._id, param.name)}
+                                                        className={`flex-1 flex flex-col items-center justify-center p-4 rounded-2xl backdrop-blur-md transition-all border ${ratingsState[entry._id] === param.name
+                                                                ? 'bg-indigo-600/40 border-indigo-500 scale-105 shadow-[0_0_15px_rgba(99,102,241,0.5)]'
+                                                                : 'bg-black/40 border-white/10 hover:bg-white/10 hover:border-white/30 active:scale-95'
+                                                            }`}
+                                                    >
+                                                        <span className="text-2xl mb-1">{param.name.replace(/^[a-zA-Z0-9\s]+$/, '') || '✨'}</span>
+                                                        <span className="text-xs font-bold tracking-wide drop-shadow-md text-white text-center line-clamp-2 leading-tight">
+                                                            {param.name}
+                                                        </span>
+                                                    </button>
+                                                ))
+                                            ) : (
+                                                /* Fallback to Default (Dislike/Like/Love) if no custom parameters */
+                                                <>
+                                                    <button
+                                                        onClick={(e) => handleRate(e, entry._id, 'DISLIKE')}
+                                                        className="flex flex-col items-center gap-1 transition-transform active:scale-95 group"
+                                                    >
+                                                        <div className={`p-3 backdrop-blur-md rounded-full transition-colors flex items-center justify-center ${ratingsState[entry._id] === 'DISLIKE' ? 'bg-orange-500/20' : 'bg-white/10 group-hover:bg-white/20'}`}>
+                                                            <ThumbsDown size={28} className={ratingsState[entry._id] === 'DISLIKE' ? 'fill-orange-500 stroke-orange-500' : 'fill-transparent stroke-white'} />
+                                                        </div>
+                                                        <span className={`text-xs font-bold drop-shadow-md ${ratingsState[entry._id] === 'DISLIKE' ? 'text-orange-500' : 'text-white'}`}>Dislike</span>
+                                                    </button>
 
-                                            <button
-                                                onClick={(e) => handleRate(e, entry._id, 'LIKE')}
-                                                className="flex flex-col items-center gap-1 transition-transform active:scale-95 group"
-                                            >
-                                                <div className={`p-3 backdrop-blur-md rounded-full transition-colors flex items-center justify-center ${ratingsState[entry._id] === 'LIKE' ? 'bg-yellow-400/20' : 'bg-white/10 group-hover:bg-white/20'}`}>
-                                                    <ThumbsUp size={28} className={ratingsState[entry._id] === 'LIKE' ? 'fill-yellow-400 stroke-yellow-400' : 'fill-transparent stroke-white'} />
-                                                </div>
-                                                <span className={`text-xs font-bold drop-shadow-md ${ratingsState[entry._id] === 'LIKE' ? 'text-yellow-400' : 'text-white'}`}>Like</span>
-                                            </button>
+                                                    <button
+                                                        onClick={(e) => handleRate(e, entry._id, 'LIKE')}
+                                                        className="flex flex-col items-center gap-1 transition-transform active:scale-95 group"
+                                                    >
+                                                        <div className={`p-3 backdrop-blur-md rounded-full transition-colors flex items-center justify-center ${ratingsState[entry._id] === 'LIKE' ? 'bg-yellow-400/20' : 'bg-white/10 group-hover:bg-white/20'}`}>
+                                                            <ThumbsUp size={28} className={ratingsState[entry._id] === 'LIKE' ? 'fill-yellow-400 stroke-yellow-400' : 'fill-transparent stroke-white'} />
+                                                        </div>
+                                                        <span className={`text-xs font-bold drop-shadow-md ${ratingsState[entry._id] === 'LIKE' ? 'text-yellow-400' : 'text-white'}`}>Like</span>
+                                                    </button>
 
-                                            <button
-                                                onClick={(e) => handleRate(e, entry._id, 'LOVE')}
-                                                className="flex flex-col items-center gap-1 transition-transform active:scale-95 group"
-                                            >
-                                                <div className={`p-3 backdrop-blur-md rounded-full transition-colors flex items-center justify-center ${ratingsState[entry._id] === 'LOVE' ? 'bg-red-500/20' : 'bg-white/10 group-hover:bg-white/20'}`}>
-                                                    <Heart size={28} className={ratingsState[entry._id] === 'LOVE' ? 'fill-red-500 stroke-red-500' : 'fill-transparent stroke-white'} />
-                                                </div>
-                                                <span className={`text-xs font-bold drop-shadow-md ${ratingsState[entry._id] === 'LOVE' ? 'text-red-500' : 'text-white'}`}>Love</span>
-                                            </button>
+                                                    <button
+                                                        onClick={(e) => handleRate(e, entry._id, 'LOVE')}
+                                                        className="flex flex-col items-center gap-1 transition-transform active:scale-95 group"
+                                                    >
+                                                        <div className={`p-3 backdrop-blur-md rounded-full transition-colors flex items-center justify-center ${ratingsState[entry._id] === 'LOVE' ? 'bg-red-500/20' : 'bg-white/10 group-hover:bg-white/20'}`}>
+                                                            <Heart size={28} className={ratingsState[entry._id] === 'LOVE' ? 'fill-red-500 stroke-red-500' : 'fill-transparent stroke-white'} />
+                                                        </div>
+                                                        <span className={`text-xs font-bold drop-shadow-md ${ratingsState[entry._id] === 'LOVE' ? 'text-red-500' : 'text-white'}`}>Love</span>
+                                                    </button>
+                                                </>
+                                            )}
                                         </div>
                                     )}
                                 </div>

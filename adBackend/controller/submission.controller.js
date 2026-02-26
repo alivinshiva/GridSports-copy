@@ -31,8 +31,23 @@ export const getAllSubmissionsController = async (req, res) => {
 export const addSubmissionController = async (req, res) => {
     try {
         const loggedInUser = req.user;
-        const { challenge } = req.body;
+        const { challenge, tags } = req.body;
         // console.log("This is a challange id", challenge)
+
+        // Parse tags if it comes as a JSON string from form data
+        let parsedTags = [];
+        if (tags) {
+            if (Array.isArray(tags)) {
+                parsedTags = tags;
+            } else if (typeof tags === 'string') {
+                try {
+                    parsedTags = JSON.parse(tags);
+                } catch (e) {
+                    // Try treating it as a single string tag if JSON parse fails
+                    parsedTags = [tags];
+                }
+            }
+        }
 
         if (!req.file) {
             return res.status(400).json({ success: false, message: "Media file is required" });
@@ -70,7 +85,8 @@ export const addSubmissionController = async (req, res) => {
             user: loggedInUser,
             mediaUrl,
             mediaId: req.file.filename,
-            mediaType
+            mediaType,
+            tags: parsedTags
         });
 
         const hasTags = !!req.body.tags && req.body.tags.length > 0;

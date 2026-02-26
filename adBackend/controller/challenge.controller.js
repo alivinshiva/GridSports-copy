@@ -12,7 +12,7 @@ import { distributeNotificationToAllUsers } from "../service/notification.servic
 export const createChallangeController = async (req, res) => {
     // console.log(req.body);
     try {
-        const { weekend, name, description, startAt, endAt, round, rules, type, status, season, scoringType, parameters } = req.body;
+        const { weekend, name, description, startAt, endAt, round, rules, tags, type, status, season, scoringType, parameters } = req.body;
 
         let parsedParameters = [];
         if (parameters) {
@@ -49,6 +49,7 @@ export const createChallangeController = async (req, res) => {
             endAt,
             round,
             rules,
+            tags,
             type,
             status,
             scoringType: scoringType || "SIMPLE",

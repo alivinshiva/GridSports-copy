@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 import LeaderboardTable from "@/components/raceboard/LeaderboardTable";
-import { getCreatorLeaderboard, getRankerLeaderboard, getTribeLeaderboard } from "@/services/leaderboardService";
+import { getCreatorLeaderboard, getRankerLeaderboard, getTribeLeaderboard, getCurrentUserRank } from "@/services/leaderboardService";
 import { User, Users, Star } from "lucide-react";
 
 // Helper Columns
@@ -80,6 +80,7 @@ const DefaultTribesColorMap = {
 export default function Raceboard() {
     const { user } = useAuth();
     const [activeTab, setActiveTab] = useState('creators');
+    const [currentUserRankData, setCurrentUserRankData] = useState(null);
 
     const [dataState, setDataState] = useState({
         creatorsTableData: [],
@@ -121,10 +122,11 @@ export default function Raceboard() {
 
     const fetchInitialData = async () => {
         try {
-            const [creatorsRes, rankersRes, tribesRes] = await Promise.all([
+            const [creatorsRes, rankersRes, tribesRes, currentUserRes] = await Promise.all([
                 getCreatorLeaderboard(1, LIMIT),
                 getRankerLeaderboard(1, LIMIT),
-                getTribeLeaderboard(1, LIMIT)
+                getTribeLeaderboard(1, LIMIT),
+                user ? getCurrentUserRank().catch(() => null) : Promise.resolve(null)
             ]);
 
             setDataState({
@@ -132,6 +134,10 @@ export default function Raceboard() {
                 ratersTableData: processData(rankersRes.data, 0),
                 tribesTableData: processTribes(tribesRes.data, 0)
             });
+
+            if (currentUserRes && currentUserRes.success) {
+                setCurrentUserRankData(currentUserRes.data);
+            }
 
             setPagination({
                 creators: { page: 1, hasMore: creatorsRes.data?.length === LIMIT },
@@ -186,6 +192,64 @@ export default function Raceboard() {
         }
     };
 
+    const renderCurrentUserRow = () => {
+        if (!user || !currentUserRankData) return null;
+
+        let rowData = null;
+        let columns = [];
+
+        if (activeTab === 'creators') {
+            if (!currentUserRankData.creatorPoints) return null;
+            rowData = {
+                rank: currentUserRankData.creatorRank || '-',
+                name: currentUserRankData.name,
+                points: currentUserRankData.creatorPoints ? currentUserRankData.creatorPoints.toLocaleString() : "0",
+                avatar: currentUserRankData.avatar,
+                tribe: currentUserRankData.tribe || "No Tribe",
+                color: DefaultTribesColorMap[currentUserRankData.tribe] || "from-[#434343] to-[#000000]",
+                isHighlighted: true
+            };
+            columns = creatorsColumns;
+        } else if (activeTab === 'raters') {
+            if (!currentUserRankData.rankerPoints) return null;
+            rowData = {
+                rank: currentUserRankData.rankerRank || '-',
+                name: currentUserRankData.name,
+                points: currentUserRankData.rankerPoints ? currentUserRankData.rankerPoints.toLocaleString() : "0",
+                avatar: currentUserRankData.avatar,
+                tribe: currentUserRankData.tribe || "No Tribe",
+                color: DefaultTribesColorMap[currentUserRankData.tribe] || "from-[#434343] to-[#000000]",
+                isHighlighted: true
+            };
+            columns = ratersColumns;
+        } else if (activeTab === 'tribes') {
+            if (!currentUserRankData.tribe) return null;
+            rowData = {
+                rank: currentUserRankData.tribeRank || '-',
+                name: currentUserRankData.tribe,
+                points: currentUserRankData.tribePoints ? currentUserRankData.tribePoints.toLocaleString() : "0",
+                avatar: DefaultTribesColorMap[currentUserRankData.tribe] || "from-[#434343] to-[#000000]",
+                isHighlighted: true
+            };
+            columns = tribesColumns;
+        }
+
+        if (!rowData) return null;
+
+        return (
+            <div className="mb-6">
+                <div className="text-[#3b82f6] text-[14px] md:text-[16px] mb-3 px-2 font-medium tracking-wide">Your Position</div>
+                <LeaderboardTable
+                    data={[rowData]}
+                    columns={columns}
+                    hasMore={false}
+                    isLoading={false}
+                    hideHeaders={true}
+                />
+            </div>
+        );
+    };
+
     return (
         <AuthenticatedLayout>
             <div className="max-w-[1000px] mx-auto px-0 sm:px-4 py-10 pb-32 pt-20">
@@ -216,6 +280,8 @@ export default function Raceboard() {
                         ))}
                     </div>
                 </div>
+
+                {renderCurrentUserRow()}
 
                 {/* Content switching based on tab */}
                 {activeTab === 'creators' && (

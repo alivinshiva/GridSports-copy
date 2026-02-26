@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createChallenge } from '../services/challengeService';
 import { getAllWeekends } from '../services/weekendService';
-import { Upload, Trophy, Plus, Trash2, X } from 'lucide-react';
+import { getAllTags } from '../services/tagService';
+import { Upload, Trophy, Plus, Trash2, X, Check } from 'lucide-react';
 
 const ChallengeForm = () => {
     const navigate = useNavigate();
     const [weekends, setWeekends] = useState([]);
+    const [availableTags, setAvailableTags] = useState([]);
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
         weekend: '',
@@ -23,6 +25,10 @@ const ChallengeForm = () => {
     const [rules, setRules] = useState([]);
     const [currentRule, setCurrentRule] = useState('');
     const [ruleError, setRuleError] = useState('');
+    const [simpleParams, setSimpleParams] = useState(['', '', '']);
+    const [tags, setTags] = useState([]);
+    const [currentTag, setCurrentTag] = useState('');
+    const [tagError, setTagError] = useState('');
     const [parameters, setParameters] = useState([]);
     const [currentParamName, setCurrentParamName] = useState('');
     const [currentParamPoints, setCurrentParamPoints] = useState(5);
@@ -31,17 +37,24 @@ const ChallengeForm = () => {
     const [preview, setPreview] = useState(null);
 
     useEffect(() => {
-        const fetchWeekends = async () => {
+        const fetchData = async () => {
             try {
-                const response = await getAllWeekends();
-                if (response.success) {
-                    setWeekends(response.data);
+                const [weekendRes, tagsRes] = await Promise.all([
+                    getAllWeekends(),
+                    getAllTags().catch(() => ({ success: false })) // fail gracefully
+                ]);
+
+                if (weekendRes.success) {
+                    setWeekends(weekendRes.data);
+                }
+                if (tagsRes.success) {
+                    setAvailableTags(tagsRes.data);
                 }
             } catch (error) {
-                console.error("Failed to fetch weekends", error);
+                console.error("Failed to fetch initial data", error);
             }
         };
-        fetchWeekends();
+        fetchData();
     }, []);
 
     const handleChange = (e) => {
@@ -86,6 +99,22 @@ const ChallengeForm = () => {
         setRules(rules.filter((_, i) => i !== index));
     };
 
+    // Simple Parameters Management
+    const handleSimpleParamChange = (index, value) => {
+        const newParams = [...simpleParams];
+        newParams[index] = value;
+        setSimpleParams(newParams);
+    };
+
+    // Tags Management
+    const handleToggleTag = (tagName) => {
+        if (tags.includes(tagName)) {
+            setTags(tags.filter(t => t !== tagName));
+        } else {
+            setTags([...tags, tagName]);
+        }
+    };
+
     // Parameters Management
     const handleAddParameter = () => {
         if (currentParamName.trim() !== "") {
@@ -115,9 +144,25 @@ const ChallengeForm = () => {
         // Append Rules
         rules.forEach(rule => data.append('rules', rule));
 
-        // Append Parameters if DETAILED
+        // Append Tags
+        tags.forEach(tag => data.append('tags', tag));
+
+        // Append Parameters based on scoring type
         if (formData.scoringType === 'DETAILED') {
             data.append('parameters', JSON.stringify(parameters));
+        } else if (formData.scoringType === 'SIMPLE') {
+            // For simple, ensure exactly 3 are provided and not empty
+            if (simpleParams.some(p => p.trim() === '')) {
+                alert("Please provide all 3 simple parameters.");
+                setLoading(false);
+                return;
+            }
+            // Format them same way as detailed for consistency, but maybe fixed maxPoints isn't needed or is fixed.
+            // Based on user request, point system doesn't change, they are just labels/emojis.
+            // We'll save them as objects with name property to match existing expected structure if needed,
+            // or just strings if the backend accepts it. The backend seems to accept JSON stringified array.
+            const formattedSimpleParams = simpleParams.map(p => ({ name: p.trim(), maxPoints: 0 }));
+            data.append('parameters', JSON.stringify(formattedSimpleParams));
         }
 
         if (image) {
@@ -132,8 +177,8 @@ const ChallengeForm = () => {
                 alert("Failed to create challenge: " + response.message);
             }
         } catch (error) {
-            console.error("Error creating challenge", error);
-            alert("An error occurred");
+            console.error("Error creating challenge:", error.response?.data || error.message);
+            alert(error.response?.data?.message || "An error occurred");
         } finally {
             setLoading(false);
         }
@@ -322,6 +367,63 @@ const ChallengeForm = () => {
                         </ul>
                     )}
                 </div>
+
+                {/* Selectable Tags */}
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Select Tags</label>
+                    <p className="text-xs text-gray-500 mb-3">Choose tags to categorize this challenge. You can create new tags in the Manage Tags page.</p>
+
+                    {availableTags.length === 0 ? (
+                        <div className="text-sm text-gray-500 italic p-3 bg-gray-50 border border-gray-200 rounded">
+                            No tags available. Go to "Manage Tags" to create some first.
+                        </div>
+                    ) : (
+                        <div className="flex flex-wrap gap-2">
+                            {availableTags.map((tag) => {
+                                const isSelected = tags.includes(tag.name);
+                                return (
+                                    <button
+                                        key={tag._id}
+                                        type="button"
+                                        onClick={() => handleToggleTag(tag.name)}
+                                        className={`flex items-center px-3 py-1.5 rounded-full text-sm font-medium transition-colors border ${isSelected
+                                            ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
+                                            : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                                            }`}
+                                    >
+                                        {isSelected && <Check size={14} className="mr-1.5" />}
+                                        {tag.name}
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    )}
+                </div>
+
+                {/* Simple Parameters Input (Visible only if SIMPLE scoring) */}
+                {formData.scoringType === 'SIMPLE' && (
+                    <div className="border-t border-gray-200 pt-6 mt-6">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Simple Reaction Parameters</label>
+                        <p className="text-xs text-gray-500 mb-4">Define exactly 3 reactions (text or emojis) users can choose from. They all award the same fixed points.</p>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            {[0, 1, 2].map((index) => (
+                                <div key={index}>
+                                    <label className="block text-xs font-semibold text-gray-600 mb-1 uppercase">Reaction {index + 1}</label>
+                                    <input
+                                        type="text"
+                                        value={simpleParams[index]}
+                                        onChange={(e) => handleSimpleParamChange(index, e.target.value)}
+                                        placeholder={["e.g. 🔥 Fire", "e.g. 🧊 Ice", "e.g. ⚡ Zap"][index]}
+                                        className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border"
+                                        required
+                                        maxLength={15}
+                                    />
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
 
                 {/* Dynamic Parameters Input (Visible only if DETAILED scoring) */}
                 {formData.scoringType === 'DETAILED' && (

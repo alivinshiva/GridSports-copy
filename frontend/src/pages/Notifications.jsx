@@ -59,7 +59,7 @@ export default function Notifications() {
         <AuthenticatedLayout>
             <div className="max-w-3xl mx-auto w-full py-8 px-4 flex flex-col gap-6 min-h-[70vh]">
                 <div className="flex items-center gap-3 border-b border-[#e8dbce] dark:border-white/10 pb-4">
-                    <div className="p-2 rounded-xl bg-primary/10 text-primary">
+                    <div className="text-primary">
                         <Bell size={24} />
                     </div>
                     <h1 className="text-2xl font-black text-[#1c140d] dark:text-white tracking-tight">Your Notifications</h1>

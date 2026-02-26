@@ -31,3 +31,13 @@ export const getTribeLeaderboard = async (page = 1, limit = 15) => {
         throw error;
     }
 };
+
+export const getCurrentUserRank = async () => {
+    try {
+        const response = await axios.get(`${API_URL}/me`, { withCredentials: true });
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching current user rank:", error);
+        throw error;
+    }
+};
