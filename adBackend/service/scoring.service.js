@@ -219,7 +219,7 @@ export const processRating = async (rankerId, submissionId, ratingType) => {
     const existingLedger = await pointLedgerModel.findOne({
         user: rankerId,
         submission: submissionId,
-        actionType: { $in: ['RATE_LOVE', 'RATE_LIKE', 'RATE_DISLIKE', 'RATE_EASY'] }
+        actionType: { $regex: /^RATE_/ }
     });
 
     if (existingLedger) return { success: false, message: "You have already rated this submission." };
@@ -259,7 +259,9 @@ export const processRating = async (rankerId, submissionId, ratingType) => {
         }
     }
 
-    const rankerFinal = await logPointTransaction(rankerId, rankerTribe, challengeId, weekendId, submissionId, `RATE_EASY`, rankerBasePoints, rankerMultiplier, isCapped);
+    const targetActionType = ratingType.startsWith('RATE_') ? ratingType : `RATE_${ratingType}`;
+
+    const rankerFinal = await logPointTransaction(rankerId, rankerTribe, challengeId, weekendId, submissionId, targetActionType, rankerBasePoints, rankerMultiplier, isCapped);
 
     await checkSubmissionMilestones(submissionId, creatorId, creatorTribe, challengeId, weekendId);
     await processRaterMissions(rankerId, weekendId, rankerProfile);

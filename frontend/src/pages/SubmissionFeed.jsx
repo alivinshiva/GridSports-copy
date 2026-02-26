@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
+import { toast } from 'react-hot-toast';
 import { getAllRandomSubmissions, rateSubmission, recordShare, rateDetailed } from "@/services/submissionService";
-import { Loader2, ArrowLeft, Volume2, VolumeX, Heart, ThumbsUp, ThumbsDown, Share2, Facebook, Instagram, MessageCircle, Link as LinkIcon, X, CheckSquare, Star, Home, User } from "lucide-react";
+import { Loader2, ArrowLeft, Volume2, VolumeX, Heart, ThumbsUp, ThumbsDown, Share2, Facebook, Instagram, MessageCircle, Link as LinkIcon, X, CheckSquare, Star, Home, User, Send } from "lucide-react";
 import { BottomNav } from "@/components/home/BottomNav";
 
 const FeedDesktopSidebar = () => {
@@ -85,6 +86,64 @@ const SubmissionFeed = () => {
             fetchMoreEntries();
         }
     }, []);
+
+    // Hydrate ratings on feed changes
+    useEffect(() => {
+        if (!feed || feed.length === 0) return;
+
+        setRatingsState(prev => {
+            const next = { ...prev };
+            feed.forEach(sub => {
+                if (sub.userRating && !next[sub._id]) {
+                    // Try to preserve exactly what the user selected, or map fallback.
+                    let finalRating = sub.userRating;
+
+                    if (sub.challenge?.parameters && sub.challenge.scoringType !== 'DETAILED') {
+                        // Find the parameter that matches userRating (case-insensitive for safety since backend might uppercase it)
+                        const matchedParam = sub.challenge.parameters.find(
+                            p => p.name.toUpperCase() === sub.userRating.toUpperCase() ||
+                                sub.userRating.toUpperCase() === 'EASY' // Fallback for old old ratings before param save update
+                        );
+                        if (matchedParam) {
+                            finalRating = matchedParam.name; // Use exact exact name as button expects
+                        }
+                    }
+
+                    next[sub._id] = finalRating;
+                }
+            });
+            return next;
+        });
+
+        setDetailedRatingsState(prev => {
+            const next = { ...prev };
+            feed.forEach(sub => {
+                if (sub.detailedUserRating && sub.detailedUserRating.ratings && !next[sub._id]) {
+                    next[sub._id] = sub.detailedUserRating.ratings;
+                } else if (sub.userRating === 'DETAILED' && !next[sub._id]) {
+                    // Fallback to max score if it was rated before the detailed DB change
+                    const fallback = {};
+                    if (sub.challenge?.parameters) {
+                        sub.challenge.parameters.forEach(p => {
+                            fallback[p.name] = p.maxPoints || 5;
+                        });
+                    }
+                    next[sub._id] = fallback;
+                }
+            });
+            return next;
+        });
+
+        setSelectedCommentState(prev => {
+            const next = { ...prev };
+            feed.forEach(sub => {
+                if (sub.detailedUserRating && sub.detailedUserRating.comment && !next[sub._id]) {
+                    next[sub._id] = sub.detailedUserRating.comment;
+                }
+            });
+            return next;
+        });
+    }, [feed]);
 
     // 30 Seconds Interval to fetch new data and load below
     useEffect(() => {
@@ -201,6 +260,19 @@ const SubmissionFeed = () => {
     const handleRate = async (e, submissionId, ratingType) => {
         e.stopPropagation();
 
+        if (ratingsState[submissionId]) {
+            toast('Already reacted', {
+                duration: 2000,
+                position: 'bottom-center',
+                style: {
+                    background: '#333',
+                    color: '#fff',
+                    borderRadius: '8px',
+                },
+            });
+            return;
+        }
+
         // Optimistic UI Update
         setRatingsState(prev => ({
             ...prev,
@@ -263,6 +335,15 @@ const SubmissionFeed = () => {
 
     return (
         <div className="flex w-full h-[100dvh] bg-black overflow-hidden relative">
+            <svg style={{ width: 0, height: 0, position: 'absolute' }} aria-hidden="true" focusable="false">
+                <defs>
+                    <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor="#8c6A00" />
+                        <stop offset="50%" stopColor="#FACC15" />
+                        <stop offset="100%" stopColor="#F5D76E" />
+                    </linearGradient>
+                </defs>
+            </svg>
             <FeedDesktopSidebar />
 
             <main className="flex-1 h-full flex justify-center items-center relative z-10 w-full overflow-hidden">
@@ -305,72 +386,44 @@ const SubmissionFeed = () => {
                                     <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none"></div>
                                 </div>
 
+                                {/* Share Icon Top Right */}
+                                <div className="absolute top-6 right-6 z-50 cursor-pointer pointer-events-auto rotate-45" onClick={(e) => handleShareClick(e, entry._id)}>
+                                    <Send size={28} className="text-[#3b82f6] fill-[#3b82f6]" style={{ transform: 'rotate(-45deg)' }} />
+                                </div>
+
                                 {/* Actions Container */}
                                 <div className="absolute inset-x-0 bottom-16 md:bottom-6 z-20 pointer-events-none">
-                                    {/* Vertical Sidebar (Share, Mute) positioned above Love icon */}
-                                    <div className="absolute right-4 md:right-6 bottom-full mb-6 flex flex-col items-center gap-6 text-white pointer-events-auto">
-                                        <button onClick={(e) => handleShareClick(e, entry._id)} className="flex flex-col items-center gap-1 transition-transform active:scale-95">
-                                            <div className="p-3 bg-white/10 backdrop-blur-md rounded-full shadow-lg hover:bg-white/20">
-                                                <Share2 size={24} />
-                                            </div>
-                                            <span className="text-xs font-bold drop-shadow-md">Share</span>
-                                        </button>
-
-                                        {entry.mediaType === 'video' && (
-                                            <button onClick={toggleMute} className="p-3 bg-white/10 backdrop-blur-md rounded-full hover:bg-white/20">
-                                                {muted ? <VolumeX size={24} /> : <Volume2 size={24} />}
-                                            </button>
-                                        )}
-                                    </div>
-
                                     {/* Conditionally Render Rating UI */}
                                     {entry.challenge?.scoringType === 'DETAILED' ? (
                                         <div className="flex flex-col w-full px-4 pb-0 text-white pointer-events-auto bg-transparent pt-4">
-                                            <div className="space-y-3">
+                                            <div className="space-y-3 px-2">
                                                 {entry.challenge?.parameters?.map((param, pIdx) => {
-                                                    const maxPts = param.maxPoints;
-                                                    const tiles = 5; // Always show 5 stars
+                                                    const maxPts = param.maxPoints || 5;
                                                     const currentScore = detailedRatingsState[entry._id]?.[param.name] || 0;
 
-                                                    const paramSubtitles = {
-                                                        'Clarity': 'Fresh idea',
-                                                        'Execution': 'Clean / polished',
-                                                        'Impact': 'Wow / emotion'
-                                                    };
-                                                    // Try case-insensitive lookup
-                                                    const subKey = Object.keys(paramSubtitles).find(k => k.toLowerCase() === param.name.toLowerCase());
-                                                    const subtitle = subKey ? paramSubtitles[subKey] : '';
-
                                                     return (
-                                                        <div key={pIdx} className="flex flex-col gap-1 w-full px-2">
-                                                            <div className="flex justify-between items-center pb-1">
-                                                                <div className="flex flex-col justify-center">
-                                                                    <span className="text-[17px] font-bold tracking-wide drop-shadow-md leading-tight">{param.name}</span>
-                                                                    {subtitle && <span className="text-[13px] text-[#8b8793] font-medium mt-0.5">{subtitle}</span>}
-                                                                </div>
-                                                                <div className="flex flex-row gap-2 ml-4">
-                                                                    {Array.from({ length: tiles }).map((_, tIdx) => {
-                                                                        const tileVal = Math.round(((tIdx + 1) / 5) * maxPts);
-                                                                        const isActive = currentScore >= tileVal;
+                                                        <div key={pIdx} className="flex justify-between items-center w-full">
+                                                            <span className="text-[14px] font-semibold text-[#3b82f6]">{param.name}</span>
+                                                            <div className="flex flex-row gap-2">
+                                                                {Array.from({ length: 5 }).map((_, tIdx) => {
+                                                                    const tileVal = Math.round(((tIdx + 1) / 5) * maxPts);
+                                                                    const isActive = currentScore >= tileVal;
 
-                                                                        return (
-                                                                            <button
-                                                                                key={tIdx}
-                                                                                onClick={(e) => handleDetailedRate(e, entry._id, param.name, tileVal)}
-                                                                                className="w-[30px] h-[30px] flex items-center justify-center rounded-lg transition-transform active:scale-90 border-none bg-transparent"
-                                                                            >
-                                                                                <Star
-                                                                                    size={26}
-                                                                                    className={`drop-shadow-md transition-colors ${isActive ? "fill-[#cca651] stroke-[#cca651] text-[#cca651]" : "fill-transparent stroke-white/40"}`}
-                                                                                />
-                                                                            </button>
-                                                                        );
-                                                                    })}
-                                                                </div>
+                                                                    return (
+                                                                        <button
+                                                                            key={tIdx}
+                                                                            onClick={(e) => handleDetailedRate(e, entry._id, param.name, tileVal)}
+                                                                            className="flex items-center justify-center transition-transform active:scale-90 border-none bg-transparent"
+                                                                        >
+                                                                            <Star
+                                                                                size={20}
+                                                                                className={`transition-colors ${isActive ? "" : "text-white fill-transparent"}`}
+                                                                                style={isActive ? { fill: "url(#goldGradient)", stroke: "url(#goldGradient)" } : {}}
+                                                                            />
+                                                                        </button>
+                                                                    );
+                                                                })}
                                                             </div>
-                                                            {pIdx !== entry.challenge.parameters.length - 1 && (
-                                                                <div className="w-full h-[1px] bg-white/10 mt-2 mb-1"></div>
-                                                            )}
                                                         </div>
                                                     );
                                                 })}
@@ -378,8 +431,9 @@ const SubmissionFeed = () => {
 
                                             {/* Predefined Comments UI for DETAILED Scoring */}
                                             {entry.challenge?.comments && entry.challenge.comments.length > 0 && (
-                                                <div className="mt-4 pt-4 border-t border-white/10 w-full px-2">
-                                                    <p className="text-xs font-semibold text-white/50 mb-3 uppercase tracking-wider">Quick Feedback</p>
+                                                <div className="mt-6 w-full px-2">
+                                                    <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-[#22d3ee]/80 to-transparent mb-4 shadow-[0_0_8px_#22d3ee]"></div>
+                                                    <p className="text-[12px] font-bold text-white mb-3 uppercase tracking-wider">Comments</p>
                                                     <div className="flex flex-wrap gap-2">
                                                         {entry.challenge.comments.map((comment, cIdx) => {
                                                             const isSelected = selectedCommentState[entry._id] === comment;
@@ -387,9 +441,9 @@ const SubmissionFeed = () => {
                                                                 <button
                                                                     key={cIdx}
                                                                     onClick={(e) => handleCommentSelect(e, entry._id, comment)}
-                                                                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 border ${isSelected
-                                                                            ? 'bg-[#cca651]/20 border-[#cca651] text-[#cca651] shadow-[0_0_10px_rgba(204,166,81,0.2)]'
-                                                                            : 'bg-white/5 border-white/10 text-white/70 hover:bg-white/10 hover:text-white'
+                                                                    className={`px-4 py-1.5 rounded-[12px] text-xs font-semibold transition-all duration-200 border ${isSelected
+                                                                        ? 'bg-[#22d3ee] border-[#22d3ee] text-black shadow-[0_0_12px_rgba(34,211,238,0.4)]'
+                                                                        : 'bg-black/60 border-[#22d3ee]/80 text-[#22d3ee] hover:bg-[#22d3ee]/20'
                                                                         }`}
                                                                 >
                                                                     {comment}
@@ -401,57 +455,26 @@ const SubmissionFeed = () => {
                                             )}
                                         </div>
                                     ) : (
-                                        <div className="flex flex-row flex-nowrap items-stretch justify-center gap-4 w-full px-4 text-white pointer-events-auto pb-6">
-                                            {/* Render Custom Simple Parameters if they exist (should be 3) */}
-                                            {entry.challenge?.parameters && entry.challenge.parameters.length === 3 ? (
-                                                entry.challenge.parameters.map((param, pIdx) => (
-                                                    <button
-                                                        key={`simple-param-${pIdx}`}
-                                                        onClick={(e) => handleRate(e, entry._id, param.name)}
-                                                        className={`flex-1 flex flex-col items-center justify-center p-4 rounded-2xl backdrop-blur-md transition-all border ${ratingsState[entry._id] === param.name
-                                                            ? 'bg-indigo-600/40 border-indigo-500 scale-105 shadow-[0_0_15px_rgba(99,102,241,0.5)]'
-                                                            : 'bg-black/40 border-white/10 hover:bg-white/10 hover:border-white/30 active:scale-95'
-                                                            }`}
-                                                    >
-                                                        <span className="text-2xl mb-1">{param.name.replace(/^[a-zA-Z0-9\s]+$/, '') || '✨'}</span>
-                                                        <span className="text-xs font-bold tracking-wide drop-shadow-md text-white text-center line-clamp-2 leading-tight">
-                                                            {param.name}
-                                                        </span>
-                                                    </button>
-                                                ))
-                                            ) : (
-                                                /* Fallback to Default (Dislike/Like/Love) if no custom parameters */
-                                                <>
-                                                    <button
-                                                        onClick={(e) => handleRate(e, entry._id, 'DISLIKE')}
-                                                        className="flex flex-col items-center gap-1 transition-transform active:scale-95 group"
-                                                    >
-                                                        <div className={`p-3 backdrop-blur-md rounded-full transition-colors flex items-center justify-center ${ratingsState[entry._id] === 'DISLIKE' ? 'bg-orange-500/20' : 'bg-white/10 group-hover:bg-white/20'}`}>
-                                                            <ThumbsDown size={28} className={ratingsState[entry._id] === 'DISLIKE' ? 'fill-orange-500 stroke-orange-500' : 'fill-transparent stroke-white'} />
-                                                        </div>
-                                                        <span className={`text-xs font-bold drop-shadow-md ${ratingsState[entry._id] === 'DISLIKE' ? 'text-orange-500' : 'text-white'}`}>Dislike</span>
-                                                    </button>
-
-                                                    <button
-                                                        onClick={(e) => handleRate(e, entry._id, 'LIKE')}
-                                                        className="flex flex-col items-center gap-1 transition-transform active:scale-95 group"
-                                                    >
-                                                        <div className={`p-3 backdrop-blur-md rounded-full transition-colors flex items-center justify-center ${ratingsState[entry._id] === 'LIKE' ? 'bg-yellow-400/20' : 'bg-white/10 group-hover:bg-white/20'}`}>
-                                                            <ThumbsUp size={28} className={ratingsState[entry._id] === 'LIKE' ? 'fill-yellow-400 stroke-yellow-400' : 'fill-transparent stroke-white'} />
-                                                        </div>
-                                                        <span className={`text-xs font-bold drop-shadow-md ${ratingsState[entry._id] === 'LIKE' ? 'text-yellow-400' : 'text-white'}`}>Like</span>
-                                                    </button>
-
-                                                    <button
-                                                        onClick={(e) => handleRate(e, entry._id, 'LOVE')}
-                                                        className="flex flex-col items-center gap-1 transition-transform active:scale-95 group"
-                                                    >
-                                                        <div className={`p-3 backdrop-blur-md rounded-full transition-colors flex items-center justify-center ${ratingsState[entry._id] === 'LOVE' ? 'bg-red-500/20' : 'bg-white/10 group-hover:bg-white/20'}`}>
-                                                            <Heart size={28} className={ratingsState[entry._id] === 'LOVE' ? 'fill-red-500 stroke-red-500' : 'fill-transparent stroke-white'} />
-                                                        </div>
-                                                        <span className={`text-xs font-bold drop-shadow-md ${ratingsState[entry._id] === 'LOVE' ? 'text-red-500' : 'text-white'}`}>Love</span>
-                                                    </button>
-                                                </>
+                                        <div className="flex flex-col w-full px-4 pb-6 text-white pointer-events-auto bg-transparent pt-2">
+                                            {entry.challenge?.parameters && entry.challenge.parameters.length > 0 && (
+                                                <div className="flex w-full gap-2 justify-between mt-2 px-2">
+                                                    {entry.challenge.parameters.map((param, pIdx) => {
+                                                        const isSelected = ratingsState[entry._id] === param.name;
+                                                        return (
+                                                            <button
+                                                                key={pIdx}
+                                                                onClick={(e) => handleRate(e, entry._id, param.name)}
+                                                                className={`flex-1 px-2 md:px-4 py-1.5 rounded-[12px] text-xs font-semibold transition-all duration-200 border ${isSelected
+                                                                    ? 'bg-[#22d3ee] border-[#22d3ee] text-black shadow-[0_0_12px_rgba(34,211,238,0.4)]'
+                                                                    : 'bg-black/60 border-[#22d3ee]/80 text-[#22d3ee] hover:bg-[#22d3ee]/20'
+                                                                    } truncate`}
+                                                                title={param.name}
+                                                            >
+                                                                {param.name}
+                                                            </button>
+                                                        )
+                                                    })}
+                                                </div>
                                             )}
                                         </div>
                                     )}
