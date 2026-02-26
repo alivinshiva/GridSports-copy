@@ -3,14 +3,31 @@ import { useAuth } from "@/context/AuthContext";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 import LeaderboardTable from "@/components/raceboard/LeaderboardTable";
 import { getCreatorLeaderboard, getRankerLeaderboard, getTribeLeaderboard, getCurrentUserRank } from "@/services/leaderboardService";
-import { User, Users, Star } from "lucide-react";
+import { User, Users, Star, ChevronUp, ChevronDown } from "lucide-react";
+
+// Helper function to render rank with arrow
+const renderRankWithChange = (row) => {
+    const getRankChangeIcon = () => {
+        if (row.rankChange === 'up') {
+            return <ChevronUp size={16} className="text-green-400" />;
+        } else if (row.rankChange === 'down') {
+            return <ChevronDown size={16} className="text-red-400" />;
+        }
+        return null;
+    };
+
+    return (
+        <div className="flex items-center gap-1 sm:gap-2 pl-1 sm:pl-2">
+            <span className={`text-[13px] sm:text-[17px] ${row.isHighlighted ? 'text-[#3b82f6] font-normal' : 'text-white font-normal'}`}>{row.rank}</span>
+            {getRankChangeIcon()}
+        </div>
+    );
+};
 
 // Helper Columns
 const creatorsColumns = [
     {
-        key: "rank", label: "RANK", render: (row) => (
-            <span className={`text-[13px] sm:text-[17px] pl-1 sm:pl-2 ${row.isHighlighted ? 'text-[#3b82f6] font-normal' : 'text-white font-normal'}`}>{row.rank}</span>
-        )
+        key: "rank", label: "RANK", render: (row) => renderRankWithChange(row)
     },
     {
         key: "name", label: "CREATOR", render: (row) => (
@@ -46,9 +63,7 @@ const creatorsColumns = [
 
 const tribesColumns = [
     {
-        key: "rank", label: "RANK", render: (row) => (
-            <span className={`text-[13px] sm:text-[17px] pl-1 sm:pl-2 ${row.isHighlighted ? 'text-[#3b82f6] font-normal' : 'text-white font-normal'}`}>{row.rank}</span>
-        )
+        key: "rank", label: "RANK", render: (row) => renderRankWithChange(row)
     },
     {
         key: "name", label: "TRIBE", render: (row) => (
@@ -81,6 +96,16 @@ export default function Raceboard() {
     const { user } = useAuth();
     const [activeTab, setActiveTab] = useState('creators');
     const [currentUserRankData, setCurrentUserRankData] = useState(null);
+    const [previousRanks, setPreviousRanks] = useState({
+        creators: {},
+        raters: {},
+        tribes: {}
+    });
+    const [previousRankChanges, setPreviousRankChanges] = useState({
+        creators: {},
+        raters: {},
+        tribes: {}
+    });
 
     const [dataState, setDataState] = useState({
         creatorsTableData: [],
@@ -106,30 +131,81 @@ export default function Raceboard() {
 
     const LIMIT = 15;
 
-    const processData = (realData, offset = 0) => {
-        return (realData || []).map((c, idx) => ({
-            rank: offset + idx + 1,
-            name: c.name || `User ${offset + idx + 1}`,
-            points: c.points ? c.points.toLocaleString() : "0",
-            avatar: c.avatar || null,
-            tribe: c.tribe || "No Tribe",
-            color: DefaultTribesColorMap[c.tribe] || "from-[#434343] to-[#000000]",
-            isHighlighted: Boolean(user && (c.userId === user._id || c._id === user._id || c.name === user.name))
-        }));
+    const processData = (realData, offset = 0, previousRankMap = {}, previousChangeMap = {}) => {
+        return (realData || []).map((c, idx) => {
+            const currentRank = offset + idx + 1;
+            const userId = c.userId || c._id;
+            const prevRank = previousRankMap[userId];
+            const prevChange = previousChangeMap[userId];
+            
+            let rankChange = null;
+            if (prevRank !== undefined) {
+                if (currentRank < prevRank) {
+                    rankChange = 'up';
+                } else if (currentRank > prevRank) {
+                    rankChange = 'down';
+                } else {
+                    // Rank is same, keep previous arrow direction
+                    rankChange = prevChange || null;
+                }
+            }
+            
+            return {
+                rank: currentRank,
+                userId: userId,
+                name: c.name || `User ${currentRank}`,
+                points: c.points ? c.points.toLocaleString() : "0",
+                avatar: c.avatar || null,
+                tribe: c.tribe || "No Tribe",
+                color: DefaultTribesColorMap[c.tribe] || "from-[#434343] to-[#000000]",
+                isHighlighted: Boolean(user && (c.userId === user._id || c._id === user._id || c.name === user.name)),
+                rankChange: rankChange
+            };
+        });
     };
 
-    const processTribes = (realData, offset = 0) => {
-        return (realData || []).map((t, idx) => ({
-            rank: offset + idx + 1,
-            name: t.name,
-            points: t.totalPoints ? Math.round(t.totalPoints).toString() : "0",
-            avatar: DefaultTribesColorMap[t.name] || "from-[#434343] to-[#000000]",
-            isHighlighted: Boolean(user && user.tribe && t.name === user.tribe)
-        }));
+    const processTribes = (realData, offset = 0, previousRankMap = {}, previousChangeMap = {}) => {
+        return (realData || []).map((t, idx) => {
+            const currentRank = offset + idx + 1;
+            const tribeName = t.name;
+            const prevRank = previousRankMap[tribeName];
+            const prevChange = previousChangeMap[tribeName];
+            
+            let rankChange = null;
+            if (prevRank !== undefined) {
+                if (currentRank < prevRank) {
+                    rankChange = 'up';
+                } else if (currentRank > prevRank) {
+                    rankChange = 'down';
+                } else {
+                    // Rank is same, keep previous arrow direction
+                    rankChange = prevChange || null;
+                }
+            }
+            
+            return {
+                rank: currentRank,
+                name: tribeName,
+                points: t.totalPoints ? Math.round(t.totalPoints).toString() : "0",
+                avatar: DefaultTribesColorMap[tribeName] || "from-[#434343] to-[#000000]",
+                isHighlighted: Boolean(user && user.tribe && tribeName === user.tribe),
+                rankChange: rankChange
+            };
+        });
     };
 
     const fetchInitialData = async () => {
         try {
+            // Load previous ranks from localStorage
+            const storedRanks = localStorage.getItem('leaderboardRanks');
+            const prevRanks = storedRanks ? JSON.parse(storedRanks) : { creators: {}, raters: {}, tribes: {} };
+            setPreviousRanks(prevRanks);
+
+            // Load previous rank changes from localStorage
+            const storedChanges = localStorage.getItem('leaderboardRankChanges');
+            const prevChanges = storedChanges ? JSON.parse(storedChanges) : { creators: {}, raters: {}, tribes: {} };
+            setPreviousRankChanges(prevChanges);
+
             const [creatorsRes, rankersRes, tribesRes, currentUserRes] = await Promise.all([
                 getCreatorLeaderboard(1, LIMIT),
                 getRankerLeaderboard(1, LIMIT),
@@ -137,11 +213,51 @@ export default function Raceboard() {
                 user ? getCurrentUserRank().catch(() => null) : Promise.resolve(null)
             ]);
 
+            // Process data with rank change information
+            const creatorsData = processData(creatorsRes.data, 0, prevRanks.creators, prevChanges.creators);
+            const ratersData = processData(rankersRes.data, 0, prevRanks.raters, prevChanges.raters);
+            const tribesData = processTribes(tribesRes.data, 0, prevRanks.tribes, prevChanges.tribes);
+
             setDataState({
-                creatorsTableData: processData(creatorsRes.data, 0),
-                ratersTableData: processData(rankersRes.data, 0),
-                tribesTableData: processTribes(tribesRes.data, 0)
+                creatorsTableData: creatorsData,
+                ratersTableData: ratersData,
+                tribesTableData: tribesData
             });
+
+            // Store current ranks and rank changes for next comparison
+            const newRanks = {
+                creators: {},
+                raters: {},
+                tribes: {}
+            };
+
+            const newRankChanges = {
+                creators: {},
+                raters: {},
+                tribes: {}
+            };
+
+            creatorsData.forEach(item => {
+                if (item.userId) {
+                    newRanks.creators[item.userId] = item.rank;
+                    if (item.rankChange) newRankChanges.creators[item.userId] = item.rankChange;
+                }
+            });
+            ratersData.forEach(item => {
+                if (item.userId) {
+                    newRanks.raters[item.userId] = item.rank;
+                    if (item.rankChange) newRankChanges.raters[item.userId] = item.rankChange;
+                }
+            });
+            tribesData.forEach(item => {
+                if (item.name) {
+                    newRanks.tribes[item.name] = item.rank;
+                    if (item.rankChange) newRankChanges.tribes[item.name] = item.rankChange;
+                }
+            });
+
+            localStorage.setItem('leaderboardRanks', JSON.stringify(newRanks));
+            localStorage.setItem('leaderboardRankChanges', JSON.stringify(newRankChanges));
 
             if (currentUserRes && currentUserRes.success) {
                 setCurrentUserRankData(currentUserRes.data);
@@ -173,16 +289,52 @@ export default function Raceboard() {
 
             if (tab === 'creators') {
                 res = await getCreatorLeaderboard(nextPage, LIMIT);
-                newData = processData(res.data, dataState.creatorsTableData.length);
+                newData = processData(res.data, dataState.creatorsTableData.length, previousRanks.creators, previousRankChanges.creators);
                 setDataState(prev => ({ ...prev, creatorsTableData: [...prev.creatorsTableData, ...newData] }));
+                
+                // Update stored ranks and rank changes for newly loaded data
+                const updatedRanks = { ...previousRanks };
+                const updatedChanges = { ...previousRankChanges };
+                newData.forEach(item => {
+                    if (item.userId) {
+                        updatedRanks.creators[item.userId] = item.rank;
+                        if (item.rankChange) updatedChanges.creators[item.userId] = item.rankChange;
+                    }
+                });
+                localStorage.setItem('leaderboardRanks', JSON.stringify(updatedRanks));
+                localStorage.setItem('leaderboardRankChanges', JSON.stringify(updatedChanges));
             } else if (tab === 'raters') {
                 res = await getRankerLeaderboard(nextPage, LIMIT);
-                newData = processData(res.data, dataState.ratersTableData.length);
+                newData = processData(res.data, dataState.ratersTableData.length, previousRanks.raters, previousRankChanges.raters);
                 setDataState(prev => ({ ...prev, ratersTableData: [...prev.ratersTableData, ...newData] }));
+                
+                // Update stored ranks and rank changes for newly loaded data
+                const updatedRanks = { ...previousRanks };
+                const updatedChanges = { ...previousRankChanges };
+                newData.forEach(item => {
+                    if (item.userId) {
+                        updatedRanks.raters[item.userId] = item.rank;
+                        if (item.rankChange) updatedChanges.raters[item.userId] = item.rankChange;
+                    }
+                });
+                localStorage.setItem('leaderboardRanks', JSON.stringify(updatedRanks));
+                localStorage.setItem('leaderboardRankChanges', JSON.stringify(updatedChanges));
             } else if (tab === 'tribes') {
                 res = await getTribeLeaderboard(nextPage, LIMIT);
-                newData = processTribes(res.data, dataState.tribesTableData.length);
+                newData = processTribes(res.data, dataState.tribesTableData.length, previousRanks.tribes, previousRankChanges.tribes);
                 setDataState(prev => ({ ...prev, tribesTableData: [...prev.tribesTableData, ...newData] }));
+                
+                // Update stored ranks and rank changes for newly loaded data
+                const updatedRanks = { ...previousRanks };
+                const updatedChanges = { ...previousRankChanges };
+                newData.forEach(item => {
+                    if (item.name) {
+                        updatedRanks.tribes[item.name] = item.rank;
+                        if (item.rankChange) updatedChanges.tribes[item.name] = item.rankChange;
+                    }
+                });
+                localStorage.setItem('leaderboardRanks', JSON.stringify(updatedRanks));
+                localStorage.setItem('leaderboardRankChanges', JSON.stringify(updatedChanges));
             }
 
             setPagination(prev => ({
