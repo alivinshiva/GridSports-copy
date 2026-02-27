@@ -34,7 +34,7 @@ const LeaderboardTable = forwardRef(({ data, columns, hasMore, onLoadMore, isLoa
                         {data.map((row, rowIndex) => {
                             const isHighlighted = row.isHighlighted === true;
                             const rowBg = isHighlighted
-                                ? "bg-white/5"
+                                ? "bg-white/5 hover:bg-white/[0.02] transition-colors"
                                 : "hover:bg-white/[0.02] transition-colors";
 
                             return (
@@ -49,7 +49,7 @@ const LeaderboardTable = forwardRef(({ data, columns, hasMore, onLoadMore, isLoa
                                             className={`px-2 sm:px-6 py-3 sm:py-4 whitespace-nowrap ${col.align === 'right' ? 'text-right' : col.align === 'center' ? 'text-center' : 'text-left'} ${col.hideOnMobile ? 'hidden sm:table-cell' : ''}`}
                                         >
                                             {col.render ? col.render({ ...row, isHighlighted }) : (
-                                                <span className={`${isHighlighted ? 'text-white font-bold' : 'text-white/90 font-medium'}`}>{row[col.key]}</span>
+                                                <span className={`${isHighlighted ? 'text-white font-bold' : 'text-white font-medium'}`}>{row[col.key]}</span>
                                             )}
                                         </td>
                                     ))}

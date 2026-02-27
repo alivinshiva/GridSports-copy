@@ -4,6 +4,7 @@ import cloudinary from "../config/cloudinary.config.js";
 import { processRating, processShare, processSubmissionUpload, processDetailedRating } from "../service/scoring.service.js";
 import challengeModel from "../model/challange.model.js";
 import detailedRatingModel from "../model/detailedRating.model.js";
+import userModel from "../model/user.model.js";
 
 
 
@@ -309,6 +310,7 @@ export const getBatchSubmissionsController = async (req, res) => {
         }
 
         const submissions = await submissionModel.find(query)
+            .populate("user", "name profilePic tribe")
             .populate("challenge", "name scoringType parameters comments")
             .lean();
 
