@@ -1,9 +1,50 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { useLocation, useNavigate, Link, useParams } from 'react-router-dom';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { useLocation, Link, useParams } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
-import { getAllRandomSubmissions, rateSubmission, recordShare, rateDetailed, getSingleSubmission } from "@/services/submissionService";
+import { getFeedIds, getBatchSubmissions, rateSubmission, recordShare, rateDetailed, getSingleSubmission } from "@/services/submissionService";
 import { Loader2, ArrowLeft, Facebook, Instagram, MessageCircle, Link as LinkIcon, X, CheckSquare, Star, Home, User, Send } from "lucide-react";
 import { BottomNav } from "@/components/home/BottomNav";
+
+const FEED_STORAGE = {
+    queue: 'feed_queue_v1',
+    pointer: 'feed_pointer_v1',
+    seen: 'feed_seen_v1'
+};
+
+const INITIAL_LIMIT = 50;
+const REFILL_LIMIT = 50;
+const REFILL_THRESHOLD = 8;
+const BATCH_SIZE = 10;
+const VIEW_REMOVE_DELAY_MS = 120000;
+
+const readSession = (key, fallback) => {
+    try {
+        const raw = sessionStorage.getItem(key);
+        return raw ? JSON.parse(raw) : fallback;
+    } catch (error) {
+        console.error("Failed to read session storage", error);
+        return fallback;
+    }
+};
+
+const writeSession = (key, value) => {
+    try {
+        sessionStorage.setItem(key, JSON.stringify(value));
+    } catch (error) {
+        console.error("Failed to write session storage", error);
+    }
+};
+
+const uniq = (arr) => Array.from(new Set(arr));
+
+const shuffleArray = (array) => {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+};
 
 const FeedDesktopSidebar = () => {
     const location = useLocation();
@@ -48,9 +89,13 @@ const SubmissionFeed = () => {
     const { postId } = useParams();
     const initialEntry = location.state?.initialEntry;
     const preloadedFeed = location.state?.preloadedFeed;
+    const feedContainerRef = useRef(null);
+    const removalTimersRef = useRef({});
+    const isInitializingRef = useRef(false);
+    const isRefilling = useRef(false);
 
     // Initialize feed with preloaded data (optimized) or just clicked entry
-    const [feed, setFeed] = useState(preloadedFeed && preloadedFeed.length > 0 ? preloadedFeed : (initialEntry ? [initialEntry] : []));
+    const [feed, setFeed] = useState([]);
     const [loading, setLoading] = useState(false);
     const [muted, setMuted] = useState(true);
     const [ratingsState, setRatingsState] = useState({}); // { [id]: 'LOVE'|'LIKE'|'DISLIKE' }
@@ -59,74 +104,220 @@ const SubmissionFeed = () => {
     const [activeShare, setActiveShare] = useState(null); // ID of submission being shared
     const [submittedDetailedState, setSubmittedDetailedState] = useState({}); // { [subId]: true } after explicit submit
 
-    const fetchMoreEntries = useCallback(async (excludeId = null) => {
+    const getSessionState = useCallback(() => {
+        return {
+            queue: readSession(FEED_STORAGE.queue, []),
+            pointer: readSession(FEED_STORAGE.pointer, 0),
+            seen: readSession(FEED_STORAGE.seen, [])
+        };
+    }, []);
+
+    const saveSessionState = useCallback((queue, pointer, seen) => {
+        writeSession(FEED_STORAGE.queue, queue);
+        writeSession(FEED_STORAGE.pointer, pointer);
+        writeSession(FEED_STORAGE.seen, seen);
+    }, []);
+
+    const removeIdsFromQueue = useCallback((idsToRemove) => {
+        const idsSet = new Set(idsToRemove);
+        const { queue, pointer, seen } = getSessionState();
+
+        if (!Array.isArray(queue) || queue.length === 0) return;
+
+        let removedBeforePointer = 0;
+        const nextQueue = [];
+
+        queue.forEach((id, index) => {
+            if (idsSet.has(id)) {
+                if (index < pointer) removedBeforePointer += 1;
+            } else {
+                nextQueue.push(id);
+            }
+        });
+
+        const nextPointer = Math.max(0, pointer - removedBeforePointer);
+        const nextSeen = uniq([...seen, ...idsToRemove]);
+
+        saveSessionState(nextQueue, nextPointer, nextSeen);
+    }, [getSessionState, saveSessionState]);
+
+    const scheduleRemovalForId = useCallback((id) => {
+        if (!id || removalTimersRef.current[id]) return;
+        removalTimersRef.current[id] = setTimeout(() => {
+            removeIdsFromQueue([id]);
+            delete removalTimersRef.current[id];
+        }, VIEW_REMOVE_DELAY_MS);
+    }, [removeIdsFromQueue]);
+
+    const refillQueueIfNeeded = useCallback(async (queue, pointer, seen) => {
+        const remaining = queue.length - pointer;
+        console.log("🔍 Refill check - Remaining:", remaining, "Threshold:", REFILL_THRESHOLD);
+        
+        if (remaining > REFILL_THRESHOLD) {
+            console.log("✅ Enough IDs, skipping refill");
+            return { queue, pointer, seen };
+        }
+        if (isRefilling.current) {
+            console.log("⏳ Already refilling, skipping");
+            return { queue, pointer, seen };
+        }
+
+        isRefilling.current = true;
+        try {
+            // If pointer is at the end and we have some items, start with fresh batch (reshuffle + mark old as seen)
+            if (pointer >= queue.length && queue.length > 0) {
+                console.log("🔁 Reached end of queue, reshuffling existing items...");
+                const reshuffled = shuffleArray(queue);
+                saveSessionState(reshuffled, 0, seen);
+                return { queue: reshuffled, pointer: 0, seen };
+            }
+
+            // Otherwise, fetch new items
+            console.log("🆕 Fetching new items, excluding:", [...queue, ...seen].length);
+            const excludeIds = uniq([...queue, ...seen]);
+            const response = await getFeedIds(REFILL_LIMIT, excludeIds);
+            const newIds = response?.success ? response.data?.ids || [] : [];
+            console.log("📦 Refill got:", newIds.length, "new IDs");
+            
+            if (newIds.length === 0) {
+                console.log("⚠️ No new IDs available, reshuffling queue");
+                if (queue.length > 0) {
+                    const reshuffled = shuffleArray(queue);
+                    saveSessionState(reshuffled, 0, seen);
+                    return { queue: reshuffled, pointer: 0, seen };
+                }
+                return { queue, pointer, seen };
+            }
+
+            const shuffled = shuffleArray(newIds);
+            const mergedQueue = [...queue, ...shuffled];
+            saveSessionState(mergedQueue, pointer, seen);
+            console.log("✅ Refill complete, new queue size:", mergedQueue.length);
+            return { queue: mergedQueue, pointer, seen };
+        } catch (error) {
+            console.error("Error refilling feed queue:", error);
+            return { queue, pointer, seen };
+        } finally {
+            isRefilling.current = false;
+        }
+    }, [saveSessionState]);
+
+    const loadNextBatch = useCallback(async () => {
         if (loading) return;
         setLoading(true);
+
         try {
-            const response = await getAllRandomSubmissions(15);
-            if (response.success && response.data.length > 0) {
-                setFeed(prev => {
-                    const newEntries = response.data.filter(newItem =>
-                        !prev.some(existing => existing._id === newItem._id) && newItem._id !== excludeId
-                    );
-                    return [...prev, ...newEntries];
-                });
+            let { queue, pointer, seen } = getSessionState();
+            console.log("🔄 loadNextBatch - Queue:", queue.length, "Pointer:", pointer, "Seen:", seen.length);
+            
+            const remaining = queue.length - pointer;
+            if (remaining <= REFILL_THRESHOLD) {
+                console.log("⚠️ Low IDs, refilling...");
+                ({ queue, pointer, seen } = await refillQueueIfNeeded(queue, pointer, seen));
             }
+
+            const idsToFetch = queue.slice(pointer, pointer + BATCH_SIZE);
+            console.log("📥 Fetching IDs:", idsToFetch);
+            if (idsToFetch.length === 0) {
+                console.log("❌ No IDs to fetch");
+                return;
+            }
+
+            const response = await getBatchSubmissions(idsToFetch);
+            console.log("✅ Batch response:", response);
+            
+            if (response?.success && response.data?.length > 0) {
+                console.log("📱 Adding posts to feed:", response.data.length);
+                setFeed(prev => {
+                    const existing = new Set(prev.map(item => item._id));
+                    const nextItems = response.data.filter(item => !existing.has(item._id));
+                    console.log("➕ New items to add:", nextItems.length);
+                    return [...prev, ...nextItems];
+                });
+            } else {
+                console.log("⛔ Response not successful or no data");
+            }
+
+            const nextPointer = pointer + idsToFetch.length;
+            saveSessionState(queue, nextPointer, seen);
         } catch (error) {
-            console.error("Error fetching feed:", error);
+            console.error("Error loading feed batch:", error);
         } finally {
             setLoading(false);
         }
-    }, [loading]);
+    }, [getSessionState, loading, refillQueueIfNeeded, saveSessionState]);
 
     // Initial fetch
     useEffect(() => {
         const initializeFeed = async () => {
-            // Priority 1: Use preloadedFeed if there's enough
-            if (preloadedFeed && preloadedFeed.length > 0) {
-                setFeed(preloadedFeed);
-                if (preloadedFeed.length < 5) fetchMoreEntries();
-                return;
-            }
+            if (isInitializingRef.current) return;
+            isInitializingRef.current = true;
+            console.log("🚀 Initializing feed...");
 
-            // Priority 2: Use initialEntry specifically passed via state
-            if (initialEntry) {
-                setFeed([initialEntry]);
-                fetchMoreEntries(initialEntry._id);
-                return;
-            }
+            try {
+                let seedEntries = [];
 
-            // Priority 3: Resolve the ID from the URL if present
-            if (postId) {
-                setLoading(true);
-                try {
-                    const res = await getSingleSubmission(postId);
-                    if (res.success && res.data) {
-                        setFeed([res.data]);
-                        // DO NOT fetch more entries if viewing a specific post link
-                    } else {
-                        fetchMoreEntries();
+                if (preloadedFeed && preloadedFeed.length > 0) {
+                    seedEntries = preloadedFeed;
+                } else if (initialEntry) {
+                    seedEntries = [initialEntry];
+                } else if (postId) {
+                    try {
+                        const res = await getSingleSubmission(postId);
+                        if (res.success && res.data) {
+                            seedEntries = [res.data];
+                        }
+                    } catch (e) {
+                        console.error("Failed fetching url post ID", e);
                     }
-                } catch (e) {
-                    console.error("Failed fetching url post ID", e);
-                    fetchMoreEntries();
-                } finally {
-                    setLoading(false);
                 }
-                return;
-            }
 
-            // Priority 4: Fallback to regular random fetch
-            if (feed.length < 5) {
-                fetchMoreEntries();
+                if (seedEntries.length > 0) {
+                    setFeed(seedEntries);
+                    const seedIds = seedEntries.map(entry => entry._id).filter(Boolean);
+                    const state = getSessionState();
+                    const nextSeen = uniq([...state.seen, ...seedIds]);
+                    saveSessionState(state.queue, state.pointer, nextSeen);
+                    seedIds.forEach((id) => scheduleRemovalForId(id));
+                }
+
+                const currentState = getSessionState();
+                console.log("📊 Current state - Queue:", currentState.queue.length, "Pointer:", currentState.pointer);
+                
+                if (!Array.isArray(currentState.queue) || currentState.queue.length === 0) {
+                    console.log("📥 Fetching initial IDs...");
+                    const excludeIds = uniq([...(currentState.seen || [])]);
+                    const response = await getFeedIds(INITIAL_LIMIT, excludeIds);
+                    const ids = response?.success ? response.data?.ids || [] : [];
+                    console.log("✅ Got IDs:", ids.length);
+                    const shuffled = shuffleArray(ids);
+                    saveSessionState(shuffled, 0, currentState.seen || []);
+                }
+
+                console.log("🎬 Calling loadNextBatch...");
+                // Use setTimeout to break circular dependency and call in next tick
+                setTimeout(() => {
+                    // Re-read state to ensure latest queue/pointer
+                    const finalState = getSessionState();
+                    const idsToFetch = finalState.queue.slice(finalState.pointer, finalState.pointer + BATCH_SIZE);
+                    if (idsToFetch.length > 0) {
+                        console.log("📥 Direct fetch of first batch:", idsToFetch.length, "IDs");
+                        getBatchSubmissions(idsToFetch).then(response => {
+                            if (response?.success && response.data?.length > 0) {
+                                setFeed(prev => [...prev, ...response.data]);
+                                const nextPointer = finalState.pointer + idsToFetch.length;
+                                saveSessionState(finalState.queue, nextPointer, finalState.seen);
+                                console.log("✅ First batch loaded:", response.data.length, "posts");
+                            }
+                        }).catch(err => console.error("Error loading first batch:", err));
+                    }
+                }, 0);
+            } finally {
+                isInitializingRef.current = false;
             }
         };
 
-        if (feed.length === 0 || feed.length === 1) {
-            initializeFeed();
-        } else if (!postId && feed.length < 5) {
-            fetchMoreEntries();
-        }
+        initializeFeed();
     }, [postId]);
 
     // Hydrate ratings on feed changes
@@ -187,16 +378,34 @@ const SubmissionFeed = () => {
         });
     }, [feed]);
 
-    // 30 Seconds Interval to fetch new data and load below
     useEffect(() => {
-        if (postId) return; // Do not poll for new data if viewing a specific single post
+        const container = feedContainerRef.current;
+        if (!container) return undefined;
 
-        const interval = setInterval(() => {
-            console.log("30s polling: fetching new feed data...");
-            fetchMoreEntries();
-        }, 30000); // 30 seconds
-        return () => clearInterval(interval);
-    }, [fetchMoreEntries, postId]);
+        const onScroll = () => {
+            const remaining = container.scrollHeight - container.scrollTop - container.clientHeight;
+            if (remaining < container.clientHeight * 1.5) {
+                loadNextBatch();
+            }
+
+            const index = Math.round(container.scrollTop / container.clientHeight);
+            const currentEntry = feed[index];
+            if (currentEntry?._id) {
+                scheduleRemovalForId(currentEntry._id);
+            }
+        };
+
+        container.addEventListener('scroll', onScroll);
+        onScroll();
+        return () => container.removeEventListener('scroll', onScroll);
+    }, [feed, loadNextBatch, scheduleRemovalForId]);
+
+    useEffect(() => {
+        return () => {
+            Object.values(removalTimersRef.current).forEach((timerId) => clearTimeout(timerId));
+            removalTimersRef.current = {};
+        };
+    }, []);
 
 
 
@@ -378,7 +587,7 @@ const SubmissionFeed = () => {
                 </div>
 
                 {/* Vertical Scroll Snap Container */}
-                <div className="w-full h-full md:h-[calc(100vh-40px)] md:max-w-[420px] mx-auto bg-black overflow-y-scroll snap-y snap-mandatory no-scrollbar relative md:rounded-2xl md:shadow-[0_0_40px_transparent] md:border md:border-white/5" style={{ scrollBehavior: 'smooth' }}>
+                <div ref={feedContainerRef} className="w-full h-full md:h-[calc(100vh-40px)] md:max-w-[420px] mx-auto bg-black overflow-y-scroll snap-y snap-mandatory no-scrollbar relative md:rounded-2xl md:shadow-[0_0_40px_transparent] md:border md:border-white/5" style={{ scrollBehavior: 'smooth' }}>
                     {feed.map((entry, index) => {
                         return (
                             <div

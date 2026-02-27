@@ -57,6 +57,28 @@ export const getAllRandomSubmissions = async (limit = 15) => {
     }
 };
 
+export const getFeedIds = async (limit = 50, excludeIds = []) => {
+    try {
+        const response = await axios.post(`${API_URL}/feed-ids?limit=${limit}`, { excludeIds }, {
+            withCredentials: true,
+        });
+        return response.data;
+    } catch (error) {
+        throw error.response?.data || error.message;
+    }
+};
+
+export const getBatchSubmissions = async (ids = []) => {
+    try {
+        const response = await axios.post(`${API_URL}/batch`, { ids }, {
+            withCredentials: true,
+        });
+        return response.data;
+    } catch (error) {
+        throw error.response?.data || error.message;
+    }
+};
+
 export const rateSubmission = async (submissionId, ratingType) => {
     try {
         const response = await axios.post(`${API_URL}/rate`, { submissionId, ratingType }, {

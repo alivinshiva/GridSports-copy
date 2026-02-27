@@ -1,4 +1,5 @@
 import submissionModel from "../model/submission.model.js";
+import mongoose from "mongoose";
 import cloudinary from "../config/cloudinary.config.js";
 import { processRating, processShare, processSubmissionUpload, processDetailedRating } from "../service/scoring.service.js";
 import challengeModel from "../model/challange.model.js";
@@ -197,6 +198,136 @@ export const getAllRandomSubmissionController = async (req, res) => {
     } catch (error) {
         return res.status(500).json({ success: false, message: "Internal Server Error", error: error.message });
     };
+};
+
+const getSafeObjectIds = (ids) => {
+    if (!Array.isArray(ids)) return [];
+    return ids
+        .filter((id) => mongoose.Types.ObjectId.isValid(id))
+        .map((id) => new mongoose.Types.ObjectId(id));
+};
+
+const attachRatingsForUser = async (submissions, loggedInUserId) => {
+    if (!loggedInUserId || submissions.length === 0) return submissions;
+
+    const subIds = submissions.map(sub => sub._id);
+
+    const pointLedgers = await import("../model/pointLedger.model.js").then(m => m.default).then(model =>
+        model.find({
+            user: loggedInUserId,
+            submission: { $in: subIds },
+            actionType: { $regex: /^RATE_/ }
+        })
+    ).catch(() => []);
+
+    const detailedRatings = await detailedRatingModel.find({
+        user: loggedInUserId,
+        submission: { $in: subIds }
+    }).catch(() => []);
+
+    const ledgerMap = {};
+    pointLedgers.forEach(pl => {
+        ledgerMap[pl.submission.toString()] = pl.actionType;
+    });
+
+    const detailedMap = {};
+    detailedRatings.forEach(dr => {
+        const breakdown = {};
+        dr.ratings.forEach(r => { breakdown[r.parameterName] = r.score; });
+        detailedMap[dr.submission.toString()] = { ratings: breakdown, comment: dr.comment };
+    });
+
+    return submissions.map(sub => {
+        const subIdStr = sub._id.toString();
+        const actionType = ledgerMap[subIdStr];
+
+        if (actionType) {
+            if (actionType.startsWith('RATE_')) {
+                sub.userRating = actionType.replace('RATE_', '');
+            } else if (actionType && !sub.challenge?.parameters) {
+                sub.userRating = actionType;
+            }
+        }
+
+        if (detailedMap[subIdStr]) {
+            sub.detailedUserRating = detailedMap[subIdStr];
+        }
+
+        return sub;
+    });
+};
+
+// desc get random feed IDs (excluding user's own posts)
+// method POST
+// path /api/v1/submission/feed-ids
+// access private
+export const getFeedIdsController = async (req, res) => {
+    try {
+        const loggedInUserId = req.user?._id || req.user;
+        const limit = Math.min(parseInt(req.query.limit) || 50, 50);
+        const excludeIds = getSafeObjectIds(req.body?.excludeIds || []);
+
+        const matchStage = {};
+        if (loggedInUserId) {
+            matchStage.user = { $ne: loggedInUserId };
+        }
+        if (excludeIds.length > 0) {
+            matchStage._id = { $nin: excludeIds };
+        }
+
+        const ids = await submissionModel.aggregate([
+            { $match: matchStage },
+            { $sample: { size: limit } },
+            { $project: { _id: 1 } }
+        ]);
+
+        return res.status(200).json({
+            success: true,
+            data: { ids: ids.map(i => i._id.toString()) }
+        });
+    } catch (error) {
+        return res.status(500).json({ success: false, message: "Internal Server Error", error: error.message });
+    }
+};
+
+// desc get batch submissions by IDs (excluding user's own posts)
+// method POST
+// path /api/v1/submission/batch
+// access private
+export const getBatchSubmissionsController = async (req, res) => {
+    try {
+        const loggedInUserId = req.user?._id || req.user;
+        const ids = getSafeObjectIds(req.body?.ids || []);
+
+        if (!Array.isArray(req.body?.ids) || ids.length === 0) {
+            return res.status(400).json({ success: false, message: "IDs array required" });
+        }
+
+        const query = { _id: { $in: ids } };
+        if (loggedInUserId) {
+            query.user = { $ne: loggedInUserId };
+        }
+
+        const submissions = await submissionModel.find(query)
+            .populate("challenge", "name scoringType parameters comments")
+            .lean();
+
+        let submissionsWithRatings = await attachRatingsForUser(submissions, loggedInUserId);
+
+        // Preserve request order
+        const submissionMap = {};
+        submissionsWithRatings.forEach(sub => {
+            submissionMap[sub._id.toString()] = sub;
+        });
+
+        const ordered = req.body.ids
+            .map(id => submissionMap[id])
+            .filter(Boolean);
+
+        return res.status(200).json({ success: true, message: "Batch Fetched Successfully", data: ordered });
+    } catch (error) {
+        return res.status(500).json({ success: false, message: "Internal Server Error", error: error.message });
+    }
 };
 
 
