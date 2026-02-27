@@ -34,6 +34,10 @@ const pointLedgerSchema = new mongoose.Schema({
     finalPoints: {
         type: Number,
         required: true
+    },
+    isCapped: {
+        type: Boolean,
+        default: false
     }
 }, { timestamps: true });
 

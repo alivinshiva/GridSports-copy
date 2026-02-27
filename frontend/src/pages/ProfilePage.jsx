@@ -232,23 +232,28 @@ export default function ProfilePage() {
                         )}
 
                         {/* Edit Profile Button - Top Right */}
-                        <button
-                            onClick={() => navigate("/profile/edit")}
-                            className="absolute top-3 right-3 sm:top-6 sm:right-6 z-20 flex items-center justify-center gap-1 sm:gap-2 h-8 sm:h-9 md:h-10 px-2.5 sm:px-4 md:px-5 bg-white text-[#101117] text-[10px] sm:text-xs md:text-sm font-bold leading-normal tracking-wide hover:bg-gray-200 transition-all shadow-lg rounded-full"
-                        >
-                            <Edit2 size={14} className="sm:size-4" />
-                            <span className="hidden sm:inline">Edit</span>
-                        </button>
+                        <div className="absolute top-3 right-3 sm:top-6 sm:right-6 z-20 rounded-full p-[1.5px] bg-gradient-to-r from-[#70b1ff] to-[#59d5e0] shadow-[0_0_12px_rgba(112,177,255,0.5)]">
+                            <button
+                                onClick={() => navigate("/profile/edit")}
+                                className="flex items-center justify-center gap-1 sm:gap-2 h-8 sm:h-9 md:h-10 px-2.5 sm:px-4 md:px-5 bg-[#101117] text-white text-[10px] sm:text-xs md:text-sm font-bold leading-normal tracking-wide hover:bg-[#181920] transition-all rounded-full"
+                            >
+                                <Edit2 size={14} className="sm:size-4" style={{ color: '#70b1ff' }} />
+                                <span className="hidden sm:inline bg-gradient-to-r from-[#70b1ff] to-[#59d5e0] bg-clip-text text-transparent">Edit</span>
+                            </button>
+                        </div>
 
                         <div className="flex w-full flex-col gap-2 sm:gap-4 md:gap-8 relative z-10">
                             <div className="flex flex-col md:flex-row gap-3 sm:gap-6 items-start md:items-center w-full">
                                 <div
-                                    className="bg-center bg-no-repeat aspect-square bg-cover rounded-lg sm:rounded-xl w-20 sm:w-[120px] md:w-[160px] lg:w-[180px] h-20 sm:h-[120px] md:h-[160px] lg:h-[180px] border-2 sm:border-3 border-white/20 cursor-pointer hover:opacity-90 transition-opacity bg-[#181920] shadow-xl flex-shrink-0"
+                                    className="bg-center bg-no-repeat aspect-square bg-cover rounded-lg sm:rounded-xl w-20 sm:w-[120px] md:w-[160px] lg:w-[180px] h-20 sm:h-[120px] md:h-[160px] lg:h-[180px] cursor-pointer hover:opacity-90 transition-opacity bg-[#181920] flex-shrink-0"
                                     onClick={() => {
                                         setSelectedImage(profileImage);
                                         setIsImageModalOpen(true);
                                     }}
-                                    style={{ backgroundImage: profileImage ? `url("${profileImage}")` : "none" }}
+                                    style={{
+                                        backgroundImage: profileImage ? `url("${profileImage}")` : "none",
+                                        boxShadow: '0 0 0 1px rgba(112,177,255,0.5)'
+                                    }}
                                 >
                                     {!profileImage && <div className="h-full w-full flex items-center justify-center text-white/40 text-xs">No Image</div>}
                                 </div>
@@ -261,19 +266,19 @@ export default function ProfilePage() {
                                     </p>
                                     <div className="flex items-center gap-1.5 sm:gap-2 mt-2 sm:mt-3 flex-wrap w-full">
                                         <div className="flex items-center gap-1 sm:gap-2 bg-black/40 backdrop-blur-sm px-2 sm:px-4 py-1 sm:py-2 rounded-full border border-white/10">
-                                            <Trophy size={12} className="sm:size-4 text-yellow-500" />
+                                            <Trophy size={12} className="sm:size-4" style={{ color: '#facc15' }} />
                                             <span className="text-[10px] sm:text-sm font-bold text-white">#{userRank || '-'}</span>
                                         </div>
                                         <div className="flex items-center gap-1 sm:gap-2 bg-black/40 backdrop-blur-sm px-2 sm:px-4 py-1 sm:py-2 rounded-full border border-white/10">
-                                            <Users size={12} className="sm:size-4 text-purple-400" />
+                                            <Users size={12} className="sm:size-4" style={{ color: '#facc15' }} />
                                             <span className="text-[10px] sm:text-sm font-bold text-white">T#{tribeRank || '-'}</span>
                                         </div>
                                         <div className="flex items-center gap-1 sm:gap-2 bg-black/40 backdrop-blur-sm px-2 sm:px-4 py-1 sm:py-2 rounded-full border border-white/10">
-                                            <Zap size={12} className="sm:size-4 text-blue-400" />
+                                            <Zap size={12} className="sm:size-4" style={{ color: '#facc15' }} />
                                             <span className="text-[10px] sm:text-sm font-bold text-white">{((profileData?.user?.creatorPoints || 0) + (profileData?.user?.rankerPoints || 0)).toLocaleString()}</span>
                                         </div>
                                         <div className="flex items-center gap-1 sm:gap-2 bg-black/40 backdrop-blur-sm px-2 sm:px-4 py-1 sm:py-2 rounded-full border border-white/10">
-                                            <LayoutGrid size={12} className="sm:size-4 text-gray-400" />
+                                            <LayoutGrid size={12} className="sm:size-4" style={{ color: '#facc15' }} />
                                             <span className="font-sora-semibold text-[10px] sm:text-sm text-white uppercase">{formatTribeName(profileData?.tribe || "RED GRID")}</span>
                                         </div>
                                     </div>
@@ -307,7 +312,7 @@ export default function ProfilePage() {
                                             </div>
                                             <div className="w-full bg-white/10 rounded-full h-2 overflow-hidden">
                                                 <div
-                                                    className="bg-white h-full rounded-full transition-all duration-300"
+                                                    className="bg-gradient-to-r from-[#70b1ff] to-[#59d5e0] shadow-[0_0_10px_rgba(112,177,255,0.5)] h-full rounded-full transition-all duration-300"
                                                     style={{
                                                         width: `${Math.min(100, ((((profileData?.user?.creatorPoints || 0) + (profileData?.user?.rankerPoints || 0)) / tribeData.totalPoints) * 100))}%`
                                                     }}
@@ -325,24 +330,25 @@ export default function ProfilePage() {
                     {/* Main Tabs & Content */}
                     <div className="flex flex-col gap-4 w-full px-1 sm:px-0">
                         <div className="pb-3 bg-transparent rounded-none sm:rounded-t-xl">
-                            <div className="flex border-b border-white/10 px-4 sm:px-0 gap-8">
+                            <div className="flex px-4 sm:px-0 gap-8">
                                 <button
                                     onClick={() => setActiveTab("images")}
-                                    className={`flex flex-col items-center justify-center border-b-[3px] ${activeTab === "images" ? "border-b-white text-white" : "border-b-transparent text-white/50 hover:text-white/80"} pb-[13px] pt-4 transition-colors`}
+                                    className={`relative flex flex-col items-center justify-center pb-[13px] pt-4 transition-colors ${activeTab === "images" ? "text-white" : "text-white/40 hover:text-white/70"}`}
                                 >
                                     <p className="font-sora-semibold text-sm leading-normal tracking-widest uppercase">Images</p>
                                 </button>
                                 <button
                                     onClick={() => setActiveTab("videos")}
-                                    className={`flex flex-col items-center justify-center border-b-[3px] ${activeTab === "videos" ? "border-b-white text-white" : "border-b-transparent text-white/50 hover:text-white/80"} pb-[13px] pt-4 transition-colors`}
+                                    className={`relative flex flex-col items-center justify-center pb-[13px] pt-4 transition-colors ${activeTab === "videos" ? "text-white" : "text-white/40 hover:text-white/70"}`}
                                 >
                                     <p className="font-sora-semibold text-sm leading-normal tracking-widest uppercase">Videos</p>
                                 </button>
                             </div>
+                            <div className="w-full mt-2" style={{ height: '1px', background: 'linear-gradient(90deg, rgba(59, 130, 246, 0.5) 0%, rgba(59, 130, 246, 0.4) 60%, transparent 100%)', borderRadius: '999px' }} />
                         </div>
 
                         {/* Content Grid */}
-                        <div className="min-h-[200px]">
+                        <div className="min-h-[600px]">
                             {activeTab === "images" && (
                                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                                     {imageSubmissions.map((submission) => (

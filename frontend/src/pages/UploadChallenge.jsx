@@ -254,7 +254,7 @@ export default function UploadChallenge() {
                                 </p>
                             </div>
                             <div className="rounded-full bg-[#111118] h-2 w-full overflow-hidden border border-white/5">
-                                <div className="h-full bg-primary transition-all duration-500" style={{ width: mode === 'select' ? "33%" : mode === 'record' ? "66%" : "100%" }}></div>
+                                <div className="h-full bg-blue-500 transition-all duration-500" style={{ width: mode === 'select' ? "33%" : mode === 'record' ? "66%" : "100%" }}></div>
                             </div>
                         </div>
 
@@ -269,23 +269,28 @@ export default function UploadChallenge() {
                                 <p className="text-lg font-medium text-gray-400 mb-8 max-w-2xl mx-auto leading-relaxed">{challenge ? challenge.description : "Preparing challenge..."}</p>
 
                                 {rulesList.length > 0 && (
-                                    <div className="bg-[#111118] p-6 rounded-2xl text-left border border-white/5 max-w-2xl mx-auto shadow-sm relative overflow-hidden">
-                                        <div className="absolute left-0 top-0 bottom-0 w-1 bg-gray-500"></div>
-                                        <h3 className="font-bold text-sm uppercase tracking-widest text-white mb-4 flex items-center gap-2">
+                                    <div className="bg-blue-950/10 p-6 rounded-2xl text-left border border-blue-500/10 max-w-2xl mx-auto shadow-sm relative overflow-hidden">
+                                        <div className="absolute left-0 top-0 bottom-0 w-1 bg-blue-500"></div>
+                                        <h3 className="font-bold text-sm uppercase tracking-widest text-blue-400 mb-4 flex items-center gap-2">
                                             <Info size={18} />
                                             Rules & Instructions
                                         </h3>
-                                        <ul className="flex flex-col gap-3">
+                                        <ul className="flex flex-col">
                                             {rulesList.map((rule, index) => (
                                                 <motion.li
                                                     key={index}
                                                     initial={{ opacity: 0, x: -10 }}
                                                     animate={{ opacity: 1, x: 0 }}
                                                     transition={{ delay: index * 0.15 }}
-                                                    className="flex items-start gap-3 text-sm font-medium text-gray-300"
+                                                    className="flex flex-col"
                                                 >
-                                                    <span className="mt-1.5 size-1.5 rounded-full bg-gray-500 shrink-0" />
-                                                    {rule}
+                                                    <div className="flex items-start gap-3 text-sm font-medium text-white py-3">
+                                                        <span className="mt-1.5 size-1.5 rounded-full bg-blue-400 shrink-0" />
+                                                        {rule}
+                                                    </div>
+                                                    {index < rulesList.length - 1 && (
+                                                        <div className="h-px bg-blue-500/40 w-full" />
+                                                    )}
                                                 </motion.li>
                                             ))}
                                         </ul>
@@ -310,7 +315,7 @@ export default function UploadChallenge() {
                                     >
                                         <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
 
-                                        <div className="w-24 h-24 rounded-full bg-white/5 flex items-center justify-center text-white group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300 relative z-10 border border-white/10 group-hover:border-white/30">
+                                        <div className="w-24 h-24 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-400 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300 relative z-10 border border-blue-500/30 group-hover:border-blue-400/60">
                                             {isPhotoChallenge ? <Camera size={48} /> : <Video size={48} />}
                                         </div>
                                         <div className="relative z-10">
@@ -330,7 +335,7 @@ export default function UploadChallenge() {
                                     >
                                         <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
 
-                                        <div className="w-24 h-24 rounded-full bg-white/5 flex items-center justify-center text-white group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-300 relative z-10 border border-white/10 group-hover:border-white/30">
+                                        <div className="w-24 h-24 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-400 group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-300 relative z-10 border border-blue-500/30 group-hover:border-blue-400/60">
                                             {isPhotoChallenge ? <ImageIcon size={48} /> : <Upload size={48} />}
                                         </div>
                                         <div className="relative z-10">

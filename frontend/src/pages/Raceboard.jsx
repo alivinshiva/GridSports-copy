@@ -18,7 +18,7 @@ const renderRankWithChange = (row) => {
 
     return (
         <div className="flex items-center gap-1 sm:gap-2 pl-1 sm:pl-2">
-            <span className={`text-[13px] sm:text-[17px] ${row.isHighlighted ? 'text-[#3b82f6] font-normal' : 'text-white font-normal'}`}>{row.rank}</span>
+            <span className={`text-[13px] sm:text-[17px] text-white font-normal`}>{row.rank}</span>
             {getRankChangeIcon()}
         </div>
     );
@@ -35,7 +35,7 @@ const creatorsColumns = [
                 {row.avatar ? (
                     <div className="size-6 sm:size-10 rounded-full bg-cover bg-center shrink-0" style={{ backgroundImage: `url('${row.avatar}')` }}></div>
                 ) : (
-                    <div className="size-6 sm:size-10 rounded-full bg-white flex shrink-0 items-center justify-center text-[10px] sm:text-sm font-bold text-slate-900 shadow-sm border border-black/10">
+                    <div className={`size-6 sm:size-10 rounded-full bg-gradient-to-br ${row.color || "from-gray-500 to-gray-800"} flex shrink-0 items-center justify-center text-[10px] sm:text-sm font-bold text-white shadow-sm border border-white/20`}>
                         {row.name ? row.name.charAt(0).toUpperCase() : ''}
                     </div>
                 )}
@@ -411,7 +411,7 @@ export default function Raceboard() {
                     <div className="shrink-0">
                         {info.avatar ? (
                             <div
-                                className="size-12 sm:size-14 rounded-xl bg-cover bg-center border-2 border-white/10"
+                                className="size-12 sm:size-14 rounded-lg bg-cover bg-center border-2 border-white/10"
                                 style={{ backgroundImage: `url('${info.avatar}')` }}
                             />
                         ) : (
@@ -428,9 +428,9 @@ export default function Raceboard() {
                         </div>
                         <div className="text-white/60 text-[12px] sm:text-[13px] mt-1 leading-snug">
                             {info.isInTop3 ? (
-                                <>You are in the <span className="text-green-400 font-medium">top {info.percentile}%</span>. You're in the top 3! 🎉</>
+                                <>You are in the <span className="text-blue-400 font-medium">top {info.percentile}%</span>. You're in the top 3! 🎉</>
                             ) : (
-                                <>You are in the <span className="text-green-400 font-medium">top {info.percentile}%</span>. only {info.pointsNeeded.toLocaleString()} points to reach <span className="text-white font-medium">#{info.targetRank}</span>!</>
+                                <>You are in the <span className="text-blue-400 font-medium">top {info.percentile}%</span>. only {info.pointsNeeded.toLocaleString()} points to reach <span className="text-white font-medium">#{info.targetRank}</span>!</>
                             )}
                         </div>
                     </div>

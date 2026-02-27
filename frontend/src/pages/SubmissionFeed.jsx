@@ -58,8 +58,7 @@ const SubmissionFeed = () => {
     const [detailedRatingsState, setDetailedRatingsState] = useState({}); // { [subId]: { [paramName]: score } }
     const [selectedCommentState, setSelectedCommentState] = useState({}); // { [subId]: 'Comment string' }
     const [activeShare, setActiveShare] = useState(null); // ID of submission being shared
-    const [activeSubmissionId, setActiveSubmissionId] = useState(null);
-    const visibilityObserver = useRef();
+    const [submittedDetailedState, setSubmittedDetailedState] = useState({}); // { [subId]: true } after explicit submit
 
     const fetchMoreEntries = useCallback(async (excludeId = null) => {
         if (loading) return;
@@ -198,52 +197,17 @@ const SubmissionFeed = () => {
         return () => clearInterval(interval);
     }, [fetchMoreEntries]);
 
-    // Clean up observer
-    useEffect(() => {
-        return () => {
-            if (visibilityObserver.current) visibilityObserver.current.disconnect();
-        }
-    }, []);
 
-    // Active element tracking & Auto-saving detailed ratings
-    useEffect(() => {
-        visibilityObserver.current = new IntersectionObserver(entries => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const newId = entry.target.getAttribute('data-id');
-                    setActiveSubmissionId(prevId => {
-                        if (newId && prevId !== newId) {
-                            window.history.replaceState(null, '', `/challenge/feed/${newId}`);
-                        }
-                        return newId;
-                    });
-                }
-            });
-        }, { threshold: 0.6 });
-
-        // Observe all currently rendered sub elements
-        const elements = document.querySelectorAll('.submission-slide');
-        elements.forEach(el => visibilityObserver.current.observe(el));
-
-        return () => {
-            if (visibilityObserver.current) visibilityObserver.current.disconnect();
-        };
-    }, [feed]);
-
-    // Handle Unmount saving
-    useEffect(() => {
-        return () => {
-            // Auto-saving on unmount removed for detail rating
-        }
-    }, [activeSubmissionId]);
 
     const submitDetailedRatings = async (submissionId) => {
         const submission = feed.find(f => f._id === submissionId);
-        // Only if detailed
         if (submission?.challenge?.scoringType !== 'DETAILED') return;
 
         const currentRatingsObj = detailedRatingsState[submissionId];
-        if (!currentRatingsObj || Object.keys(currentRatingsObj).length === 0) return;
+        if (!currentRatingsObj || Object.keys(currentRatingsObj).length === 0) {
+            toast('Please rate at least one parameter first', { duration: 2000, position: 'bottom-center', style: { background: '#333', color: '#fff', borderRadius: '8px' } });
+            return;
+        }
 
         // Convert obj to array expected by backend
         const ratingsArray = Object.entries(currentRatingsObj).map(([paramName, score]) => ({
@@ -257,44 +221,24 @@ const SubmissionFeed = () => {
             // Log exactly what user requested (Percentage math)
             console.log(`--- Ratings Log for Submission ${submissionId} ---`);
             let totalWeightedScore = 0;
-
             ratingsArray.forEach(r => {
-                // Find weightage from challenge parameters
                 const paramDef = submission.challenge.parameters.find(p => p.name === r.parameterName);
-                const weightage = paramDef ? paramDef.maxPoints : 0; // maxPoints stores weightage now
-
-                // 1. Calculate the user's base score for this parameter out of its weightage
-                // e.g. 4/5 stars on a 35 weightage parameter = 28 points
+                const weightage = paramDef ? paramDef.maxPoints : 0;
                 const baseScore = (r.score / 5) * weightage;
-
-                // 2. Calculate the final percentage based on the weightage 
-                // e.g. 35% of those 28 points = 9.8 points
                 const finalPercentScore = (weightage / 100) * baseScore;
-
                 totalWeightedScore += finalPercentScore;
-
-                console.log(`${r.parameterName}: ${r.score} stars = ${baseScore} base points. ${weightage}% of ${baseScore} = +${finalPercentScore.toFixed(2)} to total score.`);
+                console.log(`${r.parameterName}: ${r.score}⭐ = ${baseScore.toFixed(2)} base. ${weightage}% of ${baseScore.toFixed(2)} = +${finalPercentScore.toFixed(2)}`);
             });
-
-            if (selectedComment) console.log(`Selected Comment: ${selectedComment}`);
-            console.log(`Total Percentage Score added to scoreboard: ${totalWeightedScore.toFixed(2)} / 100`);
+            if (selectedComment) console.log(`Comment: ${selectedComment}`);
+            console.log(`Total Percentage Score: ${totalWeightedScore.toFixed(2)} / 100`);
             console.log(`-----------------------------------------------`);
 
             await rateDetailed(submissionId, submission.challenge._id, ratingsArray, selectedComment);
-            console.log(`Saved detailed ratings to backend for ${submissionId}`);
-            toast.success('Rating Submitted!', {
-                duration: 2000,
-                position: 'bottom-center',
-                style: {
-                    background: '#333',
-                    color: '#fff',
-                    borderRadius: '8px',
-                },
-            });
-            // Optionally clear state to avoid resubmitting if swiped back and forth without changes:
-            // But if user changes, it will re-record. Backend handles upsert.
+            console.log(`[Detail Rating] Submitted for ${submissionId}`);
+            setSubmittedDetailedState(prev => ({ ...prev, [submissionId]: true }));
         } catch (error) {
-            console.error("Error auto-saving detailed rating:", error);
+            console.error("Error submitting detailed rating:", error);
+            toast('Failed to submit rating', { duration: 2000, position: 'bottom-center', style: { background: '#333', color: '#fff', borderRadius: '8px' } });
         }
     };
 
@@ -490,8 +434,9 @@ const SubmissionFeed = () => {
 
                                             <div className="space-y-3 px-2">
                                                 {entry.challenge?.parameters?.map((param, pIdx) => {
-                                                    const maxPts = 5; // Hardcoded to 5 stars for detailed rating
+                                                    const maxPts = 5;
                                                     const currentScore = detailedRatingsState[entry._id]?.[param.name] || 0;
+                                                    const isSubmitted = !!submittedDetailedState[entry._id];
 
                                                     return (
                                                         <div key={pIdx} className="flex justify-between items-center w-full">
@@ -504,8 +449,9 @@ const SubmissionFeed = () => {
                                                                     return (
                                                                         <button
                                                                             key={tIdx}
-                                                                            onClick={(e) => handleDetailedRate(e, entry._id, param.name, tileVal)}
-                                                                            className="flex items-center justify-center transition-transform active:scale-90 border-none bg-transparent"
+                                                                            onClick={(e) => !isSubmitted && handleDetailedRate(e, entry._id, param.name, tileVal)}
+                                                                            disabled={isSubmitted}
+                                                                            className="flex items-center justify-center transition-transform active:scale-90 border-none bg-transparent disabled:opacity-60 disabled:cursor-not-allowed"
                                                                         >
                                                                             <Star
                                                                                 size={20}
@@ -529,11 +475,13 @@ const SubmissionFeed = () => {
                                                     <div className="flex flex-wrap gap-2">
                                                         {entry.challenge.comments.map((comment, cIdx) => {
                                                             const isSelected = selectedCommentState[entry._id] === comment;
+                                                            const isSubmitted = !!submittedDetailedState[entry._id];
                                                             return (
                                                                 <button
                                                                     key={cIdx}
-                                                                    onClick={(e) => handleCommentSelect(e, entry._id, comment)}
-                                                                    className={`px-4 py-1.5 rounded-[12px] text-xs font-semibold transition-all duration-200 border ${isSelected
+                                                                    onClick={(e) => !isSubmitted && handleCommentSelect(e, entry._id, comment)}
+                                                                    disabled={isSubmitted}
+                                                                    className={`px-4 py-1.5 rounded-[12px] text-xs font-semibold transition-all duration-200 border disabled:opacity-60 disabled:cursor-not-allowed ${isSelected
                                                                         ? 'bg-[#22d3ee] border-[#22d3ee] text-black shadow-[0_0_12px_rgba(34,211,238,0.4)]'
                                                                         : 'bg-black/60 border-[#22d3ee]/80 text-[#22d3ee] hover:bg-[#22d3ee]/20'
                                                                         }`}
@@ -546,6 +494,19 @@ const SubmissionFeed = () => {
                                                 </div>
                                             )}
 
+                                            {/* Submit Arrow Button — bottom-right of post */}
+                                            {!submittedDetailedState[entry._id] ? (
+                                                <button
+                                                    onClick={(e) => { e.stopPropagation(); submitDetailedRatings(entry._id); }}
+                                                    className="absolute bottom-[72px] md:bottom-8 right-4 z-30 w-12 h-12 rounded-full bg-[#3b82f6] shadow-[0_0_18px_rgba(59,130,246,0.6)] flex items-center justify-center transition-transform active:scale-90 hover:bg-[#2563eb]"
+                                                >
+                                                    <Send size={20} className="text-white" />
+                                                </button>
+                                            ) : (
+                                                <div className="absolute bottom-[72px] md:bottom-8 right-4 z-30 w-12 h-12 rounded-full bg-green-500 shadow-[0_0_18px_rgba(34,197,94,0.5)] flex items-center justify-center">
+                                                    <CheckSquare size={22} className="text-white" />
+                                                </div>
+                                            )}
                                         </div>
                                     ) : (
                                         <div className="flex flex-col w-full px-4 pb-6 text-white pointer-events-auto bg-transparent pt-2">

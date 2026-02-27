@@ -117,12 +117,12 @@ export default function EditProfile() {
                         {/* Avatar Section */}
                         <div className="flex flex-col items-center gap-4">
                             <div className="relative group">
-                                <label className="cursor-pointer block relative">
+                                <label className="cursor-pointer block relative rounded-full p-[3px] bg-gradient-to-r from-[#70b1ff] to-[#59d5e0] shadow-[0_0_16px_rgba(112,177,255,0.4)] hover:opacity-90 transition-opacity">
                                     <div
-                                        className="size-32 rounded-full bg-cover bg-center border-4 border-primary shadow-xl hover:opacity-90 transition-opacity bg-gray-200 dark:bg-gray-800"
+                                        className="size-32 rounded-full bg-cover bg-center bg-[#181920]"
                                         style={{ backgroundImage: avatar ? `url("${avatar}")` : "none" }}
                                     >
-                                        {!avatar && <div className="h-full w-full flex items-center justify-center text-gray-400">No Image</div>}
+                                        {!avatar && <div className="h-full w-full flex items-center justify-center text-white/40 text-sm font-medium">Upload Image</div>}
                                     </div>
                                     <input
                                         type="file"
@@ -181,24 +181,24 @@ export default function EditProfile() {
                         </button>
                         <button
                             onClick={handleSave}
-                            className={`flex-1 py-4 rounded-xl font-bold text-[#1c140d] shadow-lg transition-all flex items-center justify-center gap-2 ${!selectedFile || isUploading
-                                    ? "cursor-not-allowed"
-                                    : "hover:opacity-90"
+                            className={`flex-1 py-4 rounded-xl font-bold text-[#101117] shadow-lg transition-all flex items-center justify-center gap-2 ${!selectedFile || isUploading
+                                ? "cursor-not-allowed opacity-50"
+                                : "hover:opacity-90"
                                 }`}
                             style={{
-                                background: "linear-gradient(135deg, #8c6a00 0%, #facc15 50%, #f5d76e 100%)",
-                                boxShadow: "0 4px 20px rgba(250, 204, 21, 0.3)"
+                                background: "linear-gradient(to right, #70b1ff, #59d5e0)",
+                                boxShadow: "0 0 16px rgba(112, 177, 255, 0.4)"
                             }}
                             disabled={!selectedFile || isUploading}
                         >
                             {isUploading ? (
-                                <Loader2 size={18} className="animate-spin" />
+                                <Loader2 size={18} className="animate-spin text-[#101117]" />
                             ) : !selectedFile ? (
-                                <Lock size={18} />
+                                <Lock size={18} className="text-[#101117]" />
                             ) : (
-                                <Save size={18} />
+                                <Save size={18} className="text-[#101117]" />
                             )}
-                            {isUploading ? "Uploading..." : "Save Changes"}
+                            <span className="text-[#101117]">{isUploading ? "Uploading..." : "Save Changes"}</span>
                         </button>
                     </div>
 
@@ -206,9 +206,9 @@ export default function EditProfile() {
                     <div className="mt-10 pt-8 border-t border-white/10 flex justify-center">
                         <button
                             onClick={logout}
-                            className="flex items-center gap-2 text-red-500 hover:text-red-400 font-bold transition-colors py-2 px-4 rounded-lg hover:bg-red-500/10"
+                            className="flex items-center gap-2 text-white hover:text-white/60 font-medium tracking-widest text-sm transition-colors py-2 px-4 rounded-lg hover:bg-white/5"
                         >
-                            <LogOut size={18} />
+                            <LogOut size={16} />
                             LOG OUT
                         </button>
                     </div>
