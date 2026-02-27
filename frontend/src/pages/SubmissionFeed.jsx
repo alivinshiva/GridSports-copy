@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useLocation, Link, useParams } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { getFeedIds, getBatchSubmissions, rateSubmission, recordShare, rateDetailed, getSingleSubmission } from "@/services/submissionService";
-import { Loader2, ArrowLeft, Facebook, Instagram, MessageCircle, Link as LinkIcon, X, CheckSquare, Star, Home, User, Send } from "lucide-react";
+import { Loader2, ArrowLeft, Facebook, Instagram, MessageCircle, Link as LinkIcon, X, CheckSquare, Star, Home, User, Send, Share2 } from "lucide-react";
 import { BottomNav } from "@/components/home/BottomNav";
 
 const FEED_STORAGE = {
@@ -152,7 +152,7 @@ const SubmissionFeed = () => {
     const refillQueueIfNeeded = useCallback(async (queue, pointer, seen) => {
         const remaining = queue.length - pointer;
         console.log("🔍 Refill check - Remaining:", remaining, "Threshold:", REFILL_THRESHOLD);
-        
+
         if (remaining > REFILL_THRESHOLD) {
             console.log("✅ Enough IDs, skipping refill");
             return { queue, pointer, seen };
@@ -178,7 +178,7 @@ const SubmissionFeed = () => {
             const response = await getFeedIds(REFILL_LIMIT, excludeIds);
             const newIds = response?.success ? response.data?.ids || [] : [];
             console.log("📦 Refill got:", newIds.length, "new IDs");
-            
+
             if (newIds.length === 0) {
                 console.log("⚠️ No new IDs available, reshuffling queue");
                 if (queue.length > 0) {
@@ -209,7 +209,7 @@ const SubmissionFeed = () => {
         try {
             let { queue, pointer, seen } = getSessionState();
             console.log("🔄 loadNextBatch - Queue:", queue.length, "Pointer:", pointer, "Seen:", seen.length);
-            
+
             const remaining = queue.length - pointer;
             if (remaining <= REFILL_THRESHOLD) {
                 console.log("⚠️ Low IDs, refilling...");
@@ -225,7 +225,7 @@ const SubmissionFeed = () => {
 
             const response = await getBatchSubmissions(idsToFetch);
             console.log("✅ Batch response:", response);
-            
+
             if (response?.success && response.data?.length > 0) {
                 console.log("📱 Adding posts to feed:", response.data.length);
                 setFeed(prev => {
@@ -283,7 +283,7 @@ const SubmissionFeed = () => {
 
                 const currentState = getSessionState();
                 console.log("📊 Current state - Queue:", currentState.queue.length, "Pointer:", currentState.pointer);
-                
+
                 if (!Array.isArray(currentState.queue) || currentState.queue.length === 0) {
                     console.log("📥 Fetching initial IDs...");
                     const excludeIds = uniq([...(currentState.seen || [])]);
@@ -620,43 +620,11 @@ const SubmissionFeed = () => {
 
                                 {/* Uploader Info & Challenge Text Overlay */}
                                 <div className="absolute left-4 bottom-32 md:bottom-28 z-30 pointer-events-none flex flex-col gap-2 max-w-[80%]">
-                                    {entry.user && (
-                                        <div className="flex items-center gap-3">
-                                            <div
-                                                className="w-10 h-10 rounded-full bg-cover bg-center border-2 shadow-lg"
-                                                style={{
-                                                    backgroundImage: `url(${entry.user.profilePic || 'https://via.placeholder.com/150'})`,
-                                                    borderColor: entry.user.tribe ? 'white' : 'transparent'
-                                                }}
-                                            />
-                                            <div className="flex flex-col">
-                                                <span className="text-white font-bold text-sm drop-shadow-md leading-tight">{entry.user.name || "GridSports User"}</span>
-                                                {entry.user.tribe && (
-                                                    <span className="text-white/80 text-[10px] uppercase tracking-wider font-semibold drop-shadow-md">
-                                                        {entry.user.tribe}
-                                                    </span>
-                                                )}
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {entry.challenge && (
-                                        <div className="mt-1">
-                                            <h4 className="text-white font-semibold text-sm drop-shadow-md">
-                                                {entry.challenge.name}
-                                            </h4>
-                                            {entry.challenge.description && (
-                                                <p className="text-white/80 text-xs drop-shadow-md line-clamp-2 mt-0.5">
-                                                    {entry.challenge.description}
-                                                </p>
-                                            )}
-                                        </div>
-                                    )}
                                 </div>
 
                                 {/* Share Icon Top Right */}
-                                <div className="absolute top-6 right-6 z-50 cursor-pointer pointer-events-auto rotate-45" onClick={(e) => handleShareClick(e, entry._id)}>
-                                    <Send size={28} className="text-[#3b82f6] fill-[#3b82f6]" style={{ transform: 'rotate(-45deg)' }} />
+                                <div className="absolute top-6 right-6 z-50 cursor-pointer pointer-events-auto" onClick={(e) => handleShareClick(e, entry._id)}>
+                                    <Share2 size={24} className="text-[#3b82f6]" />
                                 </div>
 
                                 {/* Actions Container */}

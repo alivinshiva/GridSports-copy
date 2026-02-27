@@ -44,7 +44,7 @@ const creatorsColumns = [
                     {/* Mobile-only tribe indicator merged under name */}
                     <div className="flex sm:hidden items-center gap-1.5 mt-1">
                         <div className={`size-2 rounded-full bg-gradient-to-br ${row.color || "from-gray-500 to-gray-800"}`}></div>
-                        <span className={`text-[9px] uppercase tracking-wider text-white/90 font-medium leading-tight truncate`}>{row.tribe}</span>
+                        <span className={`text-[9px] uppercase tracking-wider text-white font-medium leading-tight truncate`}>{row.tribe}</span>
                     </div>
                 </div>
             </div>
