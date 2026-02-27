@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import logo from "../assets/logo1.svg";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 import { useAuth } from "@/context/AuthContext";
 import { ArrowLeft, Lock, Save, LayoutGrid, Loader2, Trash2, LogOut } from "lucide-react";

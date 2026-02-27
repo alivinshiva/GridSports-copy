@@ -26,6 +26,7 @@ export default function UploadChallenge() {
     const [challenge, setChallenge] = useState(null);
 
     useEffect(() => {
+        window.scrollTo(0, 0);
         const fetchChallenge = async () => {
             try {
                 const response = await getChallengeById(challengeId);
@@ -456,9 +457,9 @@ export default function UploadChallenge() {
                                                                 setSelectedTags(prev => [...prev, tag]);
                                                             }
                                                         }}
-                                                        className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all border border-white/10 ${isSelected
-                                                            ? 'bg-yellow-500 text-black shadow-md shadow-yellow-500/20 scale-105'
-                                                            : 'bg-[#111118] text-gray-300 hover:bg-white/10 hover:text-white'
+                                                        className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all border ${isSelected
+                                                            ? 'bg-gradient-to-r from-cyan-500/20 to-blue-500/20 text-cyan-400 border-cyan-500/50 shadow-md shadow-cyan-500/20'
+                                                            : 'bg-[#111118] border-white/10 text-gray-300 hover:bg-white/10 hover:text-white'
                                                             }`}
                                                     >
                                                         {tag}
@@ -481,10 +482,9 @@ export default function UploadChallenge() {
                                     <button
                                         onClick={handleUpload}
                                         disabled={isUploading || !!fileWarning}
-                                        className="flex-1 flex items-center justify-center gap-2 py-4 px-6 rounded-xl text-[#1c140d] font-bold shadow-lg hover:brightness-110 hover:translate-y-[-2px] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                                        className="flex-1 flex items-center justify-center gap-2 py-4 px-6 rounded-xl text-white font-bold shadow-lg hover:brightness-110 hover:translate-y-[-2px] transition-all disabled:opacity-50 disabled:cursor-not-allowed bg-gradient-to-r from-cyan-500 to-blue-500 shadow-blue-500/25"
                                         style={{
-                                            background: "linear-gradient(135deg, #8c6a00 0%, #facc15 50%, #f5d76e 100%)",
-                                            boxShadow: (isUploading || !!fileWarning) ? "none" : "0 4px 20px rgba(250, 204, 21, 0.3)"
+                                            boxShadow: (isUploading || !!fileWarning) ? "none" : "0 4px 20px rgba(59, 130, 246, 0.3)"
                                         }}
                                     >
                                         {isUploading ? (

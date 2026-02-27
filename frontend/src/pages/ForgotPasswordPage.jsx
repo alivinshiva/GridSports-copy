@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Phone, Lock, ArrowRight, ArrowLeft, KeyRound, CheckCircle2, Eye, EyeOff } from "lucide-react";
-import logo from "../assets/logo.svg";
+import logo from "../assets/logo1.svg";
 
 export function ForgotPasswordPage() {
     const [step, setStep] = useState(1); // 1: Phone, 2: OTP & New Password, 3: Success
@@ -79,7 +79,7 @@ export function ForgotPasswordPage() {
     return (
         <div className="min-h-screen bg-racing-black flex items-center justify-center px-4 relative overflow-hidden">
             {/* Background Glow */}
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-racing-orange/10 rounded-full blur-[120px] pointer-events-none" />
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-cyan-500/10 rounded-full blur-[120px] pointer-events-none" />
 
             <motion.div
                 initial={{ opacity: 0, y: 30 }}
@@ -89,10 +89,7 @@ export function ForgotPasswordPage() {
             >
                 {/* Logo / Title */}
                 <div className="text-center mb-10 flex flex-col items-center">
-                    <img src={logo} alt="GridSports Logo" className="w-24 h-24 mb-4 drop-shadow-[0_0_15px_rgba(255,87,34,0.3)]" />
-                    <h1 className="text-4xl font-black text-white tracking-tight mb-2">
-                        Grid<span className="text-racing-orange">Sports</span>
-                    </h1>
+                    <img src={logo} alt="GridSports Logo" className="w-32 h-32 mb-4 drop-shadow-[0_0_15px_rgba(6,182,212,0.3)]" />
                     <p className="text-gray-400">
                         {step === 1 && "Recover your account"}
                         {step === 2 && "Reset your password"}
@@ -124,7 +121,7 @@ export function ForgotPasswordPage() {
                                             value={phone}
                                             onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
                                             placeholder="9876543210"
-                                            className="w-full bg-white/5 border border-white/10 rounded-xl pl-[5.5rem] pr-4 py-3.5 text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-racing-orange/50 focus:border-racing-orange/50 transition-all"
+                                            className="w-full bg-white/5 border border-white/10 rounded-xl pl-[5.5rem] pr-4 py-3.5 text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50 transition-all"
                                         />
                                     </div>
                                 </div>
@@ -138,7 +135,7 @@ export function ForgotPasswordPage() {
                                 <button
                                     type="submit"
                                     disabled={isLoading}
-                                    className="w-full bg-racing-orange text-white py-4 rounded-xl font-bold text-base hover:bg-amber-600 transition-colors flex items-center justify-center gap-2 shadow-lg shadow-racing-orange/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 text-white py-4 rounded-xl font-bold text-base hover:from-cyan-400 hover:to-blue-400 transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-500/25 disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     {isLoading ? "Sending..." : "Send OTP"} <ArrowRight size={18} />
                                 </button>
@@ -161,9 +158,10 @@ export function ForgotPasswordPage() {
                                         <input
                                             type="text"
                                             value={otp}
-                                            onChange={(e) => setOtp(e.target.value)}
+                                            onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 4))}
                                             placeholder="Enter 4-digit OTP"
-                                            className="w-full bg-white/5 border border-white/10 rounded-xl pl-12 pr-4 py-3.5 text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-racing-orange/50 focus:border-racing-orange/50 transition-all"
+                                            maxLength={4}
+                                            className="w-full bg-white/5 border border-white/10 rounded-xl pl-12 pr-4 py-3.5 text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50 transition-all font-mono tracking-widest"
                                         />
                                     </div>
                                 </div>
@@ -177,7 +175,7 @@ export function ForgotPasswordPage() {
                                             value={newPassword}
                                             onChange={(e) => setNewPassword(e.target.value)}
                                             placeholder="Enter new password"
-                                            className="w-full bg-white/5 border border-white/10 rounded-xl pl-12 pr-12 py-3.5 text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-racing-orange/50 focus:border-racing-orange/50 transition-all"
+                                            className="w-full bg-white/5 border border-white/10 rounded-xl pl-12 pr-12 py-3.5 text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50 transition-all"
                                         />
                                         <button
                                             type="button"
@@ -198,7 +196,7 @@ export function ForgotPasswordPage() {
                                 <button
                                     type="submit"
                                     disabled={isLoading}
-                                    className="w-full bg-racing-orange text-white py-4 rounded-xl font-bold text-base hover:bg-amber-600 transition-colors flex items-center justify-center gap-2 shadow-lg shadow-racing-orange/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 text-white py-4 rounded-xl font-bold text-base hover:from-cyan-400 hover:to-blue-400 transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-500/25 disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     {isLoading ? "Resetting..." : "Reset Password"} <ArrowRight size={18} />
                                 </button>
@@ -221,7 +219,7 @@ export function ForgotPasswordPage() {
                                 </p>
                                 <Link
                                     to="/login"
-                                    className="block w-full bg-racing-orange text-white py-4 rounded-xl font-bold text-base hover:bg-amber-600 transition-colors shadow-lg shadow-racing-orange/20"
+                                    className="block w-full bg-gradient-to-r from-cyan-500 to-blue-500 text-white py-4 rounded-xl font-bold text-base hover:from-cyan-400 hover:to-blue-400 transition-all shadow-lg shadow-blue-500/25"
                                 >
                                     Back to Login
                                 </Link>

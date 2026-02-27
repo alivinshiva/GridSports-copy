@@ -14,9 +14,8 @@ import { ForgotPasswordPage } from "@/pages/ForgotPasswordPage";
 import { OTPPage } from "@/pages/OTPPage";
 import { TribePage } from "@/pages/TribePage";
 import ChallengeDetails from "@/pages/ChallengeDetails";
-import { ChallengeEntries } from "@/pages/ChallengeEntries";
+// import { ChallengeEntries } from "@/pages/ChallengeEntries";
 import Raceboard from "@/pages/Raceboard"; // Import Raceboard
-import Tribes from "@/pages/Tribes"; // Import Tribes
 import SubmissionFeed from "@/pages/SubmissionFeed";
 import Notifications from "@/pages/Notifications"; // Import Notifications
 import { AuthProvider, useAuth } from "@/context/AuthContext";
@@ -64,11 +63,10 @@ function App() {
           <Route path="/weekend/:weekendId" element={<ProtectedRoute><WeekendPage /></ProtectedRoute>} />
           <Route path="/challenge-details/:challengeId" element={<ProtectedRoute><ChallengeDetails /></ProtectedRoute>} />
           <Route path="/raceboard" element={<ProtectedRoute><Raceboard /></ProtectedRoute>} />
-          <Route path="/tribes" element={<ProtectedRoute><Tribes /></ProtectedRoute>} />
 
           {/* Catch-all: redirect unknown routes to home (which is protected) */}
           <Route path="/challenge/entries" element={<Navigate to="/challenge/feed" replace />} />
-          <Route path="/challenge/feed/:postId" element={<ProtectedRoute><SubmissionFeed /></ProtectedRoute>} />
+          <Route path="/challenge/feed/:postId" element={<SubmissionFeed />} />
           <Route path="/challenge/feed" element={<ProtectedRoute><SubmissionFeed /></ProtectedRoute>} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { ArrowRight, Trophy, Video, Camera, Users } from "lucide-react";
-import logo from "../assets/logo.svg";
+import logo from "../assets/logo1.svg";
 
 export function LandingPage() {
     return (
@@ -10,8 +10,7 @@ export function LandingPage() {
                 <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
                     <div className="flex items-center space-x-3">
                         {/* Logo / Brand Name */}
-                        <img src={logo} alt="GridSports Logo" className="w-10 h-10 drop-shadow-lg" />
-                        <span className="font-bold text-2xl tracking-tight text-white">Grid Sports</span>
+                        <img src={logo} alt="GridSports Logo" className="w-16 h-16 drop-shadow-lg" />
                     </div>
 
                     {/* Login Button */}
@@ -40,7 +39,7 @@ export function LandingPage() {
 
                         <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight leading-tight">
                             Predict the <br />
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500 animate-gradient-x">Perfect Lap.</span>
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 animate-gradient-x">Perfect Lap.</span>
                         </h1>
 
                         <p className="text-gray-400 text-lg max-w-xl leading-relaxed">
@@ -48,7 +47,7 @@ export function LandingPage() {
                         </p>
 
                         <div className="flex flex-col sm:flex-row gap-4">
-                            <Link to="/signup" className="flex items-center justify-center bg-red-600 hover:bg-red-700 text-white px-8 py-4 rounded-full font-bold text-lg transition-all shadow-lg shadow-red-600/30 hover:shadow-red-600/50 transform hover:-translate-y-1">
+                            <Link to="/signup" className="flex items-center justify-center bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-white px-8 py-4 rounded-full font-bold text-lg transition-all shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 transform hover:-translate-y-1">
                                 Start Racing <ArrowRight className="ml-2 w-5 h-5" />
                             </Link>
                             {/* <Link to="/login" className="flex items-center justify-center bg-gray-900 hover:bg-gray-800 text-white border border-gray-700 px-8 py-4 rounded-full font-bold text-lg transition-all transform hover:-translate-y-1">
@@ -60,7 +59,7 @@ export function LandingPage() {
                     {/* Hero Image */}
                     <div className="relative group perspective-1000">
                         {/* Abstract background blobs */}
-                        <div className="absolute -inset-4 bg-gradient-to-r from-red-600 to-orange-600 rounded-full blur-3xl opacity-20 group-hover:opacity-30 transition-opacity duration-700"></div>
+                        <div className="absolute -inset-4 bg-gradient-to-r from-cyan-600 to-blue-600 rounded-full blur-3xl opacity-20 group-hover:opacity-30 transition-opacity duration-700"></div>
 
                         <img
                             src="https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&q=80&w=2070"
@@ -83,8 +82,8 @@ export function LandingPage() {
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                         {/* Step 1 */}
-                        <div className="bg-black/40 p-8 rounded-3xl border border-gray-800 hover:border-red-500/50 transition-colors group">
-                            <div className="w-14 h-14 bg-gray-800 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-red-500/20 group-hover:text-red-500 transition-colors">
+                        <div className="bg-black/40 p-8 rounded-3xl border border-gray-800 hover:border-cyan-500/50 transition-colors group">
+                            <div className="w-14 h-14 bg-gray-800 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-cyan-500/20 group-hover:text-cyan-400 transition-colors">
                                 <Video className="w-7 h-7" />
                             </div>
                             <h3 className="text-xl font-bold mb-3">1. Join Challenges</h3>
@@ -94,8 +93,8 @@ export function LandingPage() {
                         </div>
 
                         {/* Step 2 */}
-                        <div className="bg-black/40 p-8 rounded-3xl border border-gray-800 hover:border-red-500/50 transition-colors group">
-                            <div className="w-14 h-14 bg-gray-800 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-red-500/20 group-hover:text-red-500 transition-colors">
+                        <div className="bg-black/40 p-8 rounded-3xl border border-gray-800 hover:border-cyan-500/50 transition-colors group">
+                            <div className="w-14 h-14 bg-gray-800 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-cyan-500/20 group-hover:text-cyan-400 transition-colors">
                                 <Trophy className="w-7 h-7" />
                             </div>
                             <h3 className="text-xl font-bold mb-3">2. Earn Points</h3>
@@ -105,8 +104,8 @@ export function LandingPage() {
                         </div>
 
                         {/* Step 3 */}
-                        <div className="bg-black/40 p-8 rounded-3xl border border-gray-800 hover:border-red-500/50 transition-colors group">
-                            <div className="w-14 h-14 bg-gray-800 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-red-500/20 group-hover:text-red-500 transition-colors">
+                        <div className="bg-black/40 p-8 rounded-3xl border border-gray-800 hover:border-cyan-500/50 transition-colors group">
+                            <div className="w-14 h-14 bg-gray-800 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-cyan-500/20 group-hover:text-cyan-400 transition-colors">
                                 <Users className="w-7 h-7" />
                             </div>
                             <h3 className="text-xl font-bold mb-3">3. Win the Season</h3>
@@ -122,8 +121,7 @@ export function LandingPage() {
             <footer className="bg-neutral-950 py-12 px-6 border-t border-gray-800">
                 <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
                     <div className="flex items-center space-x-2">
-                        <img src={logo} alt="GridSports Logo" className="w-8 h-8 drop-shadow-md" />
-                        <span className="font-bold text-xl text-gray-300">Grid Sports</span>
+                        <img src={logo} alt="GridSports Logo" className="w-12 h-12 drop-shadow-md" />
                     </div>
 
                     <div className="flex space-x-6 text-sm text-gray-500">

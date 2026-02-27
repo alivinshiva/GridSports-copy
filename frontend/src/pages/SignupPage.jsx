@@ -3,7 +3,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { User, Phone, Lock, ArrowRight, Eye, EyeOff } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
-import logo from "../assets/logo.svg";
+import logo from "../assets/logo1.svg";
 
 export function SignupPage() {
     const [name, setName] = useState("");
@@ -35,7 +35,7 @@ export function SignupPage() {
     return (
         <div className="min-h-screen bg-racing-black flex items-center justify-center px-4 relative overflow-hidden">
             {/* Background Glow */}
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-racing-orange/10 rounded-full blur-[120px] pointer-events-none" />
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-cyan-500/10 rounded-full blur-[120px] pointer-events-none" />
 
             <motion.div
                 initial={{ opacity: 0, y: 30 }}
@@ -45,9 +45,7 @@ export function SignupPage() {
             >
                 {/* Logo / Title */}
                 <div className="text-center mb-10 flex flex-col items-center">
-                    <h1 className="text-4xl font-black text-white tracking-tight mb-2">
-                        Grid<span className="text-racing-orange">Sports</span>
-                    </h1>
+                    <img src={logo} alt="GridSports Logo" className="w-32 h-32 mb-4 drop-shadow-[0_0_15px_rgba(6,182,212,0.3)]" />
                     <p className="text-gray-400">Create your racing account</p>
                 </div>
 
@@ -64,7 +62,7 @@ export function SignupPage() {
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
                                     placeholder="John Doe"
-                                    className="w-full bg-white/5 border border-white/10 rounded-xl pl-12 pr-4 py-3.5 text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-racing-orange/50 focus:border-racing-orange/50 transition-all"
+                                    className="w-full bg-white/5 border border-white/10 rounded-xl pl-12 pr-4 py-3.5 text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50 transition-all"
                                 />
                             </div>
                         </div>
@@ -82,7 +80,7 @@ export function SignupPage() {
                                     value={phone}
                                     onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
                                     placeholder="9876543210"
-                                    className="w-full bg-white/5 border border-white/10 rounded-xl pl-[5.5rem] pr-4 py-3.5 text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-racing-orange/50 focus:border-racing-orange/50 transition-all"
+                                    className="w-full bg-white/5 border border-white/10 rounded-xl pl-[5.5rem] pr-4 py-3.5 text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50 transition-all"
                                 />
                             </div>
                         </div>
@@ -97,7 +95,7 @@ export function SignupPage() {
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     placeholder="Min 8 characters"
-                                    className="w-full bg-white/5 border border-white/10 rounded-xl pl-12 pr-12 py-3.5 text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-racing-orange/50 focus:border-racing-orange/50 transition-all"
+                                    className="w-full bg-white/5 border border-white/10 rounded-xl pl-12 pr-12 py-3.5 text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50 transition-all"
                                 />
                                 <button
                                     type="button"
@@ -120,7 +118,7 @@ export function SignupPage() {
                         <motion.button
                             whileTap={{ scale: 0.97 }}
                             type="submit"
-                            className="w-full bg-racing-orange text-white py-4 rounded-xl font-bold text-base hover:bg-amber-600 transition-colors flex items-center justify-center gap-2 shadow-lg shadow-racing-orange/20"
+                            className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 text-white py-4 rounded-xl font-bold text-base hover:from-cyan-400 hover:to-blue-400 transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-500/25"
                         >
                             Create Account <ArrowRight size={18} />
                         </motion.button>
@@ -129,7 +127,7 @@ export function SignupPage() {
                     {/* Link to Login */}
                     <p className="text-center text-gray-400 text-sm mt-6">
                         Already have an account?{" "}
-                        <Link to="/login" className="text-racing-orange font-semibold hover:underline">
+                        <Link to="/login" className="text-cyan-400 font-semibold hover:underline">
                             Log In
                         </Link>
                     </p>

@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ShieldCheck, ArrowRight, RotateCcw } from "lucide-react";
+import { ShieldCheck, ArrowRight } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 
 export function OTPPage() {
@@ -74,12 +74,6 @@ export function OTPPage() {
         }
     };
 
-    const handleResend = () => {
-        setOtp(["", "", "", ""]);
-        setError("");
-        inputRefs.current[0]?.focus();
-    };
-
     // Auto-submit when all 4 digits are entered
     useEffect(() => {
         if (otp.every((d) => d !== "")) {
@@ -90,7 +84,7 @@ export function OTPPage() {
     return (
         <div className="min-h-screen bg-racing-black flex items-center justify-center px-4 relative overflow-hidden">
             {/* Background Glow */}
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-racing-orange/10 rounded-full blur-[120px] pointer-events-none" />
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-cyan-500/10 rounded-full blur-[120px] pointer-events-none" />
 
             <motion.div
                 initial={{ opacity: 0, y: 30 }}
@@ -100,8 +94,8 @@ export function OTPPage() {
             >
                 {/* Icon */}
                 <div className="text-center mb-8">
-                    <div className="w-20 h-20 rounded-full bg-racing-orange/10 flex items-center justify-center mx-auto mb-6 border border-racing-orange/20">
-                        <ShieldCheck size={40} className="text-racing-orange" />
+                    <div className="w-20 h-20 rounded-full bg-cyan-500/10 flex items-center justify-center mx-auto mb-6 border border-cyan-500/20">
+                        <ShieldCheck size={40} className="text-cyan-400" />
                     </div>
                     <h1 className="text-3xl font-black text-white tracking-tight mb-2">Verify OTP</h1>
                     <p className="text-gray-400 text-sm">
@@ -124,11 +118,11 @@ export function OTPPage() {
                                 onChange={(e) => handleChange(index, e.target.value)}
                                 onKeyDown={(e) => handleKeyDown(index, e)}
                                 onPaste={handlePaste}
-                                whileFocus={{ borderColor: "var(--racing-orange)" }}
-                                className={`w-16 h-16 text-center text-3xl font-black rounded-2xl border-2 bg-white/5 text-white focus:outline-none focus:ring-2 focus:ring-racing-orange/50 transition-all ${error
+                                whileFocus={{ borderColor: "#06b6d4" }}
+                                className={`w-16 h-16 text-center text-3xl font-black rounded-2xl border-2 bg-white/5 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all ${error
                                     ? "border-red-500/50"
                                     : digit
-                                        ? "border-racing-orange/50"
+                                        ? "border-cyan-500/50"
                                         : "border-white/10"
                                     } ${success ? "border-green-500 bg-green-500/10 text-green-400" : ""}`}
                             />
@@ -154,18 +148,10 @@ export function OTPPage() {
                         whileTap={{ scale: 0.97 }}
                         onClick={handleVerify}
                         disabled={success}
-                        className="w-full bg-racing-orange text-white py-4 rounded-xl font-bold text-base hover:bg-amber-600 transition-colors flex items-center justify-center gap-2 shadow-lg shadow-racing-orange/20 disabled:opacity-50"
+                        className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 text-white py-4 rounded-xl font-bold text-base hover:from-cyan-400 hover:to-blue-400 transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-500/25 disabled:opacity-50"
                     >
                         {success ? "Verified ✓" : <>Verify <ArrowRight size={18} /></>}
                     </motion.button>
-
-                    {/* Resend */}
-                    <button
-                        onClick={handleResend}
-                        className="w-full text-gray-400 text-sm mt-4 flex items-center justify-center gap-2 hover:text-white transition-colors"
-                    >
-                        <RotateCcw size={14} /> Resend Code
-                    </button>
                 </div>
 
                 {/* Demo Hint */}

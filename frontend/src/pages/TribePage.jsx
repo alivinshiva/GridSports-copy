@@ -126,14 +126,13 @@ function TribeCard({ tribe, isSelected, onSelect }) {
 
             {/* Background + Image */}
             <div
-                className="w-full flex items-end justify-center relative"
+                className="w-full flex items-end justify-center relative px-[5px] md:px-[5px] py-[15px]"
                 style={{
                     backgroundImage: `url(${bgImage}), ${tribe.bg}`,
                     backgroundBlendMode: "overlay",
                     backgroundSize: "cover",
                     backgroundPosition: "center",
-                    padding: "30px",
-                    minHeight: "200px",
+                    minHeight: "180px",
                 }}
             >
                 <img
@@ -141,7 +140,7 @@ function TribeCard({ tribe, isSelected, onSelect }) {
                     alt={tribe.id}
                     className="w-full object-contain"
                     style={{
-                        maxHeight: "160px",
+                        maxHeight: "140px",
                         filter: "drop-shadow(0px 6px 12px rgba(0,0,0,0.6))",
                     }}
                 />
@@ -262,7 +261,7 @@ export function TribePage() {
                 </div>
 
                 {/* TRIBE GRID */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 mb-12">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 mb-12">
                     {tribes.map((tribe) => (
                         <TribeCard
                             key={tribe.id}
@@ -279,13 +278,13 @@ export function TribePage() {
                         whileTap={{ scale: 0.97 }}
                         onClick={handleJoin}
                         disabled={!selected || isSubmitting}
-                        className="px-10 py-3 rounded-full font-black uppercase tracking-widest disabled:opacity-40 flex items-center gap-2"
-                        style={{
-                            backgroundColor: activeTribe?.primary || "#E78230",
-                            color: "#fff",
-                            boxShadow: activeTribe
-                                ? `0 4px 20px ${activeTribe.primary}66`
-                                : "none",
+                        className={`px-10 py-3 rounded-full font-black uppercase tracking-widest disabled:opacity-40 flex items-center gap-2 ${!activeTribe ? "bg-gradient-to-r from-cyan-500 to-blue-500 shadow-lg shadow-blue-500/25 text-white" : "text-white"
+                            }`}
+                        style={activeTribe ? {
+                            backgroundColor: activeTribe.primary,
+                            boxShadow: `0 4px 20px ${activeTribe.primary}66`,
+                            fontFamily: "'Sora-SemiBold', sans-serif",
+                        } : {
                             fontFamily: "'Sora-SemiBold', sans-serif",
                         }}
                     >

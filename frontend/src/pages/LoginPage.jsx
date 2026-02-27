@@ -3,7 +3,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Phone, Lock, ArrowRight, Eye, EyeOff } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
-import logo from "../assets/logo.svg";
+import logo from "../assets/logo1.svg";
 
 // Login does NOT require OTP - direct login after credential check
 
@@ -37,7 +37,7 @@ export function LoginPage() {
     return (
         <div className="min-h-screen bg-racing-black flex items-center justify-center px-4 relative overflow-hidden">
             {/* Background Glow */}
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-racing-orange/10 rounded-full blur-[120px] pointer-events-none" />
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-cyan-500/10 rounded-full blur-[120px] pointer-events-none" />
 
             <motion.div
                 initial={{ opacity: 0, y: 30 }}
@@ -47,9 +47,7 @@ export function LoginPage() {
             >
                 {/* Logo / Title */}
                 <div className="text-center mb-10 flex flex-col items-center">
-                    <h1 className="text-4xl font-black text-white tracking-tight mb-2">
-                        Grid<span className="text-racing-orange">Sports</span>
-                    </h1>
+                    <img src={logo} alt="GridSports Logo" className="w-32 h-32 mb-4 drop-shadow-[0_0_15px_rgba(6,182,212,0.3)]" />
                     <p className="text-gray-400">Welcome back, Racer</p>
                 </div>
 
@@ -69,7 +67,7 @@ export function LoginPage() {
                                     value={phone}
                                     onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
                                     placeholder="9876543210"
-                                    className="w-full bg-white/5 border border-white/10 rounded-xl pl-[5.5rem] pr-4 py-3.5 text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-racing-orange/50 focus:border-racing-orange/50 transition-all"
+                                    className="w-full bg-white/5 border border-white/10 rounded-xl pl-[5.5rem] pr-4 py-3.5 text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50 transition-all"
                                 />
                             </div>
                         </div>
@@ -84,7 +82,7 @@ export function LoginPage() {
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     placeholder="Enter your password"
-                                    className="w-full bg-white/5 border border-white/10 rounded-xl pl-12 pr-12 py-3.5 text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-racing-orange/50 focus:border-racing-orange/50 transition-all"
+                                    className="w-full bg-white/5 border border-white/10 rounded-xl pl-12 pr-12 py-3.5 text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50 transition-all"
                                 />
                                 <button
                                     type="button"
@@ -100,7 +98,7 @@ export function LoginPage() {
                         <div className="flex justify-end mt-2">
                             <Link
                                 to="/forgot-password"
-                                className="text-sm text-racing-orange hover:text-amber-500 transition-colors"
+                                className="text-sm text-cyan-400 hover:text-cyan-300 transition-colors"
                             >
                                 Forgot Password?
                             </Link>
@@ -117,7 +115,7 @@ export function LoginPage() {
                         <motion.button
                             whileTap={{ scale: 0.97 }}
                             type="submit"
-                            className="w-full bg-racing-orange text-white py-4 rounded-xl font-bold text-base hover:bg-amber-600 transition-colors flex items-center justify-center gap-2 shadow-lg shadow-racing-orange/20"
+                            className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 text-white py-4 rounded-xl font-bold text-base hover:from-cyan-400 hover:to-blue-400 transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-500/25"
                         >
                             Log In <ArrowRight size={18} />
                         </motion.button>
@@ -126,7 +124,7 @@ export function LoginPage() {
                     {/* Link to Signup */}
                     <p className="text-center text-gray-400 text-sm mt-6">
                         Don't have an account?{" "}
-                        <Link to="/signup" className="text-racing-orange font-semibold hover:underline">
+                        <Link to="/signup" className="text-cyan-400 font-semibold hover:underline">
                             Sign Up
                         </Link>
                     </p>

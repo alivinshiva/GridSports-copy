@@ -2,7 +2,7 @@ import { Bell, User, Home, Flag, BarChart3, Plus, Search } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useTribe } from "@/hooks/useTribe";
-import logo from "../assets/logo.svg";
+import logo from "../assets/logo1.svg";
 
 const NavItem = ({ icon: Icon, label, path, isActive, color }) => (
     <Link
