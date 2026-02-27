@@ -344,6 +344,21 @@ export const processDetailedRating = async (rankerId, submissionId, challengeId,
     await checkSubmissionMilestones(submissionId, creatorId, creatorTribe, challengeId, weekendId);
     await processRaterMissions(rankerId, weekendId, rankerProfile);
 
+    // --- Console Log for Detailed Rating ---
+    const paramLog = ratingsArray.map(r => `  ${r.parameterName}: ${r.score}⭐`).join('\n');
+    console.log(
+        `[Detailed Rating] User ${rankerId} rated Submission ${submissionId}\n` +
+        `${paramLog}\n` +
+        `  Weighted Total Score : ${totalWeightedScore.toFixed(2)}%\n` +
+        `  Base Points (÷10)    : ${(totalWeightedScore / 10).toFixed(2)}\n` +
+        `  Comment Bonus        : ${hasComment ? '+2' : '0'}\n` +
+        `  Time Bonus           : +${(rankerBasePoints - (totalWeightedScore / 10) - (hasComment ? 2 : 0)).toFixed(2)}\n` +
+        `  Tribe Multiplier     : x${rankerMultiplier} (${rankerTribe} → ${creatorTribe})\n` +
+        `  Capped               : ${isCapped}\n` +
+        `  Final Ranker Points  : ${rankerFinal}`
+    );
+    // ---------------------------------------
+
     return {
         success: true,
         message: 'Detailed rating processed successfully',
