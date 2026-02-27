@@ -35,8 +35,8 @@ const tribes = [
     },
     {
         id: "AZURE TRIBE",
-        primary: "#171859",
-        bg: "linear-gradient(135deg, #1a1b6b 0%, #0d0e40 100%)",
+        primary: "#48349c",
+        bg: "linear-gradient(135deg, #48349c 0%, #171030 100%)",
         image: azureImg,
     },
     {
@@ -77,13 +77,13 @@ const tribes = [
     },
     {
         id: "GRAPHITE TRIBE",
-        primary: "#2A2A2A",
-        bg: "linear-gradient(135deg, #444 0%, #111 100%)",
+        primary: "#ff3b30",
+        bg: "linear-gradient(135deg, #ff3b30 0%, #801d18 100%)",
         image: graphiteImg,
     },
     {
         id: "ONYX TRIBE",
-        primary: "#0B0B0F",
+        primary: "#404040", // Set back to grey as requested
         bg: "linear-gradient(135deg, #1a1a1f 0%, #0B0B0F 100%)",
         image: onyxImg,
     },
@@ -93,7 +93,7 @@ const tribes = [
    TRIBE CARD
 =========================== */
 function TribeCard({ tribe, isSelected, onSelect }) {
-    const isLight = ["WHITE TRIBE", "SILVER TRIBE"].includes(tribe.id);
+    const isLight = ["WHITE TRIBE", "SILVER TRIBE", "CARBON TRIBE"].includes(tribe.id);
     const textColor = isLight ? "#111" : "#fff";
 
     return (
