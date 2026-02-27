@@ -322,14 +322,16 @@ export const processDetailedRating = async (rankerId, submissionId, challengeId,
     if (hasComment) console.log(`Selected Comment Present`);
     console.log(`--------------------------------------------------------------\n`);
 
-    let rankerBasePoints = totalWeightedScore;
-
-    // Add bonus points
-    if (hasComment) rankerBasePoints += 2;
+    let actionBasePoints = 7;
+    let timeBonus = 0;
+    let commentBonus = hasComment ? 2 : 0;
 
     const hoursSinceUpload = (Date.now() - new Date(submission.createdAt).getTime()) / (1000 * 60 * 60);
-    if (hoursSinceUpload < 24) rankerBasePoints += 2;
-    else if (hoursSinceUpload < 48) rankerBasePoints += 1;
+    if (hoursSinceUpload < 24) timeBonus = 2;
+    else if (hoursSinceUpload < 48) timeBonus = 1;
+
+    // Combine fixed action points, bonuses, and the percentage score 
+    let rankerBasePoints = actionBasePoints + timeBonus + commentBonus + totalWeightedScore;
 
     // Early Traction Bonus
     const firstRatingsCount = await pointLedgerModel.countDocuments({
@@ -343,7 +345,7 @@ export const processDetailedRating = async (rankerId, submissionId, challengeId,
         }
     }
 
-    // Multiply the base points (from the percentage calculation) using the multiplier rule
+    // Multiply the base points (from the percentage calculation + the base 7) using the multiplier rule
     const rankerFinal = await logPointTransaction(rankerId, rankerTribe, challengeId, weekendId, submissionId, 'RATE_DETAILED', rankerBasePoints, rankerMultiplier, isCapped);
 
     await checkSubmissionMilestones(submissionId, creatorId, creatorTribe, challengeId, weekendId);
@@ -354,10 +356,11 @@ export const processDetailedRating = async (rankerId, submissionId, challengeId,
     console.log(
         `[Detailed Rating] User ${rankerId} rated Submission ${submissionId}\n` +
         `${paramLog}\n` +
-        `  Weighted Total Score : ${totalWeightedScore.toFixed(2)}%\n` +
-        `  Base Points (÷10)    : ${(totalWeightedScore / 10).toFixed(2)}\n` +
-        `  Comment Bonus        : ${hasComment ? '+2' : '0'}\n` +
-        `  Time Bonus           : +${(rankerBasePoints - (totalWeightedScore / 10) - (hasComment ? 2 : 0)).toFixed(2)}\n` +
+        `  Weighted Total Score : +${totalWeightedScore.toFixed(2)}\n` +
+        `  Action Base Points   : +${actionBasePoints}\n` +
+        `  Comment Bonus        : +${commentBonus}\n` +
+        `  Time Bonus           : +${timeBonus}\n` +
+        `  Total Pre-Multiplier : ${rankerBasePoints.toFixed(2)}\n` +
         `  Tribe Multiplier     : x${rankerMultiplier} (${rankerTribe} → ${creatorTribe})\n` +
         `  Capped               : ${isCapped}\n` +
         `  Final Ranker Points  : ${rankerFinal}`
