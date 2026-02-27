@@ -384,7 +384,7 @@ export const rateDetailedController = async (req, res) => {
         }
 
         // Find challenge to get weightage parameters
-        const challenge = await require('../model/challange.model.js').default.findById(challengeId);
+        const challenge = await challengeModel.findById(challengeId);
         if (!challenge) {
             return res.status(404).json({ success: false, message: "Challenge not found" });
         }

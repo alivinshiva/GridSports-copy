@@ -21,6 +21,17 @@ export const getAllSubmissions = async () => {
     }
 };
 
+export const getSingleSubmission = async (submissionId) => {
+    try {
+        const response = await axios.get(`${API_URL}/single/${submissionId}`, {
+            withCredentials: true,
+        });
+        return response.data;
+    } catch (error) {
+        throw error.response?.data || error.message;
+    }
+};
+
 export const addSubmission = async (formData) => {
     try {
         const response = await axios.post(`${API_URL}/add`, formData, {
