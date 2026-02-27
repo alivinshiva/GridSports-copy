@@ -615,7 +615,43 @@ const SubmissionFeed = () => {
                                     )}
 
                                     {/* Gradient Overlay */}
-                                    <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none"></div>
+                                    <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/80 via-black/40 to-transparent pointer-events-none z-10"></div>
+                                </div>
+
+                                {/* Uploader Info & Challenge Text Overlay */}
+                                <div className="absolute left-4 bottom-32 md:bottom-28 z-30 pointer-events-none flex flex-col gap-2 max-w-[80%]">
+                                    {entry.user && (
+                                        <div className="flex items-center gap-3">
+                                            <div
+                                                className="w-10 h-10 rounded-full bg-cover bg-center border-2 shadow-lg"
+                                                style={{
+                                                    backgroundImage: `url(${entry.user.profilePic || 'https://via.placeholder.com/150'})`,
+                                                    borderColor: entry.user.tribe ? 'white' : 'transparent'
+                                                }}
+                                            />
+                                            <div className="flex flex-col">
+                                                <span className="text-white font-bold text-sm drop-shadow-md leading-tight">{entry.user.name || "GridSports User"}</span>
+                                                {entry.user.tribe && (
+                                                    <span className="text-white/80 text-[10px] uppercase tracking-wider font-semibold drop-shadow-md">
+                                                        {entry.user.tribe}
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {entry.challenge && (
+                                        <div className="mt-1">
+                                            <h4 className="text-white font-semibold text-sm drop-shadow-md">
+                                                {entry.challenge.name}
+                                            </h4>
+                                            {entry.challenge.description && (
+                                                <p className="text-white/80 text-xs drop-shadow-md line-clamp-2 mt-0.5">
+                                                    {entry.challenge.description}
+                                                </p>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
 
                                 {/* Share Icon Top Right */}

@@ -333,8 +333,8 @@ export const getBatchSubmissionsController = async (req, res) => {
 
 // desc get single submission
 // method GET
-// path /api/v1/submission/get-single-submission/:id
-// access private
+// path /api/v1/submission/single/:id
+// access public (used for shared links)
 
 export const getSingleSubmissionController = async (req, res) => {
     try {
@@ -344,7 +344,9 @@ export const getSingleSubmissionController = async (req, res) => {
             return res.status(400).json({ success: false, message: "Submission ID is required" });
         };
 
-        const submission = await submissionModel.findById(id);
+        const submission = await submissionModel.findById(id)
+            .populate("user", "name profilePic tribe")
+            .populate("challenge", "name description scoringType parameters comments");
 
         if (!submission) {
             return res.status(404).json({ success: false, message: "Submission Not Found" });

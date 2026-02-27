@@ -138,12 +138,12 @@ export default function WeekendPage() {
                             return (
                                 <div
                                     key={race._id}
-                                    className={`rounded-[24px] overflow-hidden flex flex-col relative group transition-all duration-300 hover:-translate-y-1 shadow-xl hover:shadow-[0_0_30px_rgba(59,130,246,0.6)] ${isDeactive ? 'cursor-not-allowed opacity-80' : ''} bg-white dark:bg-[#1e1e1e]`}
+                                    className={`rounded-3xl overflow-hidden flex flex-col relative group transition-all duration-300 hover:-translate-y-2 border border-white/5 bg-[#111118] ${isDeactive ? 'cursor-not-allowed opacity-75' : 'hover:border-blue-500/30 hover:shadow-[0_8px_30px_rgba(59,130,246,0.15)]'}`}
                                 >
                                     {/* Top Area (Image/Placeholder) */}
                                     <Link
                                         to={isDeactive ? '#' : `/challenge-details/${race._id}`}
-                                        className="w-full relative block h-48 sm:h-56 overflow-hidden rounded-t-[24px]"
+                                        className="w-full relative block h-48 sm:h-56 overflow-hidden rounded-t-3xl"
                                         onClick={(e) => isDeactive && e.preventDefault()}
                                     >
                                         <div
@@ -153,18 +153,20 @@ export default function WeekendPage() {
 
                                         {/* Status Badge */}
                                         <div className="absolute top-4 left-4 z-10 flex flex-col gap-2">
-                                            <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider shadow-sm backdrop-blur-md ${isActive
-                                                ? 'bg-green-500/90 text-white'
+                                            <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-sm border ${isActive
+                                                ? 'bg-red-900/40 text-red-400 border-red-500/30'
                                                 : isDeactive
-                                                    ? 'bg-gray-500/90 text-white'
-                                                    : 'bg-yellow-500/90 text-white'
+                                                    ? 'bg-[#111118]/80 text-gray-400 border-white/10'
+                                                    : 'bg-blue-500/90 text-white border-blue-400/50'
                                                 }`}>
-                                                <span className={`size-2 rounded-full ${isActive
-                                                    ? 'bg-white animate-pulse'
-                                                    : isDeactive
-                                                        ? 'bg-gray-300'
-                                                        : 'bg-white'
-                                                    }`}></span>
+                                                {isActive ? (
+                                                    <span className="relative flex h-2 w-2">
+                                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75"></span>
+                                                        <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                                                    </span>
+                                                ) : (
+                                                    <span className={`size-2 rounded-full ${isDeactive ? 'bg-gray-500' : 'bg-white'}`}></span>
+                                                )}
                                                 {race.status || 'UPCOMING'}
                                             </span>
                                         </div>
@@ -180,42 +182,42 @@ export default function WeekendPage() {
                                     </Link>
 
                                     {/* Bottom Solid Area */}
-                                    <div className="h-44 bg-[#8f9096] dark:bg-[#1e1e1e] w-full p-5 flex flex-col justify-between relative overflow-hidden">
+                                    <div className="h-44 bg-[#111118] w-full p-5 flex flex-col justify-between relative overflow-hidden border-t border-white/5">
                                         {/* Inner glow visually */}
-                                        <div className="absolute inset-0 bg-gradient-to-t from-blue-500/0 group-hover:from-blue-500/20 to-transparent pointer-events-none transition-all duration-300"></div>
+                                        <div className="absolute inset-0 bg-gradient-to-t from-cyan-500/0 group-hover:from-cyan-500/5 to-transparent pointer-events-none transition-all duration-500"></div>
 
                                         <div className="relative z-10">
-                                            <h4 className="text-white font-bold text-lg md:text-xl mb-1 truncate drop-shadow-sm">
+                                            <h4 className="text-white font-bold text-lg md:text-xl mb-2 truncate drop-shadow-sm group-hover:text-cyan-400 transition-colors">
                                                 {race.name}
                                             </h4>
 
                                             {/* Timer or Dates */}
                                             {isUpcoming ? (
-                                                <div className="text-white/90 text-sm font-semibold flex items-center gap-1.5">
+                                                <div className="text-gray-400 text-sm font-medium flex items-center gap-1.5">
                                                     <span className="material-symbols-outlined text-[16px]">timer</span>
-                                                    <span>Starts in: <CountdownTimer targetDate={race.startAt} /></span>
+                                                    <span>Starts in: <span className="text-cyan-400 font-bold"><CountdownTimer targetDate={race.startAt} /></span></span>
                                                 </div>
                                             ) : (
-                                                <div className="text-white/90 text-[11px] sm:text-xs font-semibold flex flex-col gap-1 mt-1">
+                                                <div className="text-gray-400 text-[11px] sm:text-xs font-medium flex flex-col gap-1.5 mt-1">
                                                     <div className="flex items-center gap-1.5">
-                                                        <span className="material-symbols-outlined text-[14px]">calendar_today</span>
-                                                        <span>Start: {new Date(race.startAt).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                                                        <span className="material-symbols-outlined text-[14px] text-cyan-500">calendar_today</span>
+                                                        <span>Start: <span className="text-gray-300">{new Date(race.startAt).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span></span>
                                                     </div>
                                                     <div className="flex items-center gap-1.5">
-                                                        <span className="material-symbols-outlined text-[14px]">event_available</span>
-                                                        <span>End: {new Date(race.endAt).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                                                        <span className="material-symbols-outlined text-[14px] text-blue-500">event_available</span>
+                                                        <span>End: <span className="text-gray-300">{new Date(race.endAt).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span></span>
                                                     </div>
                                                 </div>
                                             )}
                                         </div>
 
                                         {/* Generic Action Button using Gradient Style */}
-                                        <div className="relative z-10 mt-3">
+                                        <div className="relative z-10 mt-3 pt-3 border-t border-white/5">
                                             <Link
                                                 to={isDeactive ? '#' : `/challenge-details/${race._id}`}
-                                                className={`w-full font-bold py-2 px-3 rounded-full flex items-center justify-center gap-2 transition-all shadow-md active:scale-[0.98] ${isDeactive
-                                                    ? 'bg-gray-400 text-white cursor-not-allowed shadow-none'
-                                                    : 'bg-gradient-to-r from-[#70b1ff] to-[#59d5e0] text-white shadow-[0_0_15px_rgba(112,177,255,0.3)] hover:brightness-110'
+                                                className={`w-full font-bold py-2 px-4 rounded-xl flex items-center justify-center gap-2 transition-all ${isDeactive
+                                                    ? 'bg-white/5 text-gray-500 cursor-not-allowed'
+                                                    : 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg shadow-blue-500/25 hover:from-cyan-400 hover:to-blue-400'
                                                     }`}
                                                 onClick={(e) => isDeactive && e.preventDefault()}
                                             >
@@ -230,13 +232,12 @@ export default function WeekendPage() {
                     </div>
 
                     {races.length === 0 && (
-                        <div className="flex flex-col justify-center items-center p-12 border-2 border-dashed border-[#e8dbce] dark:border-[#3d2e21] rounded-2xl text-center gap-6 opacity-60">
-                            <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-400">
+                        <div className="flex flex-col justify-center items-center p-12 border-2 border-dashed border-white/10 rounded-2xl text-center gap-6 opacity-60 bg-[#111118]">
+                            <div className="w-16 h-16 rounded-full bg-cyan-500/10 flex items-center justify-center text-cyan-400 border border-cyan-500/30">
                                 <span className="material-symbols-outlined text-3xl">lock_clock</span>
                             </div>
                             <div>
-                                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">No active challenges</h3>
-                                <p className="text-base text-gray-500 max-w-xs mx-auto">Challenges for this weekend race will be unlocked soon.</p>
+                                <p className="text-base text-gray-400 max-w-xs mx-auto">Challenges for this weekend race will be unlocked soon.</p>
                             </div>
                         </div>
                     )}
