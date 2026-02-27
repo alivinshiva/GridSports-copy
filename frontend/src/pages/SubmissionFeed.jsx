@@ -2,13 +2,13 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useLocation, Link, useParams } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { getFeedIds, getBatchSubmissions, rateSubmission, recordShare, rateDetailed, getSingleSubmission } from "@/services/submissionService";
-import { Loader2, ArrowLeft, Facebook, Instagram, MessageCircle, Link as LinkIcon, X, CheckSquare, Star, Home, User, Send, Share2 } from "lucide-react";
+import { Loader2, ArrowLeft, Facebook, Instagram, MessageCircle, Link as LinkIcon, X, CheckSquare, Star, Home, User, Send, Share2, Volume2, VolumeX, Play } from "lucide-react";
 import { BottomNav } from "@/components/home/BottomNav";
 
 const FEED_STORAGE = {
-    queue: 'feed_queue_v1',
-    pointer: 'feed_pointer_v1',
-    seen: 'feed_seen_v1'
+    queue: 'feed_queue_v2',
+    pointer: 'feed_pointer_v2',
+    seen: 'feed_seen_v2'
 };
 
 const INITIAL_LIMIT = 50;
@@ -44,6 +44,73 @@ const shuffleArray = (array) => {
         [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
     }
     return shuffled;
+};
+
+const VideoPlayer = ({ src, muted, isActive }) => {
+    const videoRef = useRef(null);
+    const [isPlaying, setIsPlaying] = useState(false);
+    const [progress, setProgress] = useState(0);
+
+    useEffect(() => {
+        if (!videoRef.current) return;
+        if (isActive) {
+            videoRef.current.play()
+                .then(() => setIsPlaying(true))
+                .catch(e => console.log("Autoplay prevented or interrupted:", e));
+        } else {
+            videoRef.current.pause();
+            setIsPlaying(false);
+        }
+    }, [isActive]);
+
+    const togglePlay = (e) => {
+        e.stopPropagation();
+        if (!videoRef.current) return;
+        if (videoRef.current.paused) {
+            videoRef.current.play().then(() => setIsPlaying(true)).catch(console.error);
+        } else {
+            videoRef.current.pause();
+            setIsPlaying(false);
+        }
+    };
+
+    const handleTimeUpdate = () => {
+        if (!videoRef.current) return;
+        const current = videoRef.current.currentTime;
+        const total = videoRef.current.duration;
+        setProgress((current / total) * 100);
+    };
+
+    return (
+        <div className="relative h-full w-full cursor-pointer bg-black" onClick={togglePlay}>
+            <video
+                ref={videoRef}
+                src={src}
+                className="h-full w-full object-contain"
+                playsInline
+                muted={muted}
+                loop
+                onTimeUpdate={handleTimeUpdate}
+            />
+
+            {/* Play icon overlay if paused */}
+            {!isPlaying && (
+                <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none">
+                    <div className="w-16 h-16 rounded-full bg-black/40 flex items-center justify-center backdrop-blur-sm">
+                        <Play size={32} className="text-white ml-1" fill="currentColor" />
+                    </div>
+                </div>
+            )}
+
+            {/* Seekbar */}
+            <div className="absolute bottom-0 left-0 w-full h-[3px] bg-white/30 z-20">
+                <div
+                    className="h-full bg-white transition-all duration-75 ease-linear"
+                    style={{ width: `${progress}%` }}
+                ></div>
+            </div>
+        </div>
+    );
 };
 
 const FeedDesktopSidebar = () => {
@@ -97,12 +164,13 @@ const SubmissionFeed = () => {
     // Initialize feed with preloaded data (optimized) or just clicked entry
     const [feed, setFeed] = useState([]);
     const [loading, setLoading] = useState(false);
-    const [muted, setMuted] = useState(true);
+    const [muted, setMuted] = useState(false);
     const [ratingsState, setRatingsState] = useState({}); // { [id]: 'LOVE'|'LIKE'|'DISLIKE' }
     const [detailedRatingsState, setDetailedRatingsState] = useState({}); // { [subId]: { [paramName]: score } }
     const [selectedCommentState, setSelectedCommentState] = useState({}); // { [subId]: 'Comment string' }
     const [activeShare, setActiveShare] = useState(null); // ID of submission being shared
     const [submittedDetailedState, setSubmittedDetailedState] = useState({}); // { [subId]: true } after explicit submit
+    const [activeIndex, setActiveIndex] = useState(0); // Track currently viewed post
 
     const getSessionState = useCallback(() => {
         return {
@@ -376,28 +444,49 @@ const SubmissionFeed = () => {
             });
             return next;
         });
+
+        // Set submitted state if detailed ratings already exist
+        setSubmittedDetailedState(prev => {
+            const next = { ...prev };
+            feed.forEach(sub => {
+                if (sub.detailedUserRating && Object.keys(sub.detailedUserRating.ratings || {}).length > 0 && !next[sub._id]) {
+                    next[sub._id] = true;
+                }
+            });
+            return next;
+        });
     }, [feed]);
 
     useEffect(() => {
         const container = feedContainerRef.current;
         if (!container) return undefined;
 
+        let timeout = null;
         const onScroll = () => {
-            const remaining = container.scrollHeight - container.scrollTop - container.clientHeight;
-            if (remaining < container.clientHeight * 1.5) {
-                loadNextBatch();
-            }
+            if (timeout) return;
+            timeout = setTimeout(() => {
+                timeout = null;
+                const remaining = container.scrollHeight - container.scrollTop - container.clientHeight;
+                if (remaining < container.clientHeight * 1.5) {
+                    loadNextBatch();
+                }
 
-            const index = Math.round(container.scrollTop / container.clientHeight);
-            const currentEntry = feed[index];
-            if (currentEntry?._id) {
-                scheduleRemovalForId(currentEntry._id);
-            }
+                const index = Math.round(container.scrollTop / container.clientHeight);
+                setActiveIndex(index);
+
+                const currentEntry = feed[index];
+                if (currentEntry?._id) {
+                    scheduleRemovalForId(currentEntry._id);
+                }
+            }, 100);
         };
 
         container.addEventListener('scroll', onScroll);
         onScroll();
-        return () => container.removeEventListener('scroll', onScroll);
+        return () => {
+            container.removeEventListener('scroll', onScroll);
+            if (timeout) clearTimeout(timeout);
+        };
     }, [feed, loadNextBatch, scheduleRemovalForId]);
 
     useEffect(() => {
@@ -473,12 +562,6 @@ const SubmissionFeed = () => {
                 [submissionId]: isCurrentlySelected ? null : commentText
             };
         });
-    };
-
-    // Toggle mute
-    const toggleMute = (e) => {
-        e.stopPropagation();
-        setMuted(!muted);
     };
 
     const handleRate = async (e, submissionId, ratingType) => {
@@ -589,6 +672,17 @@ const SubmissionFeed = () => {
                 {/* Vertical Scroll Snap Container */}
                 <div ref={feedContainerRef} className="w-full h-full md:h-[calc(100vh-40px)] md:max-w-[420px] mx-auto bg-black overflow-y-scroll snap-y snap-mandatory no-scrollbar relative md:rounded-2xl md:shadow-[0_0_40px_transparent] md:border md:border-white/5" style={{ scrollBehavior: 'smooth' }}>
                     {feed.map((entry, index) => {
+                        const isVisible = Math.abs(index - activeIndex) <= 2;
+                        if (!isVisible) {
+                            return (
+                                <div
+                                    key={`${entry._id}-${index}`}
+                                    data-id={entry._id}
+                                    className="submission-slide h-full w-full snap-start snap-always relative bg-black"
+                                ></div>
+                            );
+                        }
+
                         return (
                             <div
                                 key={`${entry._id}-${index}`}
@@ -596,22 +690,17 @@ const SubmissionFeed = () => {
                                 className="submission-slide h-full w-full snap-start snap-always relative flex items-center justify-center bg-black"
                             >
                                 {/* Media */}
-                                <div className="relative w-full h-full flex items-center justify-center cursor-pointer" onClick={toggleMute}>
+                                <div className="relative w-full h-full flex items-center justify-center cursor-pointer">
                                     {entry.mediaType === 'video' ? (
-                                        <video
-                                            src={entry.mediaUrl}
-                                            className="h-full w-full object-cover"
-                                            playsInline
-                                            autoPlay={true}
-                                            muted={muted}
-                                            loop
-                                        />
+                                        <VideoPlayer src={entry.mediaUrl} muted={muted} isActive={index === activeIndex} />
                                     ) : (
-                                        <img
-                                            src={entry.mediaUrl}
-                                            className="h-full w-full object-cover"
-                                            alt="Submission"
-                                        />
+                                        <div className="w-full h-full bg-black flex items-center justify-center">
+                                            <img
+                                                src={entry.mediaUrl}
+                                                className="w-full h-full object-contain"
+                                                alt="Submission"
+                                            />
+                                        </div>
                                     )}
 
                                     {/* Gradient Overlay */}
@@ -622,9 +711,13 @@ const SubmissionFeed = () => {
                                 <div className="absolute left-4 bottom-32 md:bottom-28 z-30 pointer-events-none flex flex-col gap-2 max-w-[80%]">
                                 </div>
 
-                                {/* Share Icon Top Right */}
-                                <div className="absolute top-6 right-6 z-50 cursor-pointer pointer-events-auto" onClick={(e) => handleShareClick(e, entry._id)}>
-                                    <Share2 size={24} className="text-[#3b82f6]" />
+                                {/* Share & Mute Icons Top Right */}
+                                <div className="absolute top-6 right-6 z-50 flex flex-col gap-4">
+                                    <div className="cursor-pointer pointer-events-auto" onClick={(e) => handleShareClick(e, entry._id)}>
+                                        <div className="w-10 h-10 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center transition-transform hover:scale-105 border border-white/20 shadow-lg">
+                                            <Share2 size={18} className="text-white" />
+                                        </div>
+                                    </div>
                                 </div>
 
                                 {/* Actions Container */}

@@ -25,6 +25,10 @@ const detailedRatingSchema = new mongoose.Schema({
     totalScore: {
         type: Number,
         required: true
+    },
+    comment: {
+        type: String,
+        default: null
     }
 }, { timestamps: true });
 

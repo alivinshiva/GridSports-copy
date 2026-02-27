@@ -29,7 +29,11 @@ const submissionSchema = new mongoose.Schema({
             type: String,
             trim: true
         }
-    ]
+    ],
+    randomSeed: {
+        type: Number,
+        index: true
+    }
 }, { timestamps: true });
 
 export default mongoose.model("submission", submissionSchema);
