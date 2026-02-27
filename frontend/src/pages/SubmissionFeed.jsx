@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useLocation, useNavigate, Link, useParams } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { getAllRandomSubmissions, rateSubmission, recordShare, rateDetailed, getSingleSubmission } from "@/services/submissionService";
-import { Loader2, ArrowLeft, Volume2, VolumeX, Heart, ThumbsUp, ThumbsDown, Share2, Facebook, Instagram, MessageCircle, Link as LinkIcon, X, CheckSquare, Star, Home, User, Send } from "lucide-react";
+import { Loader2, ArrowLeft, Facebook, Instagram, MessageCircle, Link as LinkIcon, X, CheckSquare, Star, Home, User, Send } from "lucide-react";
 import { BottomNav } from "@/components/home/BottomNav";
 
 const FeedDesktopSidebar = () => {
@@ -45,7 +45,6 @@ const FeedDesktopSidebar = () => {
 
 const SubmissionFeed = () => {
     const location = useLocation();
-    const navigate = useNavigate();
     const { postId } = useParams();
     const initialEntry = location.state?.initialEntry;
     const preloadedFeed = location.state?.preloadedFeed;
@@ -420,16 +419,22 @@ const SubmissionFeed = () => {
                                         <div className="flex flex-col w-full px-4 pb-0 text-white pointer-events-auto bg-transparent pt-4">
                                             {/* Detail Rating Submit Button */}
                                             <div className="flex justify-end w-full px-2 mb-2">
-                                                <button
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        submitDetailedRatings(entry._id);
-                                                    }}
-                                                    className="p-2 bg-black/50 rounded-full border border-white/20 hover:bg-white/10 transition-colors shadow-lg active:scale-95 flex items-center justify-center rotate-45"
-                                                    title="Submit Rating"
-                                                >
-                                                    <Send size={20} className="text-[#3b82f6] fill-[#3b82f6]" style={{ transform: 'rotate(-45deg)' }} />
-                                                </button>
+                                                {!submittedDetailedState[entry._id] ? (
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            submitDetailedRatings(entry._id);
+                                                        }}
+                                                        className="p-2 bg-black/50 rounded-full border border-white/20 hover:bg-white/10 transition-colors shadow-lg active:scale-95 flex items-center justify-center rotate-45"
+                                                        title="Submit Rating"
+                                                    >
+                                                        <Send size={20} className="text-[#3b82f6] fill-[#3b82f6]" style={{ transform: 'rotate(-45deg)' }} />
+                                                    </button>
+                                                ) : (
+                                                    <div className="w-10 h-10 bg-green-500 rounded-full shadow-[0_0_18px_rgba(34,197,94,0.5)] flex items-center justify-center" title="Submitted">
+                                                        <CheckSquare size={20} className="text-white" />
+                                                    </div>
+                                                )}
                                             </div>
 
                                             <div className="space-y-3 px-2">
@@ -494,19 +499,7 @@ const SubmissionFeed = () => {
                                                 </div>
                                             )}
 
-                                            {/* Submit Arrow Button — bottom-right of post */}
-                                            {!submittedDetailedState[entry._id] ? (
-                                                <button
-                                                    onClick={(e) => { e.stopPropagation(); submitDetailedRatings(entry._id); }}
-                                                    className="absolute bottom-[72px] md:bottom-8 right-4 z-30 w-12 h-12 rounded-full bg-[#3b82f6] shadow-[0_0_18px_rgba(59,130,246,0.6)] flex items-center justify-center transition-transform active:scale-90 hover:bg-[#2563eb]"
-                                                >
-                                                    <Send size={20} className="text-white" />
-                                                </button>
-                                            ) : (
-                                                <div className="absolute bottom-[72px] md:bottom-8 right-4 z-30 w-12 h-12 rounded-full bg-green-500 shadow-[0_0_18px_rgba(34,197,94,0.5)] flex items-center justify-center">
-                                                    <CheckSquare size={22} className="text-white" />
-                                                </div>
-                                            )}
+
                                         </div>
                                     ) : (
                                         <div className="flex flex-col w-full px-4 pb-6 text-white pointer-events-auto bg-transparent pt-2">
