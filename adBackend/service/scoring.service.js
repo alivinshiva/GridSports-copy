@@ -300,6 +300,7 @@ export const processDetailedRating = async (rankerId, submissionId, challengeId,
 
     let rankerMultiplier = (rankerTribe === creatorTribe) ? 1.0 : 0.25;
 
+    console.log(`\n--- Backend Detailed Ratings Log for Submission ${submissionId} ---`);
     // Calculate total weighted percentage score
     let totalWeightedScore = 0;
     ratingsArray.forEach(r => {
@@ -315,9 +316,13 @@ export const processDetailedRating = async (rankerId, submissionId, challengeId,
         const finalPercentScore = (weightage / 100) * baseScore;
 
         totalWeightedScore += finalPercentScore;
+        console.log(`${r.parameterName}: ${r.score} stars = ${baseScore} base points. ${weightage}% of ${baseScore} = +${finalPercentScore.toFixed(2)} to total score.`);
     });
+    console.log(`Total Percentage Score calculated: ${totalWeightedScore.toFixed(2)} / 100`);
+    if (hasComment) console.log(`Selected Comment Present`);
+    console.log(`--------------------------------------------------------------\n`);
 
-    let rankerBasePoints = totalWeightedScore / 10;
+    let rankerBasePoints = totalWeightedScore;
 
     // Add bonus points
     if (hasComment) rankerBasePoints += 2;

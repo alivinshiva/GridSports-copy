@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { useLocation, useNavigate, Link } from 'react-router-dom';
+import { useLocation, useNavigate, Link, useParams } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
-import { getAllRandomSubmissions, rateSubmission, recordShare, rateDetailed } from "@/services/submissionService";
+import { getAllRandomSubmissions, rateSubmission, recordShare, rateDetailed, getSingleSubmission } from "@/services/submissionService";
 import { Loader2, ArrowLeft, Volume2, VolumeX, Heart, ThumbsUp, ThumbsDown, Share2, Facebook, Instagram, MessageCircle, Link as LinkIcon, X, CheckSquare, Star, Home, User, Send } from "lucide-react";
 import { BottomNav } from "@/components/home/BottomNav";
 
@@ -46,6 +46,7 @@ const FeedDesktopSidebar = () => {
 const SubmissionFeed = () => {
     const location = useLocation();
     const navigate = useNavigate();
+    const { postId } = useParams();
     const initialEntry = location.state?.initialEntry;
     const preloadedFeed = location.state?.preloadedFeed;
 
@@ -59,7 +60,7 @@ const SubmissionFeed = () => {
     const [activeShare, setActiveShare] = useState(null); // ID of submission being shared
     const [submittedDetailedState, setSubmittedDetailedState] = useState({}); // { [subId]: true } after explicit submit
 
-    const fetchMoreEntries = useCallback(async () => {
+    const fetchMoreEntries = useCallback(async (excludeId = null) => {
         if (loading) return;
         setLoading(true);
         try {
@@ -67,7 +68,7 @@ const SubmissionFeed = () => {
             if (response.success && response.data.length > 0) {
                 setFeed(prev => {
                     const newEntries = response.data.filter(newItem =>
-                        !prev.some(existing => existing._id === newItem._id)
+                        !prev.some(existing => existing._id === newItem._id) && newItem._id !== excludeId
                     );
                     return [...prev, ...newEntries];
                 });
@@ -81,10 +82,53 @@ const SubmissionFeed = () => {
 
     // Initial fetch
     useEffect(() => {
-        if (feed.length < 5) {
+        const initializeFeed = async () => {
+            // Priority 1: Use preloadedFeed if there's enough
+            if (preloadedFeed && preloadedFeed.length > 0) {
+                setFeed(preloadedFeed);
+                if (preloadedFeed.length < 5) fetchMoreEntries();
+                return;
+            }
+
+            // Priority 2: Use initialEntry specifically passed via state
+            if (initialEntry) {
+                setFeed([initialEntry]);
+                fetchMoreEntries(initialEntry._id);
+                return;
+            }
+
+            // Priority 3: Resolve the ID from the URL if present
+            if (postId) {
+                setLoading(true);
+                try {
+                    const res = await getSingleSubmission(postId);
+                    if (res.success && res.data) {
+                        setFeed([res.data]);
+                        fetchMoreEntries(postId);
+                    } else {
+                        fetchMoreEntries();
+                    }
+                } catch (e) {
+                    console.error("Failed fetching url post ID", e);
+                    fetchMoreEntries();
+                } finally {
+                    setLoading(false);
+                }
+                return;
+            }
+
+            // Priority 4: Fallback to regular random fetch
+            if (feed.length < 5) {
+                fetchMoreEntries();
+            }
+        };
+
+        if (feed.length === 0 || feed.length === 1) {
+            initializeFeed();
+        } else if (feed.length < 5) {
             fetchMoreEntries();
         }
-    }, []);
+    }, [postId]);
 
     // Hydrate ratings on feed changes
     useEffect(() => {
@@ -282,14 +326,22 @@ const SubmissionFeed = () => {
         }
 
         // Logic to actually share via platform URL or copy link
-        const shareUrl = window.location.href; // In a real app we'd construct a specific URL
+        const shareUrl = `${window.location.origin}/challenge/feed/${activeShare}`; // Specific post URL
         if (platform === 'whatsapp') {
             window.open(`https://wa.me/?text=Check out this video! ${shareUrl}`, '_blank');
         } else if (platform === 'facebook') {
             window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`, '_blank');
         } else if (platform === 'copy') {
             navigator.clipboard.writeText(shareUrl);
-            alert("Link copied to clipboard!");
+            toast.success("Link copied to clipboard!", {
+                duration: 2000,
+                position: 'bottom-center',
+                style: {
+                    background: '#333',
+                    color: '#fff',
+                    borderRadius: '8px',
+                },
+            });
         } else {
             // Native share fallback if available
             if (navigator.share) {
@@ -366,6 +418,20 @@ const SubmissionFeed = () => {
                                     {/* Conditionally Render Rating UI */}
                                     {entry.challenge?.scoringType === 'DETAILED' ? (
                                         <div className="flex flex-col w-full px-4 pb-0 text-white pointer-events-auto bg-transparent pt-4">
+                                            {/* Detail Rating Submit Button */}
+                                            <div className="flex justify-end w-full px-2 mb-2">
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        submitDetailedRatings(entry._id);
+                                                    }}
+                                                    className="p-2 bg-black/50 rounded-full border border-white/20 hover:bg-white/10 transition-colors shadow-lg active:scale-95 flex items-center justify-center rotate-45"
+                                                    title="Submit Rating"
+                                                >
+                                                    <Send size={20} className="text-[#3b82f6] fill-[#3b82f6]" style={{ transform: 'rotate(-45deg)' }} />
+                                                </button>
+                                            </div>
+
                                             <div className="space-y-3 px-2">
                                                 {entry.challenge?.parameters?.map((param, pIdx) => {
                                                     const maxPts = 5;
