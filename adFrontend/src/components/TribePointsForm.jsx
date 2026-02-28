@@ -52,6 +52,7 @@ const TribePointsForm = () => {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
+                    tribe: formData.tribeName,
                     tribeName: formData.tribeName,
                     points: formData.points
                 }),
@@ -185,10 +186,10 @@ const TribePointsForm = () => {
                                     >
                                         <option value="" disabled>-- Select a Tribe --</option>
                                         {[
-                                            "IRON TRIBE", "ROYAL TRIBE", "INDIGO TRIBE",
-                                            "EMERALD TRIBE", "ORANGE TRIBE", "SCARLET TRIBE",
-                                            "CRIMSON TRIBE", "PLATINUM TRIBE", "TITANIUM TRIBE",
-                                            "AZURE TRIBE", "SILVER TRIBE"
+                                            "ORANGE TRIBE", "SCARLET TRIBE", "AZURE TRIBE",
+                                            "SILVER TRIBE", "GREEN TRIBE", "BLUE TRIBE",
+                                            "PINK TRIBE", "WHITE TRIBE", "CARBON TRIBE",
+                                            "GRAPHITE TRIBE", "ONYX TRIBE"
                                         ].map((tribeName) => {
                                             const existingTribe = tribes.find(t => t.name === tribeName);
                                             const currentPoints = existingTribe?.totalPoints || 0;

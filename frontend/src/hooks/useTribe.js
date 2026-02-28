@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 
 const DEFAULT_TRIBE = {
-    id: "orange",
-    name: "Orange Grid",
-    color: "#EA580C",
-    bg: "linear-gradient(135deg, #F97316 0%, #C2410C 100%)"
+    id: "ORANGE TRIBE",
+    name: "ORANGE TRIBE",
+    color: "#E78230",
+    bg: "linear-gradient(135deg, #E78230 0%, #0B0B0F 100%)"
 };
 
 export function useTribe() {

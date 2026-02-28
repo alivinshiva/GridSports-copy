@@ -6,17 +6,17 @@ import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 import { getSingleSubmission } from "@/services/submissionService";
 
 const TRIBE_COLORS = {
-    "IRON TRIBE": "#434343",
-    "ROYAL TRIBE": "#DAA520", // Goldenrod
-    "INDIGO TRIBE": "#4B0082",
-    "EMERALD TRIBE": "#10B981", // Emerald-500
-    "ORANGE TRIBE": "#F97316", // Orange-500
-    "SCARLET TRIBE": "#FF2400",
-    "CRIMSON TRIBE": "#DC143C",
-    "PLATINUM TRIBE": "#71717A", // Zinc-500 
-    "TITANIUM TRIBE": "#52525B", // Zinc-600
-    "AZURE TRIBE": "#007FFF",
-    "SILVER TRIBE": "#A1A1AA" // Zinc-400
+    "ORANGE TRIBE": "#1E1E1E",
+    "SCARLET TRIBE": "#FFD700",
+    "AZURE TRIBE": "#48349c",
+    "SILVER TRIBE": "#00FF40",
+    "GREEN TRIBE": "#FFA500",
+    "BLUE TRIBE": "#FF2400",
+    "PINK TRIBE": "#DC143C",
+    "WHITE TRIBE": "#E5E4E2",
+    "CARBON TRIBE": "#FFFFFF",
+    "GRAPHITE TRIBE": "#ff3b30",
+    "ONYX TRIBE": "#404040"
 };
 
 export default function UploadSuccess() {
@@ -34,7 +34,7 @@ export default function UploadSuccess() {
 
     const [timeLeftDisplay, setTimeLeftDisplay] = useState(null);
     const [tribe, setTribe] = useState(null);
-    const [tribeColor, setTribeColor] = useState("#F97316"); // Default Primary
+    const [tribeColor, setTribeColor] = useState("#1E1E1E"); // Default Primary
     const [submissionMedia, setSubmissionMedia] = useState(null);
     const [showShareModal, setShowShareModal] = useState(false);
     const [isCopied, setIsCopied] = useState(false);
@@ -222,11 +222,11 @@ export default function UploadSuccess() {
                         {/* Dynamic Tribe Name Badge */}
                         {tribe && (
                             <div
-                                className="px-4 py-1.5 rounded-full border bg-opacity-10 text-xs font-bold uppercase tracking-widest animate-in fade-in slide-in-from-bottom-2 duration-500"
+                                className="px-4 py-1.5 rounded-full border text-xs font-bold uppercase tracking-widest animate-in fade-in slide-in-from-bottom-2 duration-500"
                                 style={{
                                     borderColor: tribeColor,
-                                    color: tribeColor,
-                                    backgroundColor: `${tribeColor}15`
+                                    color: ["WHITE TRIBE", "SILVER TRIBE", "CARBON TRIBE"].includes(tribe.toUpperCase()) ? "#111" : tribeColor,
+                                    backgroundColor: ["WHITE TRIBE", "SILVER TRIBE", "CARBON TRIBE"].includes(tribe.toUpperCase()) ? tribeColor : `${tribeColor}15`
                                 }}
                             >
                                 {tribe}
@@ -335,14 +335,12 @@ export default function UploadSuccess() {
                                 View your entry
                             </button>
 
-                            {/* Rate Fans - Matching Share Button */}
                             <button
                                 onClick={() => navigate('/challenge/feed')}
                                 className="
                                     w-full flex items-center justify-center
                                     rounded-xl
                                     h-12 md:h-14
-                                    text-white
                                     transition-all duration-200
                                     text-base md:text-lg
                                     tracking-wide
@@ -350,6 +348,7 @@ export default function UploadSuccess() {
                                 "
                                 style={{
                                     backgroundColor: tribeColor,
+                                    color: ["WHITE TRIBE", "SILVER TRIBE", "CARBON TRIBE"].includes(tribe?.toUpperCase()) ? "#111" : "#FFF",
                                     filter: 'brightness(0.95)',
                                     fontFamily: "'Sora-Regular', sans-serif"
                                 }}

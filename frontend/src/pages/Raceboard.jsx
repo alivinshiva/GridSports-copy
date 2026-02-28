@@ -79,17 +79,17 @@ const tribesColumns = [
 const ratersColumns = creatorsColumns; // reuse UI style
 
 const DefaultTribesColorMap = {
-    "IRON TRIBE": "from-[#434343] to-[#000000]",
-    "ROYAL TRIBE": "from-[#ffd700] to-[#b8860b]",
-    "INDIGO TRIBE": "from-[#4b0082] to-[#0000cd]",
-    "EMERALD TRIBE": "from-[#00ff40] to-[#008020]",
-    "ORANGE TRIBE": "from-[#ffa500] to-[#ff4500]",
-    "SCARLET TRIBE": "from-[#ff2400] to-[#800000]",
-    "CRIMSON TRIBE": "from-[#dc143c] to-[#8b0000]",
-    "PLATINUM TRIBE": "from-[#e5e4e2] to-[#a9a9a9]",
-    "TITANIUM TRIBE": "from-[#878681] to-[#606266]",
-    "AZURE TRIBE": "from-[#007fff] to-[#000080]",
-    "SILVER TRIBE": "from-[#c0c0c0] to-[#71706e]"
+    "ORANGE TRIBE": "from-[#E78230] to-[#0B0B0F]",
+    "SCARLET TRIBE": "from-[#E43D32] to-[#8B0000]",
+    "AZURE TRIBE": "from-[#48349c] to-[#171030]",
+    "SILVER TRIBE": "from-[#C7CBD1] to-[#6b7280]",
+    "GREEN TRIBE": "from-[#23554C] to-[#0f2e28]",
+    "BLUE TRIBE": "from-[#0A1F62] to-[#061240]",
+    "PINK TRIBE": "from-[#FF4FD8] to-[#6d1b8e]",
+    "WHITE TRIBE": "from-[#e8e8e8] to-[#b0b0b0]",
+    "CARBON TRIBE": "from-[#2a2a2a] to-[#111111]",
+    "GRAPHITE TRIBE": "from-[#ff3b30] to-[#801d18]",
+    "ONYX TRIBE": "from-[#1a1a1f] to-[#0B0B0F]"
 };
 
 export default function Raceboard() {
