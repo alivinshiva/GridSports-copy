@@ -11,3 +11,15 @@ backend/seed_leaderboard.js
 # Windows Zone.Identifier alternate data streams
 *:Zone.Identifier
 mpl.txt
+.DS_Store
+deployment_strategy.md.resolved
+VULNERABILITY_FIXES.md
+QUICK_FIX_SUMMARY.txt
+PRODUCTION_READY_AUDIT_SUMMARY.md
+PRODUCTION_DEPLOYMENT.md
+NPM_VULNERABILITY_REPORT.md
+NPM_VULNERABILITY_REMEDIATION_REPORT.md
+FIXES_APPLIED.md
+FINAL_PRODUCTION_AUDIT_REPORT.md
+simple.txt
+simple.txt

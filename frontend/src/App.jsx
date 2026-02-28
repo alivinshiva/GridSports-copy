@@ -14,8 +14,7 @@ import { ForgotPasswordPage } from "@/pages/ForgotPasswordPage";
 import { OTPPage } from "@/pages/OTPPage";
 import { TribePage } from "@/pages/TribePage";
 import ChallengeDetails from "@/pages/ChallengeDetails";
-// import { ChallengeEntries } from "@/pages/ChallengeEntries";
-import Raceboard from "@/pages/Raceboard"; // Import Raceboard
+import Raceboard from "@/pages/Raceboard";
 import SubmissionFeed from "@/pages/SubmissionFeed";
 import Notifications from "@/pages/Notifications"; // Import Notifications
 import { AuthProvider, useAuth } from "@/context/AuthContext";

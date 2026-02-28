@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import { generateOTP } from "../service/otp.generator.js";
 import { sendCookies } from "../middleware/send.cookies.js";
 import { sendPhoneForgotOtp, sendPhoneVerificationOtp } from "../service/twilio.service.js";
+import { SALT_ROUNDS, OTP_EXPIRY_TIME, COOKIE_NAME } from "../config/constants.js";
 
 
 
@@ -25,8 +26,7 @@ export const signupController = async (req, res) => {
                 userExist.name = name;
             };
 
-            const saltRound = 10;
-            const hashPassword = await bcrypt.hash(password, saltRound);
+            const hashPassword = await bcrypt.hash(password, SALT_ROUNDS);
 
             userExist.password = hashPassword;
 
@@ -34,7 +34,7 @@ export const signupController = async (req, res) => {
             const otp = generateOTP();
 
             userExist.verificationTokenPhone = otp;
-            userExist.verificationTokenExpiresAtPhone = Date.now() + 10 * 60 * 1000;
+            userExist.verificationTokenExpiresAtPhone = Date.now() + OTP_EXPIRY_TIME;
 
             userExist.lastLogin = new Date();
 
@@ -44,7 +44,6 @@ export const signupController = async (req, res) => {
 
             try {
                 await sendPhoneVerificationOtp(userExist.phoneNumber, userExist.name, otp);
-                console.log("OTP sent successfully");
             } catch (error) {
                 return res
                     .status(500)
@@ -58,8 +57,7 @@ export const signupController = async (req, res) => {
             return res.status(200).json({ success: true, message: "OTP sent successfully" });
         };
 
-        const saltRound = 10;
-        const hashPassword = await bcrypt.hash(password, saltRound);
+        const hashPassword = await bcrypt.hash(password, SALT_ROUNDS);
 
         const otp = generateOTP();
 
@@ -68,7 +66,7 @@ export const signupController = async (req, res) => {
             phoneNumber,
             password: hashPassword,
             verificationTokenPhone: otp,
-            verificationTokenExpiresAtPhone: Date.now() + 10 * 60 * 1000,
+            verificationTokenExpiresAtPhone: Date.now() + OTP_EXPIRY_TIME,
         });
 
         await newUser.save();
@@ -77,7 +75,6 @@ export const signupController = async (req, res) => {
 
         try {
             await sendPhoneVerificationOtp(newUser.phoneNumber, newUser.name, otp);
-            console.log("OTP sent successfully");
         } catch (error) {
             return res
                 .status(500)
@@ -192,8 +189,7 @@ export const changePasswordController = async (req, res) => {
             return res.status(400).json({ success: false, message: "Invalid password" });
         };
 
-        const saltRound = 10;
-        const hashPassword = await bcrypt.hash(newPassword, saltRound);
+        const hashPassword = await bcrypt.hash(newPassword, SALT_ROUNDS);
 
         userExist.password = hashPassword;
 
@@ -229,13 +225,12 @@ export const forgotPasswordController = async (req, res) => {
         const otp = generateOTP();
 
         userExist.resetPasswordTokenPhone = otp;
-        userExist.resetPasswordTokenPhoneExpiresAt = Date.now() + 10 * 60 * 1000;
+        userExist.resetPasswordTokenPhoneExpiresAt = Date.now() + OTP_EXPIRY_TIME;
 
         await userExist.save();
 
         try {
             await sendPhoneForgotOtp(userExist.phoneNumber, userExist.name, otp);
-            console.log("OTP sent successfully");
         } catch (error) {
             return res
                 .status(500)
@@ -269,8 +264,7 @@ export const verifyForgotPasswordOtpController = async (req, res) => {
             return res.status(400).json({ success: false, message: "Invalid credentials or OTP expired" });
         };
 
-        const saltRound = 10;
-        const hashPassword = await bcrypt.hash(password, saltRound);
+        const hashPassword = await bcrypt.hash(password, SALT_ROUNDS);
 
         codeExist.password = hashPassword;
         codeExist.lastLogin = new Date();
@@ -297,7 +291,7 @@ export const verifyForgotPasswordOtpController = async (req, res) => {
 
 export const logoutController = async (req, res) => {
     try {
-        res.clearCookie("TrIWOoeGridSports", "", { maxAge: 0 });
+        res.clearCookie(COOKIE_NAME, "", { maxAge: 0 });
         return res.status(200).json({ success: true, message: "Logout successfully" });
     } catch (error) {
         return res.status(500).json({ success: false, message: "Internal Server Error", error: error.message });

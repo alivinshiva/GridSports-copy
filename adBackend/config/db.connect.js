@@ -1,14 +1,11 @@
 import mongoose from "mongoose";
 
-export const connectDb = async (req, res) => {
+export const connectDb = async () => {
     try {
-        await mongoose.connect(process.env.MONGO_URI)
-            .then(() => console.log("Db Connected Successfully"))
-            .catch((error) => console.log(`Error occured from db, ${error}`));
+        await mongoose.connect(process.env.MONGO_URI);
+        console.log("✅ Admin Database Connected Successfully");
     } catch (error) {
-        return res.status(500).json({ success: false, message: "Internal Server Error", error: error.message });
-    };
-};
-// mongoose.connection.on("connected", () => {
-//     console.log("Mongoose connected to DB");
-// }   
+        console.error("❌ Admin Database Connection Error:", error.message);
+        process.exit(1); // Exit if database connection fails
+    }
+};   

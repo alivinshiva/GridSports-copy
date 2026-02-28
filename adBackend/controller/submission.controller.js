@@ -64,7 +64,7 @@ export const addSubmissionController = async (req, res) => {
                     await cloudinary.uploader.destroy(req.file.filename);
                 }
             } catch (err) {
-                console.error("Cloudinary cleanup error:", err);
+                // Log error but don't fail the request
             }
             return res.status(400).json({ success: false, message: "You have already uploaded a submission for this challenge" });
         };

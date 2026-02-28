@@ -11,7 +11,7 @@ export const getUserProfile = async (userId) => {
         const profile = await db.collection("profiles").findOne({ user: new mongoose.Types.ObjectId(userId) });
         return profile;
     } catch (error) {
-        console.error("Error fetching user profile:", error);
+        // Return null on error to allow graceful degradation
         return null;
     }
 };
@@ -35,9 +35,8 @@ export const awardPoints = async (userId, tribeName, userPointType, points, acti
                 { upsert: true }
             );
         }
-        console.log(`[Scoring] Awarded ${points} points to User ${userId} (${userPointType}) in Tribe ${tribeName} for action: ${actionType}`);
     } catch (error) {
-        console.error("Error awarding points:", error);
+        // Silently fail - points awarding should not break main flow
     }
 };
 

@@ -1,8 +1,6 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
-import AdminGridDashboard from './components/AdminGridDashboard';
-import WeeklyDetails from './components/WeekendDetails'; // Verify typo 'WeeklyDetails' vs 'WeekendDetails' import logic if needed
 import WeekendForm from './components/WeekendForm';
 import WeekendDetails from './components/WeekendDetails';
 import WeekendUpdate from './components/WeekendUpdate';

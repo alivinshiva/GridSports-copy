@@ -1,10 +1,10 @@
 import userModel from "../models/user.model.js";
 import jwt from "jsonwebtoken";
+import { COOKIE_NAME } from "../config/constants.js";
 
 export const verifyCookies = async (req, res, next) => {
     try {
-        const token = req.cookies.TrIWOoeGridSports;
-        // console.log(token);
+        const token = req.cookies[COOKIE_NAME];
 
         if (!token) {
             return res
@@ -49,6 +49,10 @@ export const verifyCookies = async (req, res, next) => {
         next();
 
     } catch (error) {
+        // Pass JWT errors to error handler
+        if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
+            return res.status(401).json({ success: false, message: "Invalid or expired token" });
+        }
         return res.status(500).json({ success: false, message: "Internal Server Error", error: error.message });
     };
 };
