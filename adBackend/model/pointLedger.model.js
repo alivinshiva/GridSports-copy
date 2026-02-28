@@ -44,4 +44,6 @@ const pointLedgerSchema = new mongoose.Schema({
 // Prevent duplicate points for the same action per challenge/submission for a user
 // e.g., a user can only rate "LOVE" on a specific submission once.
 // We'll enforce logic in the service but a partial index could help if actionTypes are strictly defined per item.
+pointLedgerSchema.index({ user: 1, submission: 1 });
+
 export default mongoose.model("PointLedger", pointLedgerSchema);

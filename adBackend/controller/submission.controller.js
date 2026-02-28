@@ -88,7 +88,8 @@ export const addSubmissionController = async (req, res) => {
             mediaUrl,
             mediaId: req.file.filename,
             mediaType,
-            tags: parsedTags
+            tags: parsedTags,
+            randomSeed: Math.random()
         });
 
         const hasTags = !!req.body.tags && req.body.tags.length > 0;
@@ -270,21 +271,52 @@ export const getFeedIdsController = async (req, res) => {
 
         const matchStage = {};
         if (loggedInUserId) {
-            matchStage.user = { $ne: loggedInUserId };
+            // Must cast explicitly because aggregate($match) does not auto-cast
+            matchStage.user = { $ne: new mongoose.Types.ObjectId(loggedInUserId) };
         }
         if (excludeIds.length > 0) {
             matchStage._id = { $nin: excludeIds };
         }
 
-        const ids = await submissionModel.aggregate([
-            { $match: matchStage },
-            { $sample: { size: limit } },
-            { $project: { _id: 1 } }
-        ]);
+        const randomValue = Math.random();
+
+        // 1. Find docs with randomSeed >= randomValue
+        let idsRaw = await submissionModel.find({ ...matchStage, randomSeed: { $gte: randomValue } })
+            .sort({ randomSeed: 1 })
+            .limit(limit)
+            .select('_id')
+            .lean();
+
+        // 2. If not enough docs, wrap around and get docs with randomSeed < randomValue
+        if (idsRaw.length < limit) {
+            const moreIdsRaw = await submissionModel.find({ ...matchStage, randomSeed: { $lt: randomValue } })
+                .sort({ randomSeed: 1 })
+                .limit(limit - idsRaw.length)
+                .select('_id')
+                .lean();
+            idsRaw = idsRaw.concat(moreIdsRaw);
+        }
+
+        // Fallback for older documents that do not have randomSeed
+        if (idsRaw.length === 0) {
+            idsRaw = await submissionModel.aggregate([
+                { $match: matchStage },
+                { $sample: { size: limit } },
+                { $project: { _id: 1 } }
+            ]);
+        }
+
+        let ids = idsRaw.map(i => i._id.toString());
+
+        // Shuffle the result array to randomize the order of the fetched batch
+        for (let i = ids.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [ids[i], ids[j]] = [ids[j], ids[i]];
+        }
 
         return res.status(200).json({
             success: true,
-            data: { ids: ids.map(i => i._id.toString()) }
+            data: { ids }
         });
     } catch (error) {
         return res.status(500).json({ success: false, message: "Internal Server Error", error: error.message });
