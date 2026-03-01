@@ -19,7 +19,7 @@ export function ThisWeekend({ weekend }) {
                     setChallenges(response.data);
                 }
             } catch (error) {
-                console.error("Failed to fetch challenges for this weekend:", error);
+                // Silently handle error
             } finally {
                 setLoading(false);
             }

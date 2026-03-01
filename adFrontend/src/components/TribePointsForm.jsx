@@ -22,10 +22,10 @@ const TribePointsForm = () => {
                 if (result.success) {
                     setTribes(result.data);
                 } else {
-                    console.error("Failed to fetch tribes:", result.message);
+                    // Silently handle error
                 }
             } catch (error) {
-                console.error("Error fetching tribes:", error);
+                // Silently handle error
             } finally {
                 setFetchingTribes(false);
             }
@@ -80,7 +80,7 @@ const TribePointsForm = () => {
                 });
             }
         } catch (error) {
-            console.error('Error adding points:', error);
+            // Silently handle error
             setStatus({
                 type: 'error',
                 message: 'A network error occurred while adding points. Please check if the server is running.'

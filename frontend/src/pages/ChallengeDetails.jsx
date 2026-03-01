@@ -14,7 +14,6 @@ export default function ChallengeDetails() {
         const fetchChallenge = async () => {
             try {
                 const response = await getChallengeById(challengeId);
-                console.log("Challenge Data:", response); // User requested debug log
                 if (response.success) {
                     setChallenge(response.data);
                 }
@@ -26,10 +25,10 @@ export default function ChallengeDetails() {
                         setHasSubmitted(submissionRes.hasSubmitted);
                     }
                 } catch (subErr) {
-                    console.error("Error fetching submission status", subErr);
+                    // Silently handle error
                 }
             } catch (error) {
-                console.error("Error fetching challenge details", error);
+                // Silently handle error
             } finally {
                 setLoading(false);
             }

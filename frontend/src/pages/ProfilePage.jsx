@@ -102,11 +102,11 @@ export default function ProfilePage() {
                                 }
                             }
                         } catch (error) {
-                            console.error("Failed to fetch leaderboard for rank:", error);
+                            // Silently handle error
                         }
                     }
                 } catch (error) {
-                    console.error("Failed to fetch current user rank:", error);
+                    // Silently handle error
                 }
             }
 
@@ -117,7 +117,7 @@ export default function ProfilePage() {
                     setActiveWeekendImage(weekendRes.data[0].imageUrl);
                 }
             } catch (err) {
-                console.error("Failed to fetch active weekends for profile background", err);
+                // Silently handle error
             }
 
             // 3. Fetch Tribe Data
@@ -131,7 +131,7 @@ export default function ProfilePage() {
                         }
                     }
                 } catch (err) {
-                    console.error("Failed to fetch tribe data:", err);
+                    // Silently handle error
                 }
             }
 

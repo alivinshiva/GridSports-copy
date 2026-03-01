@@ -28,7 +28,7 @@ const AdminGridDashboard = () => {
                 if (submissionRes.success) setSubmissions(submissionRes.data);
 
             } catch (err) {
-                console.error("Dashboard fetch error:", err);
+                // Silently handle error
                 // Even if one fails, we might want to show partial data, 
                 // but for now let's set a generic error if everything fails or major network issue
                 if (!weekends.length && !challenges.length) {

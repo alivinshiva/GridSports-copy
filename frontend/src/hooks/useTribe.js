@@ -17,7 +17,7 @@ export function useTribe() {
             try {
                 setTribe(JSON.parse(storedTribe));
             } catch (e) {
-                console.error("Failed to parse tribe from local storage", e);
+                // Silently handle error
             }
         }
         setIsLoading(false);

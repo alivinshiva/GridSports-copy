@@ -34,7 +34,7 @@ export default function UploadChallenge() {
                     setChallenge(response.data);
                 }
             } catch (error) {
-                console.error("Error fetching challenge", error);
+                // Silently handle error
             }
         };
         if (challengeId) fetchChallenge();
@@ -99,7 +99,7 @@ export default function UploadChallenge() {
                 videoRef.current.srcObject = stream;
             }
         } catch (err) {
-            console.error("Error accessing camera:", err);
+            // Silently handle error
             alert("Could not access camera. Please allow permissions.");
             setMode("select");
         }
@@ -189,7 +189,7 @@ export default function UploadChallenge() {
                 }, 3000);
             }
         } catch (error) {
-            console.error("Upload error:", error);
+            // Silently handle error
             setErrorMsg(error.message || "Upload failed. Please try again.");
             setTimeout(() => {
                 navigate(-1);

@@ -9,9 +9,7 @@ const EntryCard = ({ entry, handleEntryClick, muted, toggleMute }) => {
 
     const handleMouseEnter = () => {
         if (entry.mediaType === 'video' && videoRef.current) {
-            videoRef.current.play().catch(error => {
-                console.log("Play failed", error);
-            });
+            videoRef.current.play().catch(() => {});
         }
     };
 
@@ -84,7 +82,7 @@ const ChallengeEntries = () => {
                 });
             }
         } catch (error) {
-            console.error("Error fetching random entries:", error);
+            // Silently handle error
         } finally {
             setLoading(false);
         }

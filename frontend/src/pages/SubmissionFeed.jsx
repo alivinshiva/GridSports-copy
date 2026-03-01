@@ -22,7 +22,6 @@ const readSession = (key, fallback) => {
         const raw = sessionStorage.getItem(key);
         return raw ? JSON.parse(raw) : fallback;
     } catch (error) {
-        console.error("Failed to read session storage", error);
         return fallback;
     }
 };
@@ -31,7 +30,7 @@ const writeSession = (key, value) => {
     try {
         sessionStorage.setItem(key, JSON.stringify(value));
     } catch (error) {
-        console.error("Failed to write session storage", error);
+        // Silently fail
     }
 };
 
@@ -56,7 +55,7 @@ const VideoPlayer = ({ src, muted, isActive }) => {
         if (isActive) {
             videoRef.current.play()
                 .then(() => setIsPlaying(true))
-                .catch(e => console.log("Autoplay prevented or interrupted:", e));
+                .catch(() => {});
         } else {
             videoRef.current.pause();
             setIsPlaying(false);
@@ -67,7 +66,7 @@ const VideoPlayer = ({ src, muted, isActive }) => {
         e.stopPropagation();
         if (!videoRef.current) return;
         if (videoRef.current.paused) {
-            videoRef.current.play().then(() => setIsPlaying(true)).catch(console.error);
+            videoRef.current.play().then(() => setIsPlaying(true)).catch(() => {});
         } else {
             videoRef.current.pause();
             setIsPlaying(false);
@@ -219,14 +218,11 @@ const SubmissionFeed = () => {
 
     const refillQueueIfNeeded = useCallback(async (queue, pointer, seen) => {
         const remaining = queue.length - pointer;
-        console.log("🔍 Refill check - Remaining:", remaining, "Threshold:", REFILL_THRESHOLD);
 
         if (remaining > REFILL_THRESHOLD) {
-            console.log("✅ Enough IDs, skipping refill");
             return { queue, pointer, seen };
         }
         if (isRefilling.current) {
-            console.log("⏳ Already refilling, skipping");
             return { queue, pointer, seen };
         }
 
@@ -234,21 +230,17 @@ const SubmissionFeed = () => {
         try {
             // If pointer is at the end and we have some items, start with fresh batch (reshuffle + mark old as seen)
             if (pointer >= queue.length && queue.length > 0) {
-                console.log("🔁 Reached end of queue, reshuffling existing items...");
                 const reshuffled = shuffleArray(queue);
                 saveSessionState(reshuffled, 0, seen);
                 return { queue: reshuffled, pointer: 0, seen };
             }
 
             // Otherwise, fetch new items
-            console.log("🆕 Fetching new items, excluding:", [...queue, ...seen].length);
             const excludeIds = uniq([...queue, ...seen]);
             const response = await getFeedIds(REFILL_LIMIT, excludeIds);
             const newIds = response?.success ? response.data?.ids || [] : [];
-            console.log("📦 Refill got:", newIds.length, "new IDs");
 
             if (newIds.length === 0) {
-                console.log("⚠️ No new IDs available, reshuffling queue");
                 if (queue.length > 0) {
                     const reshuffled = shuffleArray(queue);
                     saveSessionState(reshuffled, 0, seen);
@@ -260,10 +252,8 @@ const SubmissionFeed = () => {
             const shuffled = shuffleArray(newIds);
             const mergedQueue = [...queue, ...shuffled];
             saveSessionState(mergedQueue, pointer, seen);
-            console.log("✅ Refill complete, new queue size:", mergedQueue.length);
             return { queue: mergedQueue, pointer, seen };
         } catch (error) {
-            console.error("Error refilling feed queue:", error);
             return { queue, pointer, seen };
         } finally {
             isRefilling.current = false;
@@ -276,40 +266,32 @@ const SubmissionFeed = () => {
 
         try {
             let { queue, pointer, seen } = getSessionState();
-            console.log("🔄 loadNextBatch - Queue:", queue.length, "Pointer:", pointer, "Seen:", seen.length);
 
             const remaining = queue.length - pointer;
             if (remaining <= REFILL_THRESHOLD) {
-                console.log("⚠️ Low IDs, refilling...");
                 ({ queue, pointer, seen } = await refillQueueIfNeeded(queue, pointer, seen));
             }
 
             const idsToFetch = queue.slice(pointer, pointer + BATCH_SIZE);
-            console.log("📥 Fetching IDs:", idsToFetch);
             if (idsToFetch.length === 0) {
-                console.log("❌ No IDs to fetch");
                 return;
             }
 
             const response = await getBatchSubmissions(idsToFetch);
-            console.log("✅ Batch response:", response);
 
             if (response?.success && response.data?.length > 0) {
-                console.log("📱 Adding posts to feed:", response.data.length);
                 setFeed(prev => {
                     const existing = new Set(prev.map(item => item._id));
                     const nextItems = response.data.filter(item => !existing.has(item._id));
-                    console.log("➕ New items to add:", nextItems.length);
                     return [...prev, ...nextItems];
                 });
             } else {
-                console.log("⛔ Response not successful or no data");
             }
 
             const nextPointer = pointer + idsToFetch.length;
             saveSessionState(queue, nextPointer, seen);
         } catch (error) {
-            console.error("Error loading feed batch:", error);
+            // Silently handle error
         } finally {
             setLoading(false);
         }
@@ -320,7 +302,6 @@ const SubmissionFeed = () => {
         const initializeFeed = async () => {
             if (isInitializingRef.current) return;
             isInitializingRef.current = true;
-            console.log("🚀 Initializing feed...");
 
             try {
                 let seedEntries = [];
@@ -336,7 +317,7 @@ const SubmissionFeed = () => {
                             seedEntries = [res.data];
                         }
                     } catch (e) {
-                        console.error("Failed fetching url post ID", e);
+                        // Silently fail
                     }
                 }
 
@@ -350,34 +331,28 @@ const SubmissionFeed = () => {
                 }
 
                 const currentState = getSessionState();
-                console.log("📊 Current state - Queue:", currentState.queue.length, "Pointer:", currentState.pointer);
 
                 if (!Array.isArray(currentState.queue) || currentState.queue.length === 0) {
-                    console.log("📥 Fetching initial IDs...");
                     const excludeIds = uniq([...(currentState.seen || [])]);
                     const response = await getFeedIds(INITIAL_LIMIT, excludeIds);
                     const ids = response?.success ? response.data?.ids || [] : [];
-                    console.log("✅ Got IDs:", ids.length);
                     const shuffled = shuffleArray(ids);
                     saveSessionState(shuffled, 0, currentState.seen || []);
                 }
 
-                console.log("🎬 Calling loadNextBatch...");
                 // Use setTimeout to break circular dependency and call in next tick
                 setTimeout(() => {
                     // Re-read state to ensure latest queue/pointer
                     const finalState = getSessionState();
                     const idsToFetch = finalState.queue.slice(finalState.pointer, finalState.pointer + BATCH_SIZE);
                     if (idsToFetch.length > 0) {
-                        console.log("📥 Direct fetch of first batch:", idsToFetch.length, "IDs");
                         getBatchSubmissions(idsToFetch).then(response => {
                             if (response?.success && response.data?.length > 0) {
                                 setFeed(prev => [...prev, ...response.data]);
                                 const nextPointer = finalState.pointer + idsToFetch.length;
                                 saveSessionState(finalState.queue, nextPointer, finalState.seen);
-                                console.log("✅ First batch loaded:", response.data.length, "posts");
                             }
-                        }).catch(err => console.error("Error loading first batch:", err));
+                        }).catch(() => {});
                     }
                 }, 0);
             } finally {
@@ -517,8 +492,6 @@ const SubmissionFeed = () => {
         const selectedComment = selectedCommentState[submissionId] || null;
 
         try {
-            // Log exactly what user requested (Percentage math)
-            console.log(`--- Ratings Log for Submission ${submissionId} ---`);
             let totalWeightedScore = 0;
             ratingsArray.forEach(r => {
                 const paramDef = submission.challenge.parameters.find(p => p.name === r.parameterName);
@@ -526,17 +499,12 @@ const SubmissionFeed = () => {
                 const baseScore = (r.score / 5) * weightage;
                 const finalPercentScore = (weightage / 100) * baseScore;
                 totalWeightedScore += finalPercentScore;
-                console.log(`${r.parameterName}: ${r.score}⭐ = ${baseScore.toFixed(2)} base. ${weightage}% of ${baseScore.toFixed(2)} = +${finalPercentScore.toFixed(2)}`);
             });
-            if (selectedComment) console.log(`Comment: ${selectedComment}`);
-            console.log(`Total Percentage Score: ${totalWeightedScore.toFixed(2)} / 100`);
-            console.log(`-----------------------------------------------`);
 
             await rateDetailed(submissionId, submission.challenge._id, ratingsArray, selectedComment);
-            console.log(`[Detail Rating] Submitted for ${submissionId}`);
             setSubmittedDetailedState(prev => ({ ...prev, [submissionId]: true }));
         } catch (error) {
-            console.error("Error submitting detailed rating:", error);
+            // Silently fail
             toast('Failed to submit rating', { duration: 2000, position: 'bottom-center', style: { background: '#333', color: '#fff', borderRadius: '8px' } });
         }
     };
@@ -587,14 +555,9 @@ const SubmissionFeed = () => {
         }));
 
         try {
-            const res = await rateSubmission(submissionId, ratingType);
-            if (res.success) {
-                console.log(`Successfully rated ${ratingType}. Ranker got ${res.data.rankerPointsEarned} pts, Creator got ${res.data.creatorPointsEarned} pts.`);
-            } else {
-                console.log("Failed: ", res.message);
-            }
+            await rateSubmission(submissionId, ratingType);
         } catch (error) {
-            console.error("Rating Error:", error);
+            // Silently handle error
             // Revert state if we wanted to be strict, but for UX it's fine.
             // alert(error.message || "Failed to submit rating.");
         }
@@ -610,12 +573,9 @@ const SubmissionFeed = () => {
 
         // Record points in backend
         try {
-            const res = await recordShare(activeShare);
-            if (res.success) {
-                console.log(`Successfully shared to ${platform}. Earned ${res.data.pointsEarned} pts.`);
-            }
+            await recordShare(activeShare);
         } catch (error) {
-            console.error("Share backend Error:", error);
+            // Silently handle error
         }
 
         // Logic to actually share via platform URL or copy link
@@ -641,7 +601,7 @@ const SubmissionFeed = () => {
                 navigator.share({
                     title: 'Check out this submission!',
                     url: shareUrl
-                }).catch(console.error);
+                }).catch(() => {});
             }
         }
 

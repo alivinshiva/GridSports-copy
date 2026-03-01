@@ -21,7 +21,7 @@ export default function Notifications() {
                 setNotifications(response.data);
             }
         } catch (error) {
-            console.error("Error fetching notifications", error);
+            // Silently handle error
         } finally {
             setLoading(false);
         }
@@ -34,7 +34,7 @@ export default function Notifications() {
         try {
             await markNotificationRead(notif._id);
         } catch (error) {
-            console.error("Failed to mark as read/delete", error);
+            // Silently handle error
         }
 
         // Navigate depending on type optionally. For now, challenges go to details.
@@ -51,7 +51,7 @@ export default function Notifications() {
         try {
             await deleteNotification(id);
         } catch (error) {
-            console.error("Failed to delete", error);
+            // Silently handle error
         }
     };
 

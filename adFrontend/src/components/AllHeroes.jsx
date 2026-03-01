@@ -36,7 +36,7 @@ const AllHeroes = () => {
             await deleteHero(id);
             setHeroes(prev => prev.filter(h => h._id !== id));
         } catch (err) {
-            console.error("Delete failed:", err);
+            // Silently handle error
             alert("Failed to delete hero.");
         }
     };

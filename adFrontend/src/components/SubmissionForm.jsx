@@ -32,7 +32,7 @@ const SubmissionForm = () => {
                 if (usersRes.success) setUsers(usersRes.data);
 
             } catch (error) {
-                console.error("Error fetching data for submission form", error);
+                // Silently handle error
             }
         };
         fetchData();
@@ -50,7 +50,7 @@ const SubmissionForm = () => {
                 alert("Failed to create submission: " + response.message);
             }
         } catch (error) {
-            console.error(error);
+            // Silently handle error
             alert("Error creating submission");
         } finally {
             setLoading(false);

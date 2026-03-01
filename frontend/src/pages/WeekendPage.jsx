@@ -58,11 +58,11 @@ export default function WeekendPage() {
                             setRaces(challengesResponse.data);
                         }
                     } catch (err) {
-                        console.error("Error fetching weekend challenges:", err);
+                        // Silently handle error
                     }
                 }
             } catch (error) {
-                console.error("Error fetching weekend details", error);
+                // Silently handle error
             } finally {
                 setLoading(false);
             }

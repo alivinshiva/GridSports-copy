@@ -24,7 +24,7 @@ export function ChallengeStatusSection() {
                     setChallenges(response.data);
                 }
             } catch (error) {
-                console.error(`Error fetching ${selectedStatus} challenges:`, error);
+                // Silently handle error
                 setChallenges([]);
             } finally {
                 setLoading(false);

@@ -66,7 +66,7 @@ export default function UploadSuccess() {
                         });
                     }
                 } catch (error) {
-                    console.error("Error fetching submission details:", error);
+                    // Silently handle error
                 }
             }
         };

@@ -17,7 +17,7 @@ const VideoItem = ({ src }) => {
 
     const handleMouseEnter = () => {
         if (videoRef.current) {
-            videoRef.current.play().catch(e => console.log("Play interrupted"));
+            videoRef.current.play().catch(() => {});
         }
     };
 
@@ -67,7 +67,7 @@ export function DiscoveryFeed() {
                     setSubmissions(response.data);
                 }
             } catch (error) {
-                console.error("Failed to fetch submissions:", error);
+                // Silently handle error
             } finally {
                 setLoading(false);
             }

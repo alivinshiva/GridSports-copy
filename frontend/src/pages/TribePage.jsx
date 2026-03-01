@@ -198,7 +198,7 @@ export function TribePage() {
                 setTimeout(() => setErrorMessage(""), 5000);
             }
         } catch (error) {
-            console.error("Join tribe error:", error);
+            // Silently handle error
             setErrorMessage("Network error. Please try again later.");
             setTimeout(() => setErrorMessage(""), 5000);
         } finally {

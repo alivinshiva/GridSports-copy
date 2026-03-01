@@ -63,7 +63,7 @@ export function AuthProvider({ children }) {
                 return data.data;
             }
         } catch (error) {
-            console.error("Fetch Profile Error:", error);
+            // Silently handle error
         }
         return null; // Return null on error/no-data
     }, []);
@@ -117,7 +117,7 @@ export function AuthProvider({ children }) {
             }
             return false;
         } catch (error) {
-            console.error("OTP Verification Error:", error);
+            // Silently handle error
             return false;
         }
     };
@@ -129,7 +129,7 @@ export function AuthProvider({ children }) {
                 credentials: "include"
             });
         } catch (error) {
-            console.error("Logout failed", error);
+            // Silently handle error
         }
         setUser(null);
         localStorage.removeItem("gridsports_user");

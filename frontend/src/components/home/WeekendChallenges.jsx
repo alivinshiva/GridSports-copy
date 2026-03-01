@@ -15,7 +15,7 @@ export function WeekendChallenges() {
                     setActiveWeekends(response.data);
                 }
             } catch (error) {
-                console.error("Error fetching active weekends", error);
+                // Silently handle error
             } finally {
                 setLoading(false);
             }

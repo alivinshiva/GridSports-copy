@@ -62,7 +62,7 @@ const ChallengeForm = () => {
                     setAvailableComments(commentsRes.data);
                 }
             } catch (error) {
-                console.error("Failed to fetch initial data", error);
+                // Silently handle error
             }
         };
         fetchData();
@@ -211,7 +211,7 @@ const ChallengeForm = () => {
                 alert("Failed to create challenge: " + response.message);
             }
         } catch (error) {
-            console.error("Error creating challenge:", error.response?.data || error.message);
+            // Silently handle error
             alert(error.response?.data?.message || "An error occurred");
         } finally {
             setLoading(false);

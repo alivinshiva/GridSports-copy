@@ -25,7 +25,7 @@ export function AuthenticatedHome() {
                     setUpcomingWeekends(upcomingRes.data);
                 }
             } catch (error) {
-                console.error("Failed to fetch weekends:", error);
+                // Silently handle error
             } finally {
                 setLoading(false);
             }

@@ -44,7 +44,7 @@ const ChallengeDetails = () => {
                 alert("Failed to update status");
             }
         } catch (error) {
-            console.error("Error updating status:", error);
+            // Silently handle error
             alert("Error updating status");
         } finally {
             setStatusUpdating(false);
@@ -61,7 +61,7 @@ const ChallengeDetails = () => {
                     alert("Failed to delete challenge");
                 }
             } catch (error) {
-                console.error("Error deleting challenge:", error);
+                // Silently handle error
                 alert("Error deleting challenge");
             }
         }

@@ -270,7 +270,7 @@ export default function Raceboard() {
             });
 
         } catch (err) {
-            console.error("Failed to fetch initial leaderboards", err);
+            // Silently handle error
         }
     };
 
@@ -346,7 +346,7 @@ export default function Raceboard() {
             }));
 
         } catch (err) {
-            console.error(`Failed to load more for ${tab}`, err);
+            // Silently handle error
         } finally {
             setLoadingTab(null);
         }

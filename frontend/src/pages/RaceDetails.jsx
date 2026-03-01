@@ -20,7 +20,7 @@ export default function RaceDetails() {
                     setChallenges(data.data.challenges);
                 }
             } catch (error) {
-                console.error("Error fetching race details", error);
+                // Silently handle error
             } finally {
                 setLoading(false);
             }

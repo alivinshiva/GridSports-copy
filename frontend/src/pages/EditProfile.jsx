@@ -65,7 +65,7 @@ export default function EditProfile() {
                 alert(data.message || "Failed to upload image");
             }
         } catch (error) {
-            console.error("Upload error:", error);
+            // Silently handle error
             alert("An error occurred while uploading. Please try again.");
         } finally {
             setIsUploading(false);
@@ -90,7 +90,7 @@ export default function EditProfile() {
                 alert(data.message || "Failed to delete image");
             }
         } catch (error) {
-            console.error("Delete error:", error);
+            // Silently handle error
             alert("Error deleting image.");
         }
     };

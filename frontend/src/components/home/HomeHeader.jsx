@@ -32,7 +32,7 @@ export function HomeHeader() {
                 setUnreadCount(res.data.length);
             }
         } catch (error) {
-            console.error("Failed to fetch notification count", error);
+            // Silently handle error
         }
     };
 
