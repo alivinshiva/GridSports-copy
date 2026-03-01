@@ -1,4 +1,5 @@
 import axios from 'axios';
+import logger from '../utils/logger.js';
 
 const API_URL = `${import.meta.env.VITE_AD_API_URL}/api/v1/weekend`;
 
@@ -7,7 +8,7 @@ export const getAllWeekends = async () => {
         const response = await axios.get(`${API_URL}/all`);
         return response.data;
     } catch (error) {
-        console.error("Error fetching weekends:", error);
+        logger.error("Error fetching weekends:", error);
         throw error;
     }
 };
@@ -22,7 +23,7 @@ export const createWeekend = async (weekendData) => {
         const response = await axios.post(`${API_URL}/add`, weekendData, config);
         return response.data;
     } catch (error) {
-        console.error("Error creating weekend:", error);
+        logger.error("Error creating weekend:", error);
         throw error;
     }
 };
@@ -32,7 +33,7 @@ export const getWeekendById = async (id) => {
         const response = await axios.get(`${API_URL}/details/${id}`);
         return response.data;
     } catch (error) {
-        console.error("Error fetching weekend details:", error);
+        logger.error("Error fetching weekend details:", error);
         throw error;
     }
 };
@@ -42,7 +43,7 @@ export const updateWeekendStatus = async (id, status) => {
         const response = await axios.put(`${API_URL}/update/${id}`, { status });
         return response.data;
     } catch (error) {
-        console.error("Error updating weekend status:", error);
+        logger.error("Error updating weekend status:", error);
         throw error;
     }
 };
@@ -52,7 +53,7 @@ export const deleteWeekend = async (id) => {
         const response = await axios.delete(`${API_URL}/delete/${id}`);
         return response.data;
     } catch (error) {
-        console.error("Error deleting weekend:", error);
+        logger.error("Error deleting weekend:", error);
         throw error;
     }
 };

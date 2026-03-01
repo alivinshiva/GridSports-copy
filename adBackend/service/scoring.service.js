@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import pointLedgerModel from "../model/pointLedger.model.js";
 import submissionModel from "../model/submission.model.js";
 import challengeModel from "../model/challange.model.js";
+import logger from "../config/logger.config.js";
 
 // -- UTILS --
 
@@ -299,7 +300,7 @@ export const processDetailedRating = async (rankerId, submissionId, challengeId,
 
     let rankerMultiplier = (rankerTribe === creatorTribe) ? 1.0 : 0.25;
 
-    console.log(`\n--- Backend Detailed Ratings Log for Submission ${submissionId} ---`);
+    logger.debug(`Detailed Ratings for Submission ${submissionId}`);
     // Calculate total weighted percentage score
     let totalWeightedScore = 0;
     ratingsArray.forEach(r => {
@@ -315,11 +316,11 @@ export const processDetailedRating = async (rankerId, submissionId, challengeId,
         const finalPercentScore = (weightage / 100) * baseScore;
 
         totalWeightedScore += finalPercentScore;
-        console.log(`${r.parameterName}: ${r.score} stars = ${baseScore} base points. ${weightage}% of ${baseScore} = +${finalPercentScore.toFixed(2)} to total score.`);
+        logger.debug(`${r.parameterName}: ${r.score} stars = ${baseScore} base points. ${weightage}% of ${baseScore} = +${finalPercentScore.toFixed(2)} to total score.`);
     });
-    console.log(`Total Percentage Score calculated: ${totalWeightedScore.toFixed(2)} / 100`);
-    if (hasComment) console.log(`Selected Comment Present`);
-    console.log(`--------------------------------------------------------------\n`);
+    logger.debug(`Total Percentage Score calculated: ${totalWeightedScore.toFixed(2)} / 100`);
+    if (hasComment) logger.debug('Selected Comment Present');
+    logger.debug('--------------------------------------------------------------');
 
     let actionBasePoints = 7;
     let timeBonus = 0;
@@ -350,9 +351,9 @@ export const processDetailedRating = async (rankerId, submissionId, challengeId,
     await checkSubmissionMilestones(submissionId, creatorId, creatorTribe, challengeId, weekendId);
     await processRaterMissions(rankerId, weekendId, rankerProfile);
 
-    // --- Console Log for Detailed Rating ---
+    // --- Log for Detailed Rating ---
     const paramLog = ratingsArray.map(r => `  ${r.parameterName}: ${r.score}⭐`).join('\n');
-    console.log(
+    logger.info(
         `[Detailed Rating] User ${rankerId} rated Submission ${submissionId}\n` +
         `${paramLog}\n` +
         `  Weighted Total Score : +${totalWeightedScore.toFixed(2)}\n` +

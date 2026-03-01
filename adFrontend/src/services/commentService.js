@@ -1,4 +1,5 @@
 import axios from 'axios';
+import logger from '../utils/logger.js';
 
 const API_URL = `${import.meta.env.VITE_AD_API_URL}/api/v1/comment`;
 
@@ -7,7 +8,7 @@ export const getAllComments = async () => {
         const response = await axios.get(`${API_URL}/all`, { withCredentials: true });
         return response.data;
     } catch (error) {
-        console.error("Error fetching comments:", error);
+        logger.error("Error fetching comments:", error);
         throw error;
     }
 };
@@ -17,7 +18,7 @@ export const createComment = async (text) => {
         const response = await axios.post(`${API_URL}/add`, { text }, { withCredentials: true });
         return response.data;
     } catch (error) {
-        console.error("Error creating comment:", error);
+        logger.error("Error creating comment:", error);
         throw error;
     }
 };
@@ -27,7 +28,7 @@ export const deleteComment = async (id) => {
         const response = await axios.delete(`${API_URL}/delete/${id}`, { withCredentials: true });
         return response.data;
     } catch (error) {
-        console.error("Error deleting comment:", error);
+        logger.error("Error deleting comment:", error);
         throw error;
     }
 };

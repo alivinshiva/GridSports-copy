@@ -4,6 +4,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
+import logger from "./config/logger.config.js";
 import { validateEnv } from "./config/env.validation.js";
 import { connectDb } from "./config/db.connect.js";
 import weekendRouter from "./router/weekend.router.js";
@@ -93,6 +94,6 @@ app.use(notFoundHandler);
 app.use(errorHandler);
 
 app.listen(PORT, () => {
-    console.log(`✅ Admin Server running on port ${PORT}`);
-    console.log(`✅ Environment: ${process.env.NODE_ENV}`);
+    logger.info(`Admin Server running on port ${PORT}`);
+    logger.info(`Environment: ${process.env.NODE_ENV}`);
 });

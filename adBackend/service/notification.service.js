@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import notificationModel from "../model/notification.model.js";
+import logger from "../config/logger.config.js";
 
 /**
  * Distribute a notification to all users in the system.
@@ -25,9 +26,9 @@ export const distributeNotificationToAllUsers = async (title, message, type, ent
 
         if (notifications.length > 0) {
             await notificationModel.insertMany(notifications);
-            console.log(`Successfully distributed ${notifications.length} notifications for ${type}`);
+            logger.info(`Successfully distributed ${notifications.length} notifications for ${type}`);
         }
     } catch (error) {
-        console.error("Error distributing notifications:", error);
+        logger.error(`Error distributing notifications: ${error.message}`);
     }
 };

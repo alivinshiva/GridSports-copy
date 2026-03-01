@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useAuth } from "../context/AuthContext";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 import { useNavigate } from "react-router-dom";
+import logger from "../utils/logger.js";
 import {
     Edit2,
     Trophy,
@@ -51,7 +52,7 @@ export default function ProfilePage() {
                 setImageSubmissions(data.data);
             }
         } catch (error) {
-            console.error("Error fetching images", error);
+            logger.error("Error fetching images", error);
         } finally {
             setIsImagesLoading(false);
         }
@@ -69,7 +70,7 @@ export default function ProfilePage() {
                 setVideoSubmissions(data.data);
             }
         } catch (error) {
-            console.error("Error fetching videos", error);
+            logger.error("Error fetching videos", error);
         } finally {
             setIsVideosLoading(false);
         }

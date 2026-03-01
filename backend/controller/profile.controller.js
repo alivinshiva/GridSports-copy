@@ -3,6 +3,7 @@ import profileModel from "../models/profile.model.js";
 import userModel from "../models/user.model.js";
 import tribeModel from "../models/tribe.model.js";
 import pointLedgerModel from "../models/pointLedger.model.js";
+import logger from "../config/logger.config.js";
 
 
 
@@ -258,7 +259,7 @@ export const switchTribeController = async (req, res) => {
         profile.switches = (profile.switches || 0) + 1;
         await profile.save();
 
-        console.log(`[Tribe Switch] User ${loggedInUser} switched from ${oldTribeName} to ${newTribe}. Penalty: -${totalPenalty}`);
+        logger.info(`[Tribe Switch] User ${loggedInUser} switched from ${oldTribeName} to ${newTribe}. Penalty: -${totalPenalty}`);
 
         return res.status(200).json({
             success: true,
@@ -267,7 +268,7 @@ export const switchTribeController = async (req, res) => {
         });
 
     } catch (error) {
-        console.error("Error switching tribe", error);
+        logger.error(`Error switching tribe: ${error.message}`, { userId: loggedInUser });
         return res.status(500).json({ success: false, message: "Internal Server Error", error: error.message });
     }
 };

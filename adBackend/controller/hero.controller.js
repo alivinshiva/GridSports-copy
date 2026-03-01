@@ -1,5 +1,6 @@
 import heroModel from "../model/hero.model.js";
 import cloudinary from "../config/cloudinary.config.js";
+import logger from "../config/logger.config.js";
 
 // desc create hero
 // method POST
@@ -72,7 +73,7 @@ export const updateHeroController = async (req, res) => {
                     await cloudinary.uploader.destroy(hero.imageId);
                 }
             } catch (err) {
-                console.error("Cloudinary cleanup error:", err);
+                logger.error(`Cloudinary cleanup error: ${err.message}`);
             }
             // Set new image data
             hero.imageUrl = image.path;
@@ -106,7 +107,7 @@ export const deleteHeroController = async (req, res) => {
                 await cloudinary.uploader.destroy(hero.imageId);
             }
         } catch (err) {
-            console.error("Cloudinary cleanup error:", err);
+            logger.error(`Cloudinary cleanup error: ${err.message}`);
         }
 
         await heroModel.findByIdAndDelete(id);

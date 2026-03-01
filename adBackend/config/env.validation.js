@@ -31,5 +31,6 @@ export const validateEnv = () => {
         process.exit(1);
     }
 
+    // Keep this as console.log since logger might not be initialized yet
     console.log('✅ All required environment variables are present');
 };

@@ -1,4 +1,5 @@
 import Tribe from "../model/tribe.model.js";
+import logger from "../config/logger.config.js";
 
 // @desc    Add points to a specific tribe
 // @route   POST /api/v1/tribe/add-points
@@ -40,7 +41,7 @@ export const addPoints = async (req, res) => {
         });
 
     } catch (error) {
-        console.error("Error in addPoints controller:", error);
+        logger.error(`Error in addPoints controller: ${error.message}`);
         return res.status(500).json({
             success: false,
             message: "Server error while adding points to tribe."
@@ -61,7 +62,7 @@ export const getAllTribes = async (req, res) => {
             data: tribes
         });
     } catch (error) {
-        console.error("Error in getAllTribes controller:", error);
+        logger.error(`Error in getAllTribes controller: ${error.message}`);
         return res.status(500).json({
             success: false,
             message: "Server error while fetching tribes."

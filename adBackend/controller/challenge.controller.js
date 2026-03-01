@@ -2,6 +2,7 @@ import challangeModel from "../model/challange.model.js";
 import weekendModel from "../model/weekend.model.js";
 import submissionModel from "../model/submission.model.js";
 import { distributeNotificationToAllUsers } from "../service/notification.service.js";
+import logger from "../config/logger.config.js";
 
 
 // desc create challenge
@@ -19,7 +20,7 @@ export const createChallangeController = async (req, res) => {
             try {
                 parsedParameters = JSON.parse(parameters);
             } catch (e) {
-                console.error("Error parsing parameters:", e);
+                logger.error(`Error parsing parameters: ${e.message}`);
                 return res.status(400).json({ success: false, message: "Invalid parameters format" });
             }
         }
@@ -103,7 +104,7 @@ export const getAllChallengesController = async (req, res) => {
 export const getSingleChallengeController = async (req, res) => {
     try {
         const { id } = req.params;
-        console.log(id)
+        logger.debug(`Fetching challenge with ID: ${id}`);
 
         if (!id) {
             return res.status(400).json({ success: false, message: "Challenge ID is required" });
@@ -117,25 +118,8 @@ export const getSingleChallengeController = async (req, res) => {
 
         const submissionCount = await submissionModel.countDocuments({ challenge: id });
 
-        // Log all challenge details
-        console.log("========= CHALLENGE DETAILS =========");
-        console.log("ID:", challenge._id);
-        console.log("Name:", challenge.name);
-        console.log("Type:", challenge.type);
-        console.log("Status:", challenge.status);
-        console.log("Scoring Type:", challenge.scoringType);
-        console.log("Season:", challenge.season);
-        console.log("Round:", challenge.round);
-        console.log("Start At:", challenge.startAt);
-        console.log("End At:", challenge.endAt);
-        console.log("Description:", challenge.description);
-        console.log("Rules:", challenge.rules);
-        console.log("Tags:", challenge.tags);
-        console.log("Parameters:", JSON.stringify(challenge.parameters, null, 2));
-        console.log("Comments:", challenge.comments);
-        console.log("Submission Count:", submissionCount);
-        console.log("Weekend:", challenge.weekend?.title);
-        console.log("=====================================");
+        // Log all challenge details for debugging
+        logger.debug(`Challenge Details - ID: ${challenge._id}, Name: ${challenge.name}, Type: ${challenge.type}, Status: ${challenge.status}, Submissions: ${submissionCount}`);
 
         return res.status(200).json({
             success: true,

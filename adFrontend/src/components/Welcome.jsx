@@ -4,6 +4,7 @@ import { Calendar, Trophy, Users, ArrowRight, TrendingUp } from 'lucide-react';
 import { getAllWeekends } from '../services/weekendService';
 import { getAllChallenges } from '../services/challengeService';
 import { getAllUsers } from '../services/userService';
+import logger from '../utils/logger.js';
 
 const Welcome = () => {
     const navigate = useNavigate();
@@ -19,7 +20,7 @@ const Welcome = () => {
                     users: u.success ? u.data.length : 0
                 });
             } catch (e) {
-                console.error("Stats fetch error", e);
+                logger.error("Stats fetch error", e);
             }
         };
         fetchStats();

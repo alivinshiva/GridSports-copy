@@ -5,6 +5,7 @@ import { processRating, processShare, processSubmissionUpload, processDetailedRa
 import challengeModel from "../model/challange.model.js";
 import detailedRatingModel from "../model/detailedRating.model.js";
 import userModel from "../model/user.model.js";
+import logger from "../config/logger.config.js";
 
 
 
@@ -409,7 +410,7 @@ export const getAllLoggedInUserImageSubmission = async (req, res) => {
             .limit(limit);
 
 
-        console.log(page, limit, skip, total, submissions.length);
+        logger.debug(`Fetching submissions - Page: ${page}, Limit: ${limit}, Skip: ${skip}, Total: ${total}, Found: ${submissions.length}`);
 
         return res.status(200).json({
             success: true,
@@ -473,7 +474,7 @@ export const getAllSubmissionOnParticularChallanage = async (req, res) => {
 
         const submissions = await submissionModel.find({ challenge }).populate("challenge", "name scoringType parameters");
 
-        console.log(submissions);
+        logger.debug(`Fetched ${submissions.length} submissions for challenge ${challenge}`);
 
         return res.status(200).json({ success: true, message: "Submissions Fetched Successfully", data: submissions });
     } catch (error) {

@@ -1,6 +1,8 @@
+import logger from "../config/logger.config.js";
+
 // Global error handling middleware
 export const errorHandler = (err, req, res, next) => {
-    console.error('❌ Admin Server Error:', err);
+    logger.error(`Admin Server Error: ${err.message}`, { stack: err.stack, url: req.url, method: req.method });
 
     // Default error
     let statusCode = err.statusCode || 500;
