@@ -107,7 +107,7 @@ export default function UploadSuccess() {
 
     const handleShare = async (platform) => {
         const shareUrl = `${window.location.origin}/challenge/feed/${submissionId || ""}`;
-        const text = `Check out my entry for ${challengeName || "the challenge"} on GridSports!`;
+        const text = `Check out my entry for ${challengeName || "the challenge"} on SHOWGRID!`;
 
         if (platform === "copy") {
             try {

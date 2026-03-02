@@ -16,7 +16,8 @@ import { TribePage } from "@/pages/TribePage";
 import ChallengeDetails from "@/pages/ChallengeDetails";
 import Raceboard from "@/pages/Raceboard";
 import SubmissionFeed from "@/pages/SubmissionFeed";
-import Notifications from "@/pages/Notifications"; // Import Notifications
+import Notifications from "@/pages/Notifications";
+import NotFound from "@/pages/NotFound";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 
 // Protects routes: must be logged in AND have chosen a tribe
@@ -40,15 +41,31 @@ function ProtectedRoute({ children }) {
   return children;
 }
 
+// Redirects logged-in users away from auth pages (login, signup, etc.)
+function GuestRoute({ children }) {
+  const { user, isLoading } = useAuth();
+  const location = useLocation();
+
+  if (isLoading) return null;
+
+  if (user) {
+    // If they already have a tribe, go to home. Otherwise go to tribe selection.
+    const tribe = localStorage.getItem("gridsports_tribe");
+    return <Navigate to={tribe ? "/" : "/tribe"} state={{ from: location.pathname }} replace />;
+  }
+
+  return children;
+}
+
 function App() {
   return (
     <AuthProvider>
       <Router>
         <Routes>
-          <Route path="/signup" element={<SignupPage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-          <Route path="/otp" element={<OTPPage />} />
+          <Route path="/signup" element={<GuestRoute><SignupPage /></GuestRoute>} />
+          <Route path="/login" element={<GuestRoute><LoginPage /></GuestRoute>} />
+          <Route path="/forgot-password" element={<GuestRoute><ForgotPasswordPage /></GuestRoute>} />
+          <Route path="/otp" element={<GuestRoute><OTPPage /></GuestRoute>} />
           <Route path="/tribe" element={<ProtectedRoute><TribePage /></ProtectedRoute>} />
           <Route path="/" element={<Home />} />
 
@@ -67,7 +84,7 @@ function App() {
           <Route path="/challenge/entries" element={<Navigate to="/challenge/feed" replace />} />
           <Route path="/challenge/feed/:postId" element={<SubmissionFeed />} />
           <Route path="/challenge/feed" element={<ProtectedRoute><SubmissionFeed /></ProtectedRoute>} />
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>
     </AuthProvider>

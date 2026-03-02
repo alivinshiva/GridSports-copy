@@ -5,6 +5,7 @@ import { getFeedIds, getBatchSubmissions, rateSubmission, recordShare, rateDetai
 import { Loader2, ArrowLeft, Facebook, Instagram, MessageCircle, Link as LinkIcon, X, CheckSquare, Star, Home, User, Send, Share2, Volume2, VolumeX, Play } from "lucide-react";
 import { BottomNav } from "@/components/home/BottomNav";
 import { useAuth } from "@/context/AuthContext";
+import logo from "../assets/logo1.svg";
 
 const FEED_STORAGE = {
     queue: 'feed_queue_v2',
@@ -122,8 +123,9 @@ const FeedDesktopSidebar = () => {
 
     return (
         <div className="hidden md:flex flex-col w-[250px] h-full border-r border-white/10 bg-black pt-8 px-4 flex-shrink-0 z-50">
-            <div className="mb-10 px-4">
-                <h1 className="text-2xl font-extrabold tracking-tight text-white drop-shadow-md cursor-pointer pb-2 border-b border-white/10">SHOWGRID</h1>
+            <div className="mb-10 px-4 flex items-center gap-3 pb-2 border-b border-white/10">
+                <img src={logo} alt="SHOWGRID" className="w-8 h-8 drop-shadow-md" />
+                <h1 className="text-2xl font-extrabold tracking-tight text-white drop-shadow-md cursor-pointer">SHOWGRID</h1>
             </div>
 
             <nav className="flex flex-col gap-2">
@@ -699,11 +701,15 @@ const SubmissionFeed = () => {
             <FeedDesktopSidebar />
 
             <main className="flex-1 h-full flex justify-center items-center relative z-10 w-full overflow-hidden">
-                {/* Back Button for mobile top-left over feed */}
-                <div className="absolute top-4 left-4 z-50 md:hidden">
-                    <Link to="/" className="w-10 h-10 rounded-full bg-black/50 backdrop-blur-md flex items-center justify-center text-white hover:bg-black/70 transition-colors">
+                {/* Header Overlay for mobile top-left over feed */}
+                <div className="absolute top-4 left-4 z-50 md:hidden flex items-center gap-3">
+                    <Link to="/" className="w-10 h-10 rounded-full bg-black/50 backdrop-blur-md flex items-center justify-center text-white hover:bg-black/70 transition-colors border border-white/10 shadow-lg">
                         <ArrowLeft size={24} />
                     </Link>
+                    <div className="flex items-center gap-2 bg-black/50 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10 shadow-lg" style={{ pointerEvents: 'none' }}>
+                        <img src={logo} alt="SHOWGRID" className="w-6 h-6 border border-white/5 shadow-sm rounded-sm" />
+                        <span className="font-bold text-white tracking-tight drop-shadow-md text-sm">SHOWGRID</span>
+                    </div>
                 </div>
 
                 {/* Vertical Scroll Snap Container */}

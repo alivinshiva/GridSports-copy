@@ -17,6 +17,7 @@ import HeroUpdate from './components/HeroUpdate';
 import TribePointsForm from './components/TribePointsForm';
 import Tags from './components/Tags';
 import Comments from './components/Comments';
+import NotFound from './pages/NotFound';
 
 function App() {
   return (
@@ -39,6 +40,7 @@ function App() {
           <Route path="/manage-tribe-points" element={<TribePointsForm />} />
           <Route path="/tags" element={<Tags />} />
           <Route path="/comments" element={<Comments />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </Layout>
     </BrowserRouter>

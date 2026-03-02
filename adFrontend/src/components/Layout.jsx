@@ -46,9 +46,9 @@ const Layout = ({ children }) => {
                 `}
             >
                 <div className="flex items-center justify-between px-6 h-16 border-b border-gray-100 transition-all duration-300">
-                    <span className="text-xl font-bold text-gray-800 tracking-tight flex items-center">
+                    <span className="text-xl font-bold text-black tracking-tight flex items-center">
                         <img src="/logo1.svg" alt="SHOWGRID Logo" className="w-8 h-8 mr-2" />
-                        <span className="text-blue-600">SHOW</span>GRID
+                        SHOWGRID
                     </span>
                     <button
                         onClick={() => setIsSidebarOpen(false)}

@@ -1,5 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import logo from "../../assets/logo1.svg";
 import { useEffect, useState } from "react";
 import { getUserNotifications } from "../../services/notificationService";
 
@@ -62,9 +63,10 @@ export function HomeHeader() {
                         )}
                     </Link>
 
-                    {/* Center: App Name (Hidden on Mobile to save space if needed, optionally shown) */}
+                    {/* Center: App Logo + Name */}
                     <Link to="/" className="flex items-center gap-2 absolute left-1/2 -translate-x-1/2">
-                        <h1 className="text-xl font-extrabold tracking-tight text-white drop-shadow-md">SHOWGRID</h1>
+                        <img src={logo} alt="SHOWGRID" className="w-6 h-6 md:w-8 md:h-8 drop-shadow-md" />
+                        <h1 className="text-base md:text-xl font-extrabold tracking-tight text-white drop-shadow-md">SHOWGRID</h1>
                     </Link>
 
                     {/* Right: Profile */}
@@ -79,8 +81,12 @@ export function HomeHeader() {
 
                 {/* --- DESKTOP LAYOUT (hidden md:flex) --- */}
                 <div className="hidden md:flex items-center justify-between w-full h-full relative">
-                    {/* Left: App Logo/Empty depending on Figma. Leaving it empty to match centered nav and clear UI */}
+                    {/* Left: App Logo */}
                     <div className="flex-1 flex items-center justify-start h-full">
+                        <Link to="/" className="flex items-center gap-2 transition-opacity hover:opacity-80">
+                            <img src={logo} alt="SHOWGRID" className="w-10 h-10 drop-shadow-md border border-white/10 rounded-sm" />
+                            <span className="font-extrabold tracking-tight text-white text-xl hidden lg:block drop-shadow-md">SHOWGRID</span>
+                        </Link>
                     </div>
 
                     {/* Center: Navigation Links */}

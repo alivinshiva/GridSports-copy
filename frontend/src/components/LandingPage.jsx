@@ -7,16 +7,19 @@ export function LandingPage() {
         <div className="min-h-screen bg-neutral-950 text-white font-sans flex flex-col">
             {/* Header */}
             <header className="sticky top-0 z-50 bg-black/80 backdrop-blur-md border-b border-gray-800">
-                <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+                <div className="max-w-7xl mx-auto px-4 md:px-6 h-16 flex items-center justify-between">
                     <div className="flex items-center space-x-3">
                         {/* Logo / Brand Name */}
-                        <img src={logo} alt="SHOWGRID Logo" className="w-16 h-16 drop-shadow-lg" />
+                        <Link to="/" className="flex items-center gap-2 md:gap-3">
+                            <img src={logo} alt="SHOWGRID Logo" className="w-8 h-8 md:w-10 md:h-10 drop-shadow-lg" />
+                            <span className="text-lg md:text-2xl font-extrabold tracking-tight text-white drop-shadow-md">SHOWGRID</span>
+                        </Link>
                     </div>
 
                     {/* Login Button */}
                     <Link
                         to="/login"
-                        className="bg-white text-black hover:bg-gray-200 font-semibold py-2.5 px-10 rounded-full transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(255,255,255,0.3)] text-center"
+                        className="bg-white text-black hover:bg-gray-200 font-semibold py-2 px-6 md:py-2.5 md:px-10 rounded-full transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(255,255,255,0.3)] text-center text-sm md:text-base"
                     >
                         Login
                     </Link>
@@ -120,8 +123,9 @@ export function LandingPage() {
             {/* Footer */}
             <footer className="bg-neutral-950 py-12 px-6 border-t border-gray-800">
                 <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center space-x-3">
                         <img src={logo} alt="SHOWGRID Logo" className="w-12 h-12 drop-shadow-md" />
+                        <span className="text-2xl font-extrabold tracking-tight text-white drop-shadow-md">SHOWGRID</span>
                     </div>
 
                     <div className="flex space-x-6 text-sm text-gray-500">
