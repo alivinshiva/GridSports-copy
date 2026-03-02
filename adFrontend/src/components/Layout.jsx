@@ -41,11 +41,11 @@ const Layout = ({ children }) => {
             {/* Sidebar */}
             <aside
                 className={`
-                    fixed lg:static inset-y-0 left-0 z-30 w-64 bg-white shadow-xl transform transition-transform duration-300 ease-in-out
+                    fixed lg:static inset-y-0 left-0 z-30 w-64 bg-white shadow-xl transform transition-transform duration-300 ease-in-out flex flex-col
                     ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
                 `}
             >
-                <div className="flex items-center justify-between px-6 h-16 border-b border-gray-100 transition-all duration-300">
+                <div className="flex-shrink-0 flex items-center justify-between px-6 h-16 border-b border-gray-100 transition-all duration-300">
                     <span className="text-xl font-bold text-black tracking-tight flex items-center">
                         <img src="/logo1.svg" alt="SHOWGRID Logo" className="w-8 h-8 mr-2" />
                         SHOWGRID
@@ -58,7 +58,7 @@ const Layout = ({ children }) => {
                     </button>
                 </div>
 
-                <nav className="p-4 space-y-2">
+                <nav className="flex-1 overflow-y-auto p-4 space-y-2">
                     {navItems.map((item) => {
                         const Icon = item.icon;
                         const active = isActive(item.path);
@@ -87,7 +87,7 @@ const Layout = ({ children }) => {
                     })}
                 </nav>
 
-                <div className="absolute bottom-0 w-full p-4 border-t border-gray-100 bg-white">
+                <div className="flex-shrink-0 w-full p-4 border-t border-gray-100 bg-white">
                     <div className="flex items-center px-4 py-3 rounded-lg bg-gray-50">
                         <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-sm">
                             S
