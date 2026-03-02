@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { AlertTriangle, ArrowRight, ArrowLeft } from "lucide-react";
 import logo from "../assets/logo1.svg";
+import { Helmet } from "react-helmet-async";
 
 export default function NotFound() {
     const navigate = useNavigate();
@@ -22,6 +23,10 @@ export default function NotFound() {
 
     return (
         <div className="min-h-screen bg-neutral-950 text-white font-sans flex flex-col overflow-hidden relative">
+            <Helmet>
+                <title>404 Not Found | SHOWGRID</title>
+                <meta name="description" content="The page you are looking for does not exist on SHOWGRID." />
+            </Helmet>
             {/* Header matches LandingPage */}
             <header className="sticky top-0 z-50 bg-black/80 backdrop-blur-md border-b border-gray-800">
                 <div className="max-w-7xl mx-auto px-4 md:px-6 h-16 flex items-center justify-between">

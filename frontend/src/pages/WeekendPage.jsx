@@ -4,6 +4,7 @@ import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 import { getWeekendById } from "@/services/weekendService";
 import { getChallengesByWeekendId } from "@/services/challengeService";
 import { Lock } from "lucide-react";
+import { Helmet } from "react-helmet-async";
 
 const CountdownTimer = ({ targetDate }) => {
     const calculateTimeLeft = () => {
@@ -75,6 +76,10 @@ export default function WeekendPage() {
 
     return (
         <AuthenticatedLayout>
+            <Helmet>
+                <title>{weekend.title} | SHOWGRID</title>
+                <meta name="description" content={`Explore all challenges and races for the ${weekend.title} weekend on SHOWGRID.`} />
+            </Helmet>
             <div className="flex flex-col items-center pb-8 pt-2 sm:pt-8 w-full sm:px-4">
                 {/* Hero Section */}
                 <div className="relative w-full rounded-[32px] sm:rounded-3xl mb-8 overflow-hidden bg-black flex justify-center">

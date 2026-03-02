@@ -4,6 +4,7 @@ import logo from "../assets/logo1.svg";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 import { useAuth } from "@/context/AuthContext";
 import { ArrowLeft, Lock, Save, LayoutGrid, Loader2, Trash2, LogOut } from "lucide-react";
+import { Helmet } from "react-helmet-async";
 
 export default function EditProfile() {
     const { user, fetchProfile, logout } = useAuth();
@@ -97,6 +98,10 @@ export default function EditProfile() {
 
     return (
         <AuthenticatedLayout>
+            <Helmet>
+                <title>Edit Profile | SHOWGRID</title>
+                <meta name="description" content="Edit your SHOWGRID profile settings." />
+            </Helmet>
             <div className="flex flex-col min-h-screen items-center py-6 md:py-10">
                 <div className="flex flex-col max-w-[600px] w-full px-4 sm:px-6">
 

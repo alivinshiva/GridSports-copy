@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { getRankerLeaderboard, getTribeLeaderboard, getCurrentUserRank } from "@/services/leaderboardService";
 import { getAllActiveWeekends } from "@/services/weekendService";
+import { Helmet } from "react-helmet-async";
 
 export default function ProfilePage() {
     const navigate = useNavigate();
@@ -184,6 +185,10 @@ export default function ProfilePage() {
 
     return (
         <AuthenticatedLayout>
+            <Helmet>
+                <title>{profileData?.user?.name ? `${profileData.user.name}'s Profile` : "Profile"} | SHOWGRID</title>
+                <meta name="description" content="View your SHOWGRID racing profile, stats, and tribe contribution." />
+            </Helmet>
             {/* Image Modal */}
             {isImageModalOpen && (
                 <div

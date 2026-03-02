@@ -4,6 +4,7 @@ import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 import LeaderboardTable from "@/components/raceboard/LeaderboardTable";
 import { getCreatorLeaderboard, getRankerLeaderboard, getTribeLeaderboard, getCurrentUserRank } from "@/services/leaderboardService";
 import { User, Users, Star, ChevronUp, ChevronDown } from "lucide-react";
+import { Helmet } from "react-helmet-async";
 
 // Helper function to render rank with arrow
 const renderRankWithChange = (row) => {
@@ -443,6 +444,10 @@ export default function Raceboard() {
 
     return (
         <AuthenticatedLayout>
+            <Helmet>
+                <title>Raceboard | SHOWGRID</title>
+                <meta name="description" content="View the SHOWGRID leaderboard for creators, raters, and tribes." />
+            </Helmet>
             <div className="max-w-[1000px] mx-auto px-0 sm:px-4 py-10 pb-32 pt-20">
                 {/* Header Card */}
                 <div className="bg-[#181920] rounded-2xl mx-1 sm:mx-0 p-4 md:p-6 mb-6 flex flex-wrap items-center justify-between gap-4 md:gap-6 border border-white/5 shadow-2xl">

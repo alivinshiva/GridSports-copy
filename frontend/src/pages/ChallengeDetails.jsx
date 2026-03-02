@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 import { getChallengeById } from "@/services/challengeService";
 import { checkUserSubmission } from "@/services/submissionService";
+import { Helmet } from "react-helmet-async";
 
 export default function ChallengeDetails() {
     const { challengeId } = useParams();
@@ -44,6 +45,10 @@ export default function ChallengeDetails() {
 
     return (
         <AuthenticatedLayout>
+            <Helmet>
+                <title>{challenge.name} | SHOWGRID Challenge</title>
+                <meta name="description" content={`Participate in the ${challenge.name} challenge on SHOWGRID.`} />
+            </Helmet>
             <div className="flex flex-col items-center pb-8 pt-2 sm:pt-8 w-full sm:px-4 bg-[#0a0f16] min-h-screen">
                 <div className="w-full bg-[#181920] rounded-[32px] sm:rounded-3xl shadow-2xl border border-white/5 flex flex-col overflow-hidden relative">
 

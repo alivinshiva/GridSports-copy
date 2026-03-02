@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check, ArrowRight, Loader2, AlertCircle, X } from "lucide-react";
+import { Helmet } from "react-helmet-async";
 
 import orangeImg from "@/assets/tribes/ORANGE_TRIBE-Photoroom.png";
 import scarletImg from "@/assets/tribes/SCARLET_TRIBE-Photoroom.png";
@@ -208,6 +209,10 @@ export function TribePage() {
 
     return (
         <div className="min-h-screen bg-[#0B0B0F] px-6 py-10 text-white relative">
+            <Helmet>
+                <title>Choose Your Tribe | SHOWGRID</title>
+                <meta name="description" content="Select your racing tribe on SHOWGRID to participate in exclusive competitions and challenges." />
+            </Helmet>
 
             {/* ERROR TOAST */}
             <AnimatePresence>

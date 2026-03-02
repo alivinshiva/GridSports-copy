@@ -6,6 +6,7 @@ import { Loader2, ArrowLeft, Facebook, Instagram, MessageCircle, Link as LinkIco
 import { BottomNav } from "@/components/home/BottomNav";
 import { useAuth } from "@/context/AuthContext";
 import logo from "../assets/logo1.svg";
+import { Helmet } from "react-helmet-async";
 
 const FEED_STORAGE = {
     queue: 'feed_queue_v2',
@@ -689,6 +690,10 @@ const SubmissionFeed = () => {
 
     return (
         <div className="flex w-full h-[100dvh] bg-black overflow-hidden relative">
+            <Helmet>
+                <title>Challenge Feed | SHOWGRID</title>
+                <meta name="description" content="Review and rate challenge submissions on SHOWGRID." />
+            </Helmet>
             <svg style={{ width: 0, height: 0, position: 'absolute' }} aria-hidden="true" focusable="false">
                 <defs>
                     <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">

@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { User, Phone, Lock, ArrowRight, Eye, EyeOff } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import logo from "../assets/logo1.svg";
+import { Helmet } from "react-helmet-async";
 
 export function SignupPage() {
     const [name, setName] = useState("");
@@ -34,6 +35,10 @@ export function SignupPage() {
 
     return (
         <div className="min-h-screen bg-racing-black flex items-center justify-center px-4 relative overflow-hidden">
+            <Helmet>
+                <title>Sign Up | SHOWGRID</title>
+                <meta name="description" content="Create your SHOWGRID account to join a Tribe and compete in racing challenges." />
+            </Helmet>
             {/* Background Glow */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-cyan-500/10 rounded-full blur-[120px] pointer-events-none" />
 
