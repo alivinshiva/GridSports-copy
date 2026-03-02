@@ -1,15 +1,11 @@
 import express from "express";
 import { upload } from "../middleware/multer.middleware.js";
-import { verifyCookies } from "../middleware/verify.cookies.js";
 import { createHeroController, deleteHeroController, getAllHeroesController, updateHeroController } from "../controller/hero.controller.js";
 
 const heroRouter = express.Router();
 
 // Public route to fetch heroes
 heroRouter.route("/all").get(getAllHeroesController);
-
-// Protected hero management routes for admin
-heroRouter.use(verifyCookies);
 
 // Max 1 file upload using 'image' form key
 heroRouter.route("/add").post(upload.single("image"), createHeroController);

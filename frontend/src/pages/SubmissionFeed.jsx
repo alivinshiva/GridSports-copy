@@ -56,7 +56,7 @@ const VideoPlayer = ({ src, muted, isActive }) => {
         if (isActive) {
             videoRef.current.play()
                 .then(() => setIsPlaying(true))
-                .catch(() => {});
+                .catch(() => { });
         } else {
             videoRef.current.pause();
             setIsPlaying(false);
@@ -67,7 +67,7 @@ const VideoPlayer = ({ src, muted, isActive }) => {
         e.stopPropagation();
         if (!videoRef.current) return;
         if (videoRef.current.paused) {
-            videoRef.current.play().then(() => setIsPlaying(true)).catch(() => {});
+            videoRef.current.play().then(() => setIsPlaying(true)).catch(() => { });
         } else {
             videoRef.current.pause();
             setIsPlaying(false);
@@ -123,7 +123,7 @@ const FeedDesktopSidebar = () => {
     return (
         <div className="hidden md:flex flex-col w-[250px] h-full border-r border-white/10 bg-black pt-8 px-4 flex-shrink-0 z-50">
             <div className="mb-10 px-4">
-                <h1 className="text-2xl font-extrabold tracking-tight text-white drop-shadow-md cursor-pointer pb-2 border-b border-white/10">Grid Sports</h1>
+                <h1 className="text-2xl font-extrabold tracking-tight text-white drop-shadow-md cursor-pointer pb-2 border-b border-white/10">SHOWGRID</h1>
             </div>
 
             <nav className="flex flex-col gap-2">
@@ -366,7 +366,7 @@ const SubmissionFeed = () => {
                                 const nextPointer = finalState.pointer + idsToFetch.length;
                                 saveSessionState(finalState.queue, nextPointer, finalState.seen);
                             }
-                        }).catch(() => {});
+                        }).catch(() => { });
                     }
                 }, 0);
             } finally {
@@ -678,7 +678,7 @@ const SubmissionFeed = () => {
                 navigator.share({
                     title: 'Check out this submission!',
                     url: shareUrl
-                }).catch(() => {});
+                }).catch(() => { });
             }
         }
 
@@ -759,8 +759,8 @@ const SubmissionFeed = () => {
 
                                 {/* Actions Container */}
                                 <div className="absolute inset-x-0 bottom-16 md:bottom-6 z-20 pointer-events-none">
-                                        {/* Conditionally Render Rating UI */}
-                                        {entry.challenge?.scoringType === 'DETAILED' ? (
+                                    {/* Conditionally Render Rating UI */}
+                                    {entry.challenge?.scoringType === 'DETAILED' ? (
                                         <div className="flex flex-col w-full px-4 pb-0 text-white pointer-events-auto bg-transparent pt-4">
                                             {/* Detail Rating Submit Button */}
                                             <div className="flex justify-end w-full px-2 mb-2">
@@ -846,7 +846,7 @@ const SubmissionFeed = () => {
 
 
                                         </div>
-                                        ) : (
+                                    ) : (
                                         <div className="flex flex-col w-full px-4 pb-6 text-white pointer-events-auto bg-transparent pt-2">
                                             {entry.challenge?.parameters && entry.challenge.parameters.length > 0 && (
                                                 <div className="flex w-full gap-2 justify-between mt-2 px-2">
@@ -869,8 +869,8 @@ const SubmissionFeed = () => {
                                                 </div>
                                             )}
                                         </div>
-                                        )}
-                                    </div>
+                                    )}
+                                </div>
                             </div>
                         );
                     })}

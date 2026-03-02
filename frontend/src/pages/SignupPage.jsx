@@ -45,7 +45,7 @@ export function SignupPage() {
             >
                 {/* Logo / Title */}
                 <div className="text-center mb-10 flex flex-col items-center">
-                    <img src={logo} alt="GridSports Logo" className="w-32 h-32 mb-4 drop-shadow-[0_0_15px_rgba(6,182,212,0.3)]" />
+                    <img src={logo} alt="SHOWGRID Logo" className="w-32 h-32 mb-4 drop-shadow-[0_0_15px_rgba(6,182,212,0.3)]" />
                     <p className="text-gray-400">Create your racing account</p>
                 </div>
 

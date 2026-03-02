@@ -29,9 +29,9 @@ export function Layout({ children }) {
                 <div className="max-w-7xl mx-auto px-4 h-16 md:h-20 flex items-center justify-between">
                     <div className="flex items-center space-x-2 md:space-x-4">
                         <Link to="/" className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors hover:opacity-80">
-                            <img src={logo} className="w-8 h-8 drop-shadow-md" alt="GridSports Logo" />
+                            <img src={logo} className="w-8 h-8 drop-shadow-md" alt="SHOWGRID Logo" />
                         </Link>
-                        <Link to="/" className="font-bold text-lg md:text-xl tracking-tight text-gray-900">Grid Sports</Link>
+                        <Link to="/" className="font-bold text-lg md:text-xl tracking-tight text-gray-900">SHOWGRID</Link>
 
                         {/* Desktop Nav Links */}
                         <div className="hidden md:flex items-center ml-8 space-x-1">

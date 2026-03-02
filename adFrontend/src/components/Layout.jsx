@@ -46,8 +46,9 @@ const Layout = ({ children }) => {
                 `}
             >
                 <div className="flex items-center justify-between px-6 h-16 border-b border-gray-100 transition-all duration-300">
-                    <span className="text-xl font-bold text-gray-800 tracking-tight">
-                        <span className="text-blue-600">Grid</span>Sports
+                    <span className="text-xl font-bold text-gray-800 tracking-tight flex items-center">
+                        <img src="/logo1.svg" alt="SHOWGRID Logo" className="w-8 h-8 mr-2" />
+                        <span className="text-blue-600">SHOW</span>GRID
                     </span>
                     <button
                         onClick={() => setIsSidebarOpen(false)}
@@ -109,7 +110,10 @@ const Layout = ({ children }) => {
                     >
                         <Menu size={24} />
                     </button>
-                    <span className="ml-4 text-lg font-bold text-gray-800">Grid Sports Admin</span>
+                    <span className="ml-4 text-lg font-bold text-gray-800 flex items-center">
+                        <img src="/logo1.svg" alt="SHOWGRID Logo" className="w-6 h-6 mr-2" />
+                        SHOWGRID Admin
+                    </span>
                 </header>
 
                 <main className="flex-1 overflow-y-auto p-4 lg:p-8 text-gray-900">

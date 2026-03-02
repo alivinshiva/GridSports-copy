@@ -10,7 +10,7 @@ export function LandingPage() {
                 <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
                     <div className="flex items-center space-x-3">
                         {/* Logo / Brand Name */}
-                        <img src={logo} alt="GridSports Logo" className="w-16 h-16 drop-shadow-lg" />
+                        <img src={logo} alt="SHOWGRID Logo" className="w-16 h-16 drop-shadow-lg" />
                     </div>
 
                     {/* Login Button */}
@@ -121,7 +121,7 @@ export function LandingPage() {
             <footer className="bg-neutral-950 py-12 px-6 border-t border-gray-800">
                 <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
                     <div className="flex items-center space-x-2">
-                        <img src={logo} alt="GridSports Logo" className="w-12 h-12 drop-shadow-md" />
+                        <img src={logo} alt="SHOWGRID Logo" className="w-12 h-12 drop-shadow-md" />
                     </div>
 
                     <div className="flex space-x-6 text-sm text-gray-500">
@@ -131,7 +131,7 @@ export function LandingPage() {
                     </div>
 
                     <div className="text-gray-600 text-sm">
-                        &copy; 2026 Grid Sports. All rights reserved.
+                        &copy; 2026 SHOWGRID. All rights reserved.
                     </div>
                 </div>
             </footer>

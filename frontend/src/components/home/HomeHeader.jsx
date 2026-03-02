@@ -64,7 +64,7 @@ export function HomeHeader() {
 
                     {/* Center: App Name (Hidden on Mobile to save space if needed, optionally shown) */}
                     <Link to="/" className="flex items-center gap-2 absolute left-1/2 -translate-x-1/2">
-                        <h1 className="text-xl font-extrabold tracking-tight text-white drop-shadow-md">Grid Sports</h1>
+                        <h1 className="text-xl font-extrabold tracking-tight text-white drop-shadow-md">SHOWGRID</h1>
                     </Link>
 
                     {/* Right: Profile */}

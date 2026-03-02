@@ -5,9 +5,9 @@ import { upload } from "../middleware/multer.middleware.js";
 
 const submissionRouter = express.Router();
 
-submissionRouter.route("/all").get(getAllSubmissionsController);
+submissionRouter.route("/all").get(verifyCookies, getAllSubmissionsController);
 submissionRouter.route("/add").post(verifyCookies, upload.single("image"), addSubmissionController); // one bugs available not fixed right now
-submissionRouter.route("/all-random").get(getAllRandomSubmissionController);
+submissionRouter.route("/all-random").get(verifyCookies, getAllRandomSubmissionController);
 submissionRouter.route("/feed-ids").post(verifyCookies, getFeedIdsController);
 submissionRouter.route("/batch").post(verifyCookies, getBatchSubmissionsController);
 submissionRouter.route("/single/:id").get(getSingleSubmissionController);
