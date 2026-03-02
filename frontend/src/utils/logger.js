@@ -11,7 +11,10 @@
  * - DataDog (APM + logging)
  */
 
-const isDevelopment = import.meta.env.DEV;
+const isDevelopment =
+    import.meta.env.DEV ||
+    import.meta.env.MODE === 'development' ||
+    import.meta.env.NODE_ENV === 'development';
 
 const logger = {
     info: (message, ...args) => {

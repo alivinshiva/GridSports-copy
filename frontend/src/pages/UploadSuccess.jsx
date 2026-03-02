@@ -105,14 +105,39 @@ export default function UploadSuccess() {
         return () => clearInterval(timer);
     }, [endTime, tribeColor]);
 
-    const handleShare = (platform) => {
+    const handleShare = async (platform) => {
         const shareUrl = `${window.location.origin}/challenge/feed/${submissionId || ""}`;
         const text = `Check out my entry for ${challengeName || "the challenge"} on GridSports!`;
 
         if (platform === "copy") {
-            navigator.clipboard.writeText(shareUrl);
-            setIsCopied(true);
-            setTimeout(() => setIsCopied(false), 2000);
+            try {
+                await navigator.clipboard.writeText(shareUrl);
+                setIsCopied(true);
+                setTimeout(() => setIsCopied(false), 2000);
+            } catch (err) {
+                // Fallback for browsers that don't support clipboard API
+                const textArea = document.createElement('textarea');
+                textArea.value = shareUrl;
+                textArea.style.position = 'fixed';
+                textArea.style.left = '-999999px';
+                textArea.style.top = '0';
+                textArea.style.opacity = '0';
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                try {
+                    const successful = document.execCommand('copy');
+                    if (successful) {
+                        setIsCopied(true);
+                        setTimeout(() => setIsCopied(false), 2000);
+                    } else {
+                        alert('Failed to copy link. Please copy manually: ' + shareUrl);
+                    }
+                } catch (fallbackErr) {
+                    alert('Failed to copy link. Please copy manually: ' + shareUrl);
+                }
+                document.body.removeChild(textArea);
+            }
             return;
         }
 
@@ -127,8 +152,22 @@ export default function UploadSuccess() {
             case "instagram":
                 // Instagram doesn't have a direct share link, usually just copy is used, or a custom protocol if on mobile
                 // Fallback to copy link for Instagram since web intent doesn't exist natively for feed post sharing
-                alert("Link copied! Open Instagram to paste and share.");
-                navigator.clipboard.writeText(shareUrl);
+                try {
+                    await navigator.clipboard.writeText(shareUrl);
+                    alert("Link copied! Open Instagram to paste and share.");
+                } catch (err) {
+                    // Fallback
+                    const textArea = document.createElement('textarea');
+                    textArea.value = shareUrl;
+                    textArea.style.position = 'fixed';
+                    textArea.style.left = '-999999px';
+                    textArea.style.top = '0';
+                    textArea.style.opacity = '0';
+                    document.body.appendChild(textArea);
+                    textArea.focus();
+                    textArea.select();
+                    document.body.removeChild(textArea);
+                }
                 return;
             default:
                 break;

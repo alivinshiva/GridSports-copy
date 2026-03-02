@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { useLocation, Link, useParams } from 'react-router-dom';
+import { useLocation, Link, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { getFeedIds, getBatchSubmissions, rateSubmission, recordShare, rateDetailed, getSingleSubmission } from "@/services/submissionService";
 import { Loader2, ArrowLeft, Facebook, Instagram, MessageCircle, Link as LinkIcon, X, CheckSquare, Star, Home, User, Send, Share2, Volume2, VolumeX, Play } from "lucide-react";
 import { BottomNav } from "@/components/home/BottomNav";
+import { useAuth } from "@/context/AuthContext";
 
 const FEED_STORAGE = {
     queue: 'feed_queue_v2',
@@ -152,7 +153,9 @@ const FeedDesktopSidebar = () => {
 
 const SubmissionFeed = () => {
     const location = useLocation();
+    const navigate = useNavigate();
     const { postId } = useParams();
+    const { user, isLoading: isAuthLoading } = useAuth();
     const initialEntry = location.state?.initialEntry;
     const preloadedFeed = location.state?.preloadedFeed;
     const feedContainerRef = useRef(null);
@@ -170,6 +173,12 @@ const SubmissionFeed = () => {
     const [activeShare, setActiveShare] = useState(null); // ID of submission being shared
     const [submittedDetailedState, setSubmittedDetailedState] = useState({}); // { [subId]: true } after explicit submit
     const [activeIndex, setActiveIndex] = useState(0); // Track currently viewed post
+    const isSharedPostRoute = Boolean(postId);
+    const isGuestShareOnlyMode = isSharedPostRoute && !isAuthLoading && !user;
+
+    const redirectGuestToSignup = useCallback(() => {
+        navigate('/signup', { state: { from: location.pathname } });
+    }, [location.pathname, navigate]);
 
     const getSessionState = useCallback(() => {
         return {
@@ -261,6 +270,7 @@ const SubmissionFeed = () => {
     }, [saveSessionState]);
 
     const loadNextBatch = useCallback(async () => {
+        if (isGuestShareOnlyMode) return;
         if (loading) return;
         setLoading(true);
 
@@ -295,7 +305,7 @@ const SubmissionFeed = () => {
         } finally {
             setLoading(false);
         }
-    }, [getSessionState, loading, refillQueueIfNeeded, saveSessionState]);
+    }, [getSessionState, isGuestShareOnlyMode, loading, refillQueueIfNeeded, saveSessionState]);
 
     // Initial fetch
     useEffect(() => {
@@ -330,6 +340,10 @@ const SubmissionFeed = () => {
                     seedIds.forEach((id) => scheduleRemovalForId(id));
                 }
 
+                if (isGuestShareOnlyMode) {
+                    return;
+                }
+
                 const currentState = getSessionState();
 
                 if (!Array.isArray(currentState.queue) || currentState.queue.length === 0) {
@@ -361,7 +375,7 @@ const SubmissionFeed = () => {
         };
 
         initializeFeed();
-    }, [postId]);
+    }, [postId, preloadedFeed, initialEntry, getSessionState, saveSessionState, scheduleRemovalForId, isGuestShareOnlyMode]);
 
     // Hydrate ratings on feed changes
     useEffect(() => {
@@ -433,6 +447,7 @@ const SubmissionFeed = () => {
     }, [feed]);
 
     useEffect(() => {
+        if (isGuestShareOnlyMode) return undefined;
         const container = feedContainerRef.current;
         if (!container) return undefined;
 
@@ -462,7 +477,7 @@ const SubmissionFeed = () => {
             container.removeEventListener('scroll', onScroll);
             if (timeout) clearTimeout(timeout);
         };
-    }, [feed, loadNextBatch, scheduleRemovalForId]);
+    }, [feed, loadNextBatch, scheduleRemovalForId, isGuestShareOnlyMode]);
 
     useEffect(() => {
         return () => {
@@ -474,6 +489,11 @@ const SubmissionFeed = () => {
 
 
     const submitDetailedRatings = async (submissionId) => {
+        if (isGuestShareOnlyMode) {
+            redirectGuestToSignup();
+            return;
+        }
+
         const submission = feed.find(f => f._id === submissionId);
         if (submission?.challenge?.scoringType !== 'DETAILED') return;
 
@@ -511,6 +531,12 @@ const SubmissionFeed = () => {
 
     const handleDetailedRate = (e, submissionId, paramName, score) => {
         e.stopPropagation();
+
+        if (isGuestShareOnlyMode) {
+            redirectGuestToSignup();
+            return;
+        }
+
         setDetailedRatingsState(prev => ({
             ...prev,
             [submissionId]: {
@@ -522,6 +548,12 @@ const SubmissionFeed = () => {
 
     const handleCommentSelect = (e, submissionId, commentText) => {
         e.stopPropagation();
+
+        if (isGuestShareOnlyMode) {
+            redirectGuestToSignup();
+            return;
+        }
+
         setSelectedCommentState(prev => {
             // Toggle off if already selected, otherwise set it
             const isCurrentlySelected = prev[submissionId] === commentText;
@@ -534,6 +566,11 @@ const SubmissionFeed = () => {
 
     const handleRate = async (e, submissionId, ratingType) => {
         e.stopPropagation();
+
+        if (isGuestShareOnlyMode) {
+            redirectGuestToSignup();
+            return;
+        }
 
         if (ratingsState[submissionId]) {
             toast('Already reacted', {
@@ -572,10 +609,12 @@ const SubmissionFeed = () => {
         if (!activeShare) return;
 
         // Record points in backend
-        try {
-            await recordShare(activeShare);
-        } catch (error) {
-            // Silently handle error
+        if (!isGuestShareOnlyMode) {
+            try {
+                await recordShare(activeShare);
+            } catch (error) {
+                // Silently handle error
+            }
         }
 
         // Logic to actually share via platform URL or copy link
@@ -585,16 +624,54 @@ const SubmissionFeed = () => {
         } else if (platform === 'facebook') {
             window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`, '_blank');
         } else if (platform === 'copy') {
-            navigator.clipboard.writeText(shareUrl);
-            toast.success("Link copied to clipboard!", {
-                duration: 2000,
-                position: 'bottom-center',
-                style: {
-                    background: '#333',
-                    color: '#fff',
-                    borderRadius: '8px',
-                },
-            });
+            try {
+                await navigator.clipboard.writeText(shareUrl);
+                toast.success("Link copied to clipboard!", {
+                    duration: 2000,
+                    position: 'bottom-center',
+                    style: {
+                        background: '#333',
+                        color: '#fff',
+                        borderRadius: '8px',
+                    },
+                });
+            } catch (err) {
+                // Fallback for browsers that don't support clipboard API or denied permission
+                const textArea = document.createElement('textarea');
+                textArea.value = shareUrl;
+                textArea.style.position = 'fixed';
+                textArea.style.left = '-999999px';
+                textArea.style.top = '0';
+                textArea.style.opacity = '0';
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                try {
+                    const successful = document.execCommand('copy');
+                    if (successful) {
+                        toast.success("Link copied to clipboard!", {
+                            duration: 2000,
+                            position: 'bottom-center',
+                            style: {
+                                background: '#333',
+                                color: '#fff',
+                                borderRadius: '8px',
+                            },
+                        });
+                    } else {
+                        toast.error("Failed to copy link. Please copy manually.", {
+                            duration: 3000,
+                            position: 'bottom-center',
+                        });
+                    }
+                } catch (fallbackErr) {
+                    toast.error("Failed to copy link. Please copy manually.", {
+                        duration: 3000,
+                        position: 'bottom-center',
+                    });
+                }
+                document.body.removeChild(textArea);
+            }
         } else {
             // Native share fallback if available
             if (navigator.share) {
@@ -630,7 +707,7 @@ const SubmissionFeed = () => {
                 </div>
 
                 {/* Vertical Scroll Snap Container */}
-                <div ref={feedContainerRef} className="w-full h-full md:h-[calc(100vh-40px)] md:max-w-[420px] mx-auto bg-black overflow-y-scroll snap-y snap-mandatory no-scrollbar relative md:rounded-2xl md:shadow-[0_0_40px_transparent] md:border md:border-white/5" style={{ scrollBehavior: 'smooth' }}>
+                <div ref={feedContainerRef} className={`w-full h-full md:h-[calc(100vh-40px)] md:max-w-[420px] mx-auto bg-black ${isGuestShareOnlyMode ? 'overflow-hidden' : 'overflow-y-scroll snap-y snap-mandatory'} no-scrollbar relative md:rounded-2xl md:shadow-[0_0_40px_transparent] md:border md:border-white/5`} style={{ scrollBehavior: 'smooth' }}>
                     {feed.map((entry, index) => {
                         const isVisible = Math.abs(index - activeIndex) <= 2;
                         if (!isVisible) {
@@ -682,8 +759,8 @@ const SubmissionFeed = () => {
 
                                 {/* Actions Container */}
                                 <div className="absolute inset-x-0 bottom-16 md:bottom-6 z-20 pointer-events-none">
-                                    {/* Conditionally Render Rating UI */}
-                                    {entry.challenge?.scoringType === 'DETAILED' ? (
+                                        {/* Conditionally Render Rating UI */}
+                                        {entry.challenge?.scoringType === 'DETAILED' ? (
                                         <div className="flex flex-col w-full px-4 pb-0 text-white pointer-events-auto bg-transparent pt-4">
                                             {/* Detail Rating Submit Button */}
                                             <div className="flex justify-end w-full px-2 mb-2">
@@ -769,7 +846,7 @@ const SubmissionFeed = () => {
 
 
                                         </div>
-                                    ) : (
+                                        ) : (
                                         <div className="flex flex-col w-full px-4 pb-6 text-white pointer-events-auto bg-transparent pt-2">
                                             {entry.challenge?.parameters && entry.challenge.parameters.length > 0 && (
                                                 <div className="flex w-full gap-2 justify-between mt-2 px-2">
@@ -792,8 +869,8 @@ const SubmissionFeed = () => {
                                                 </div>
                                             )}
                                         </div>
-                                    )}
-                                </div>
+                                        )}
+                                    </div>
                             </div>
                         );
                     })}

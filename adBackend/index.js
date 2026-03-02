@@ -22,7 +22,7 @@ dotenv.config();
 validateEnv();
 
 const app = express();
-const PORT = process.env.PORT || 5001;
+const PORT = process.env.PORT
 
 connectDb();
 
@@ -57,8 +57,8 @@ app.use(cors({
 
 // Rate limiter for admin operations
 const adminLimiter = rateLimit({
-    windowMs: 5 * 60 * 1000, // 5 minutes
-    max: 1000, // Development-friendly limit for admin operations
+    windowMs: 1000, // 1 second
+    max: 200, // 200 requests per second
     message: { success: false, message: 'Too many requests, please try again later' },
     standardHeaders: true,
     legacyHeaders: false,
