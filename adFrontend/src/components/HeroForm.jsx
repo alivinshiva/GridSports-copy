@@ -73,7 +73,7 @@ const HeroForm = () => {
                 </div>
 
                 <div>
-                    <label className="block text-gray-700 text-sm font-bold mb-2">Location</label>
+                    <label className="block text-gray-700 text-sm font-bold mb-2">Hero Subtitle</label>
                     <input
                         type="text"
                         value={location}

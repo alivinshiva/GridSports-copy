@@ -1,10 +1,38 @@
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, Trophy, UserPlus, Shield, Calendar, UploadCloud, TrendingUp, CheckCircle } from "lucide-react";
 import logoText from "../assets/logo.png";
 import f1_car from "../assets/f1_car.png";
-
+import { getAllHeroes } from "../services/heroService";
 
 export function LandingPage() {
+    const [heroes, setHeroes] = useState([]);
+    const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+    // Fetch heroes on mount
+    useEffect(() => {
+        const fetchHeroes = async () => {
+            try {
+                const response = await getAllHeroes();
+                if (response.success && response.data && response.data.length > 0) {
+                    setHeroes(response.data);
+                }
+            } catch (error) {
+                console.error("Failed to load heroes:", error);
+            }
+        };
+        fetchHeroes();
+    }, []);
+
+    // Slide interval logic
+    useEffect(() => {
+        if (heroes.length > 1) {
+            const interval = setInterval(() => {
+                setCurrentImageIndex((prevIndex) => (prevIndex + 1) % heroes.length);
+            }, 4000); // 4 seconds per slide
+            return () => clearInterval(interval);
+        }
+    }, [heroes]);
     return (
         <div className="min-h-screen bg-neutral-950 text-white font-sans flex flex-col">
             {/* Header */}
@@ -60,18 +88,51 @@ export function LandingPage() {
                         </div>
                     </div>
 
-                    {/* Hero Image */}
-                    <div className="relative group perspective-1000">
-                        {/* Abstract background blobs */}
+                    {/* Right column (Visuals / Sliders) */}
+                    <div className="flex-1 relative w-full max-w-lg md:max-w-none perspective-1000">
+                        {/* Glow Behind */}
                         <div className="absolute -inset-4 bg-gradient-to-r from-cyan-600 to-blue-600 rounded-full blur-3xl opacity-20 group-hover:opacity-30 transition-opacity duration-700"></div>
 
-                        <img
-                            src={f1_car}
-                            alt="car"
-                            className="relative w-full rounded-3xl shadow-2xl border border-gray-800 transform transition-transform duration-700 group-hover:scale-[1.02] group-hover:rotate-1"
-                        />
-                        {/* Card Reflection/Gloss */}
-                        <div className="absolute inset-0 rounded-3xl bg-gradient-to-tr from-white/5 to-transparent pointer-events-none"></div>
+                        {/* Image Container */}
+                        <div className="relative w-full aspect-[4/3] md:aspect-video rounded-3xl shadow-2xl border border-gray-800 overflow-hidden transform transition-transform duration-700 group-hover:scale-[1.02] group-hover:rotate-1 bg-neutral-900 group">
+
+                            {/* Slide transition logic */}
+                            {heroes.length > 0 ? (
+                                heroes.map((hero, index) => (
+                                    <img
+                                        key={hero._id}
+                                        src={hero.imageUrl}
+                                        alt={hero.name}
+                                        className={`absolute inset-0 w-full h-full object-cover transition-all duration-1000 ease-in-out ${index === currentImageIndex
+                                            ? "opacity-100 translate-y-0 scale-100"
+                                            : index < currentImageIndex
+                                                ? "opacity-0 -translate-y-full scale-105" // slides up and fades out
+                                                : "opacity-0 translate-y-full scale-105"  // slides down and fades out (if moving backward)
+                                            }`}
+                                    />
+                                ))
+                            ) : (
+                                <img
+                                    src={f1_car}
+                                    alt="Default Car"
+                                    className="absolute inset-0 w-full h-full object-cover"
+                                />
+                            )}
+
+                            {/* Overlay Gradient (bottom up) */}
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none"></div>
+
+                            {/* Card Reflection/Gloss */}
+                            <div className="absolute inset-0 rounded-3xl border focus:outline-none pointer-events-none border-white/10 mix-blend-overlay"></div>
+
+                            {/* Text Overlay info based on current hero */}
+                            {heroes.length > 0 && (
+                                <div className="absolute bottom-6 left-6 right-6">
+                                    <h3 className="text-xl md:text-2xl font-bold text-white tracking-widest uppercase transition-all duration-500 transform translate-y-0 opacity-100">{heroes[currentImageIndex]?.name}</h3>
+                                    <p className="text-sm md:text-base text-gray-300 transition-all duration-500 transform translate-y-0 opacity-100 delay-100">{heroes[currentImageIndex]?.location}</p>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
             </section>
