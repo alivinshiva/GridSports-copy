@@ -248,19 +248,21 @@ export function TribePage() {
 
                     <ul className="space-y-3 list-disc pl-5" style={{ fontFamily: "'Sora-Regular', sans-serif" }}>
                         <li>
-                            You can follow only one tribe at a time and only participate in that match.
+                            You can follow only one Tribe at a time and your points count only for that Tribe.
                         </li>
                         <li>
-                            You follow only one team per year. After that, you can unfollow and join another team.
+                            You can follow one Tribe per season/year. After that, you may switch.
                         </li>
                         <li>
-                            Share memes, posts, and videos of your team's matches with the community.
+                            Upload and rate content to earn points for yourself and add points to your Tribe’s leaderboard.
                         </li>
                         <li>
-                            See yourself on a leaderboard scale and track where your team stands.
+                            Keep it original: upload content you created or have rights to. No reposted broadcast clips or copyrighted footage.
                         </li>
                         <li>
-                            <strong className="text-white">Event Timing:</strong> Matches start 2 hours before the race and end 7 hours after the start.
+                            <strong className="text-white">Event Timing:</strong>Each Match opens 2 hours before the race start and closes 7 hours after the start.
+                        </li>
+                        <li>Unofficial Notice: This is a fan challenge. Not affiliated with Formula 1, the FIA, or any teams/drivers.
                         </li>
                     </ul>
                 </div>
