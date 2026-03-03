@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
 import { ArrowRight, Trophy, UserPlus, Shield, Calendar, UploadCloud, TrendingUp, CheckCircle } from "lucide-react";
 import logo from "../assets/logo1.svg";
+import f1_car from "../assets/f1_car.png";
+
 
 export function LandingPage() {
     return (
@@ -65,8 +67,8 @@ export function LandingPage() {
                         <div className="absolute -inset-4 bg-gradient-to-r from-cyan-600 to-blue-600 rounded-full blur-3xl opacity-20 group-hover:opacity-30 transition-opacity duration-700"></div>
 
                         <img
-                            src="https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&q=80&w=2070"
-                            alt="F1 Car"
+                            src={f1_car}
+                            alt="car"
                             className="relative w-full rounded-3xl shadow-2xl border border-gray-800 transform transition-transform duration-700 group-hover:scale-[1.02] group-hover:rotate-1"
                         />
                         {/* Card Reflection/Gloss */}
@@ -176,26 +178,6 @@ export function LandingPage() {
                     </div>
                 </div>
             </section>
-
-            {/* Footer */}
-            <footer className="bg-neutral-950 py-12 px-6 border-t border-gray-800">
-                <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
-                    <div className="flex items-center space-x-3">
-                        <img src={logo} alt="SHOWGRID Logo" className="w-12 h-12 drop-shadow-md" />
-                        <span className="text-2xl font-extrabold tracking-tight text-white drop-shadow-md">SHOWGRID</span>
-                    </div>
-
-                    <div className="flex space-x-6 text-sm text-gray-500">
-                        <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
-                        <a href="#" className="hover:text-white transition-colors">Terms of Service</a>
-                        <a href="#" className="hover:text-white transition-colors">Contact</a>
-                    </div>
-
-                    <div className="text-gray-600 text-sm">
-                        &copy; 2026 SHOWGRID. All rights reserved.
-                    </div>
-                </div>
-            </footer>
         </div>
     );
 }

@@ -18,6 +18,10 @@ import Raceboard from "@/pages/Raceboard";
 import SubmissionFeed from "@/pages/SubmissionFeed";
 import Notifications from "@/pages/Notifications";
 import NotFound from "@/pages/NotFound";
+import PrivacyPolicy from "@/pages/PrivacyPolicy";
+import TermsOfService from "@/pages/TermsOfService";
+import Disclaimer from "@/pages/Disclaimer";
+import { GlobalFooter } from "@/components/GlobalFooter";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 
 // Protects routes: must be logged in AND have chosen a tribe
@@ -68,6 +72,9 @@ function App() {
           <Route path="/otp" element={<GuestRoute><OTPPage /></GuestRoute>} />
           <Route path="/tribe" element={<ProtectedRoute><TribePage /></ProtectedRoute>} />
           <Route path="/" element={<Home />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/terms-of-service" element={<TermsOfService />} />
+          <Route path="/disclaimer" element={<Disclaimer />} />
 
           <Route path="/race/:raceId" element={<ProtectedRoute><RaceDetails /></ProtectedRoute>} />
           <Route path="/upload/:challengeId" element={<ProtectedRoute><UploadChallenge /></ProtectedRoute>} />
@@ -86,6 +93,7 @@ function App() {
           <Route path="/challenge/feed" element={<ProtectedRoute><SubmissionFeed /></ProtectedRoute>} />
           <Route path="*" element={<NotFound />} />
         </Routes>
+        <GlobalFooter />
       </Router>
     </AuthProvider>
   );
