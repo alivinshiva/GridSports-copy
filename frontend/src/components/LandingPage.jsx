@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { ArrowRight, Trophy, UserPlus, Shield, Calendar, UploadCloud, TrendingUp, CheckCircle } from "lucide-react";
-import logo from "../assets/logo1.svg";
+import logoText from "../assets/logo.png";
 import f1_car from "../assets/f1_car.png";
 
 
@@ -8,13 +8,12 @@ export function LandingPage() {
     return (
         <div className="min-h-screen bg-neutral-950 text-white font-sans flex flex-col">
             {/* Header */}
-            <header className="sticky top-0 z-50 bg-black/80 backdrop-blur-md border-b border-gray-800">
-                <div className="max-w-7xl mx-auto px-4 md:px-6 h-16 flex items-center justify-between">
+            <header className="sticky top-0 z-50 bg-black/80 backdrop-blur-md border-b border-gray-800 transition-all">
+                <div className="max-w-7xl mx-auto px-4 md:px-6 h-20 flex items-center justify-between">
                     <div className="flex items-center space-x-3">
                         {/* Logo / Brand Name */}
-                        <Link to="/" className="flex items-center gap-2 md:gap-3">
-                            <img src={logo} alt="SHOWGRID Logo" className="w-8 h-8 md:w-10 md:h-10 drop-shadow-lg" />
-                            <span className="text-lg md:text-2xl font-extrabold tracking-tight text-white drop-shadow-md">SHOWGRID</span>
+                        <Link to="/" className="flex items-center gap-2 md:gap-3 hover:opacity-80 transition-opacity">
+                            <img src={logoText} alt="SHOWGRID" className="h-5 md:h-6 drop-shadow-md object-contain" />
                         </Link>
                     </div>
 

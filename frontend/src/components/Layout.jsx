@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useTribe } from "@/hooks/useTribe";
 import logo from "../assets/logo1.svg";
+import logoText from "../assets/logo.png";
 
 const NavItem = ({ icon: Icon, label, path, isActive, color }) => (
     <Link
@@ -31,7 +32,9 @@ export function Layout({ children }) {
                         <Link to="/" className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors hover:opacity-80">
                             <img src={logo} className="w-8 h-8 drop-shadow-md" alt="SHOWGRID Logo" />
                         </Link>
-                        <Link to="/" className="font-bold text-lg md:text-xl tracking-tight text-gray-900">SHOWGRID</Link>
+                        <Link to="/" className="flex items-center justify-center transition-colors hover:opacity-80">
+                            <img src={logoText} alt="SHOWGRID" className="h-4 md:h-5 object-contain" />
+                        </Link>
 
                         {/* Desktop Nav Links */}
                         <div className="hidden md:flex items-center ml-8 space-x-1">

@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import logo from "../../assets/logo1.svg";
+import logoText from "../../assets/logo.png";
 import { useEffect, useState } from "react";
 import { getUserNotifications } from "../../services/notificationService";
 
@@ -65,8 +65,7 @@ export function HomeHeader() {
 
                     {/* Center: App Logo + Name */}
                     <Link to="/" className="flex items-center gap-2 absolute left-1/2 -translate-x-1/2">
-                        <img src={logo} alt="SHOWGRID" className="w-6 h-6 md:w-8 md:h-8 drop-shadow-md" />
-                        <h1 className="text-base md:text-xl font-extrabold tracking-tight text-white drop-shadow-md">SHOWGRID</h1>
+                        <img src={logoText} alt="SHOWGRID" className="h-4 md:h-5 object-contain drop-shadow-md" />
                     </Link>
 
                     {/* Right: Profile */}
@@ -84,8 +83,7 @@ export function HomeHeader() {
                     {/* Left: App Logo */}
                     <div className="flex-1 flex items-center justify-start h-full">
                         <Link to="/" className="flex items-center gap-2 transition-opacity hover:opacity-80">
-                            <img src={logo} alt="SHOWGRID" className="w-10 h-10 drop-shadow-md border border-white/10 rounded-sm" />
-                            <span className="font-extrabold tracking-tight text-white text-xl hidden lg:block drop-shadow-md">SHOWGRID</span>
+                            <img src={logoText} alt="SHOWGRID" className="h-5 hidden lg:block object-contain drop-shadow-md" />
                         </Link>
                     </div>
 
