@@ -302,11 +302,16 @@ export default function ProfilePage() {
                                 {/* User Contribution Section */}
                                 <div className="bg-black/30 rounded-xl p-4 sm:p-6 border border-white/5">
                                     <p className="font-sora-medium text-white/70 text-xs sm:text-sm uppercase tracking-wider mb-3">Tribe Contribution</p>
-                                    <div className="flex items-baseline gap-3">
+                                    <div className="flex items-baseline gap-2 flex-wrap">
                                         <span className="font-sora-medium text-2xl sm:text-3xl md:text-4xl text-white">
-                                            {((profileData?.user?.creatorPoints || 0) + (profileData?.user?.rankerPoints || 0)).toLocaleString()} /  {tribeData?.totalPoints ? Math.round(tribeData.totalPoints).toLocaleString() : '0'}
+                                            {((profileData?.user?.creatorPoints || 0) + (profileData?.user?.rankerPoints || 0)).toLocaleString()}
+                                            <span className="text-sm font-sora text-white/50 ml-2">your points</span>
                                         </span>
-                                        <span className="font-sora text-white/60 text-sm">points</span>
+                                        <span className="font-sora-medium text-2xl sm:text-3xl md:text-4xl text-white/40 mx-1">/</span>
+                                        <span className="font-sora-medium text-2xl sm:text-3xl md:text-4xl text-white">
+                                            {tribeData?.totalPoints ? Math.round(tribeData.totalPoints).toLocaleString() : '0'}
+                                            <span className="text-sm font-sora text-white/50 ml-2">tribe points</span>
+                                        </span>
                                     </div>
                                     {tribeData?.totalPoints > 0 && (
                                         <div className="mt-4">

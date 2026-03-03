@@ -90,7 +90,7 @@ export function ChallengeStatusSection() {
                                         }`}>
 
                                         {/* Top Image */}
-                                        <div className="relative w-full h-48 shrink-0">
+                                        <div className="relative w-full h-56 shrink-0 bg-gray-100 dark:bg-gray-800">
                                             <img
                                                 src={challenge.imageUrl}
                                                 alt={challenge.name}

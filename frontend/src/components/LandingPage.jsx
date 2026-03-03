@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, Trophy, Video, Camera, Users } from "lucide-react";
+import { ArrowRight, Trophy, UserPlus, Shield, Calendar, UploadCloud, TrendingUp, CheckCircle } from "lucide-react";
 import logo from "../assets/logo1.svg";
 
 export function LandingPage() {
@@ -75,46 +75,103 @@ export function LandingPage() {
                 </div>
             </section>
 
-            {/* Rules Section */}
+            {/* Features Section */}
             <section className="bg-neutral-900/50 py-24 px-6 border-y border-gray-800">
                 <div className="max-w-7xl mx-auto">
                     <div className="text-center mb-16">
                         <h2 className="text-3xl md:text-5xl font-bold mb-4">How It Works</h2>
-                        <p className="text-gray-400 text-lg">Master the grid in three simple steps.</p>
+                        <p className="text-gray-400 text-lg">Your journey to the top of the grid.</p>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                        {/* Step 1 */}
-                        <div className="bg-black/40 p-8 rounded-3xl border border-gray-800 hover:border-cyan-500/50 transition-colors group">
-                            <div className="w-14 h-14 bg-gray-800 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-cyan-500/20 group-hover:text-cyan-400 transition-colors">
-                                <Video className="w-7 h-7" />
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        {/* Feature 1 */}
+                        <div className="bg-black/40 p-8 rounded-3xl border border-gray-800 hover:border-cyan-500/50 hover:shadow-[0_0_20px_rgba(6,182,212,0.15)] transition-all duration-300 group flex flex-col">
+                            <div className="w-14 h-14 bg-gray-800 rounded-2xl flex items-center justify-center mb-6 relative overflow-hidden transition-all">
+                                <div className="absolute inset-0 bg-gradient-to-br from-cyan-500 to-blue-500 opacity-0 group-hover:opacity-20 transition-opacity"></div>
+                                <UserPlus className="w-7 h-7 text-white group-hover:text-cyan-400 relative z-10 transition-colors" />
                             </div>
-                            <h3 className="text-xl font-bold mb-3">1. Join Challenges</h3>
-                            <p className="text-gray-400 leading-relaxed">
-                                Choose from diverse weekly challenges: photo submissions, video predictions, or quick quizzes based on the race weekend.
-                            </p>
+                            <h3 className="text-xl md:text-2xl font-bold mb-3">1. Create Your Account</h3>
+                            <p className="text-gray-400 mb-6 text-[15px] leading-relaxed">Sign up in seconds with email or social login. No complex forms, just your racing spirit.</p>
+                            <ul className="text-[15px] text-gray-400 space-y-2 mt-auto">
+                                <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-cyan-500" /> Quick registration</li>
+                                <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-blue-500" /> Email verification</li>
+                                <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-cyan-500" /> Profile customization</li>
+                            </ul>
                         </div>
 
-                        {/* Step 2 */}
-                        <div className="bg-black/40 p-8 rounded-3xl border border-gray-800 hover:border-cyan-500/50 transition-colors group">
-                            <div className="w-14 h-14 bg-gray-800 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-cyan-500/20 group-hover:text-cyan-400 transition-colors">
-                                <Trophy className="w-7 h-7" />
+                        {/* Feature 2 */}
+                        <div className="bg-black/40 p-8 rounded-3xl border border-gray-800 hover:border-blue-500/50 hover:shadow-[0_0_20px_rgba(59,130,246,0.15)] transition-all duration-300 group flex flex-col">
+                            <div className="w-14 h-14 bg-gray-800 rounded-2xl flex items-center justify-center mb-6 relative overflow-hidden transition-all">
+                                <div className="absolute inset-0 bg-gradient-to-br from-cyan-500 to-blue-500 opacity-0 group-hover:opacity-20 transition-opacity"></div>
+                                <Shield className="w-7 h-7 text-white group-hover:text-cyan-400 relative z-10 transition-colors" />
                             </div>
-                            <h3 className="text-xl font-bold mb-3">2. Earn Points</h3>
-                            <p className="text-gray-400 leading-relaxed">
-                                Get rated by the community and earn points. Climb the global leaderboard and dominate your tribe.
-                            </p>
+                            <h3 className="text-xl md:text-2xl font-bold mb-3">2. Choose Your Tribe</h3>
+                            <p className="text-gray-400 mb-6 text-[15px] leading-relaxed">Select from 11 F1-inspired racing tribes. Each tribe has unique colors and fierce competition.</p>
+                            <ul className="text-[15px] text-gray-400 space-y-2 mt-auto">
+                                <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-cyan-500" /> 11 unique tribes</li>
+                                <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-blue-500" /> Team colors & identity</li>
+                                <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-cyan-500" /> Tribe-specific leaderboards</li>
+                            </ul>
                         </div>
 
-                        {/* Step 3 */}
-                        <div className="bg-black/40 p-8 rounded-3xl border border-gray-800 hover:border-cyan-500/50 transition-colors group">
-                            <div className="w-14 h-14 bg-gray-800 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-cyan-500/20 group-hover:text-cyan-400 transition-colors">
-                                <Users className="w-7 h-7" />
+                        {/* Feature 3 */}
+                        <div className="bg-black/40 p-8 rounded-3xl border border-gray-800 hover:border-cyan-500/50 hover:shadow-[0_0_20px_rgba(6,182,212,0.15)] transition-all duration-300 group flex flex-col">
+                            <div className="w-14 h-14 bg-gray-800 rounded-2xl flex items-center justify-center mb-6 relative overflow-hidden transition-all">
+                                <div className="absolute inset-0 bg-gradient-to-br from-cyan-500 to-blue-500 opacity-0 group-hover:opacity-20 transition-opacity"></div>
+                                <Calendar className="w-7 h-7 text-white group-hover:text-cyan-400 relative z-10 transition-colors" />
                             </div>
-                            <h3 className="text-xl font-bold mb-3">3. Win the Season</h3>
-                            <p className="text-gray-400 leading-relaxed">
-                                Accumulate points across the 2026 season. Top players win exclusive merchandise and VIP experiences.
-                            </p>
+                            <h3 className="text-xl md:text-2xl font-bold mb-3">3. Weekend Challenges</h3>
+                            <p className="text-gray-400 mb-6 text-[15px] leading-relaxed">Every Fri-Sun, new challenges drop. Activities range from fitness tracking to skill showcases.</p>
+                            <ul className="text-[15px] text-gray-400 space-y-2 mt-auto">
+                                <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-cyan-500" /> 3-day challenge periods</li>
+                                <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-blue-500" /> Multiple challenge types</li>
+                                <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-cyan-500" /> Varying difficulty levels</li>
+                            </ul>
+                        </div>
+
+                        {/* Feature 4 */}
+                        <div className="bg-black/40 p-8 rounded-3xl border border-gray-800 hover:border-blue-500/50 hover:shadow-[0_0_20px_rgba(59,130,246,0.15)] transition-all duration-300 group flex flex-col">
+                            <div className="w-14 h-14 bg-gray-800 rounded-2xl flex items-center justify-center mb-6 relative overflow-hidden transition-all">
+                                <div className="absolute inset-0 bg-gradient-to-br from-cyan-500 to-blue-500 opacity-0 group-hover:opacity-20 transition-opacity"></div>
+                                <UploadCloud className="w-7 h-7 text-white group-hover:text-cyan-400 relative z-10 transition-colors" />
+                            </div>
+                            <h3 className="text-xl md:text-2xl font-bold mb-3">4. Submit Your Proof</h3>
+                            <p className="text-gray-400 mb-6 text-[15px] leading-relaxed">Complete challenges and submit photos, videos, or activity data as proof.</p>
+                            <ul className="text-[15px] text-gray-400 space-y-2 mt-auto">
+                                <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-cyan-500" /> Photo submissions</li>
+                                <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-blue-500" /> Video uploads</li>
+                                <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-cyan-500" /> Activity tracking sync</li>
+                            </ul>
+                        </div>
+
+                        {/* Feature 5 */}
+                        <div className="bg-black/40 p-8 rounded-3xl border border-gray-800 hover:border-cyan-500/50 hover:shadow-[0_0_20px_rgba(6,182,212,0.15)] transition-all duration-300 group flex flex-col">
+                            <div className="w-14 h-14 bg-gray-800 rounded-2xl flex items-center justify-center mb-6 relative overflow-hidden transition-all">
+                                <div className="absolute inset-0 bg-gradient-to-br from-cyan-500 to-blue-500 opacity-0 group-hover:opacity-20 transition-opacity"></div>
+                                <TrendingUp className="w-7 h-7 text-white group-hover:text-cyan-400 relative z-10 transition-colors" />
+                            </div>
+                            <h3 className="text-xl md:text-2xl font-bold mb-3">5. Earn Points & Rank Up</h3>
+                            <p className="text-gray-400 mb-6 text-[15px] leading-relaxed">Get instant points for submissions. Climb personal and tribe leaderboards.</p>
+                            <ul className="text-[15px] text-gray-400 space-y-2 mt-auto">
+                                <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-cyan-500" /> Real-time point updates</li>
+                                <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-blue-500" /> Multiple leaderboards</li>
+                                <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-cyan-500" /> Rank progression</li>
+                            </ul>
+                        </div>
+
+                        {/* Feature 6 */}
+                        <div className="bg-black/40 p-8 rounded-3xl border border-gray-800 hover:border-blue-500/50 hover:shadow-[0_0_20px_rgba(59,130,246,0.15)] transition-all duration-300 group flex flex-col">
+                            <div className="w-14 h-14 bg-gray-800 rounded-2xl flex items-center justify-center mb-6 relative overflow-hidden transition-all">
+                                <div className="absolute inset-0 bg-gradient-to-br from-cyan-500 to-blue-500 opacity-0 group-hover:opacity-20 transition-opacity"></div>
+                                <Trophy className="w-7 h-7 text-white group-hover:text-cyan-400 relative z-10 transition-colors" />
+                            </div>
+                            <h3 className="text-xl md:text-2xl font-bold mb-3">6. Win Rewards</h3>
+                            <p className="text-gray-400 mb-6 text-[15px] leading-relaxed">Top performers earn badges, achievements, and exclusive recognition.</p>
+                            <ul className="text-[15px] text-gray-400 space-y-2 mt-auto">
+                                <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-cyan-500" /> Weekly winners</li>
+                                <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-blue-500" /> Achievement badges</li>
+                                <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-cyan-500" /> Hall of fame</li>
+                            </ul>
                         </div>
                     </div>
                 </div>

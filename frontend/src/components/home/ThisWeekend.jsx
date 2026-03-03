@@ -66,9 +66,9 @@ export function ThisWeekend({ weekend }) {
                             className={`aspect-[4/5] rounded-[24px] overflow-hidden flex flex-col relative group transition-all duration-300 hover:-translate-y-1 shadow-xl hover:shadow-[0_0_30px_rgba(59,130,246,0.6)] ${challenge.status !== "ACTIVE" ? 'cursor-not-allowed' : ''} bg-white`}
                         >
                             {/* Top Area (Image/Placeholder) */}
-                            <div className="flex-1 w-full relative p-4">
+                            <div className="flex-1 w-full relative">
                                 <div
-                                    className="w-full h-full bg-contain bg-center bg-no-repeat transition-transform group-hover:scale-105"
+                                    className="w-full h-full bg-cover bg-center bg-no-repeat transition-transform group-hover:scale-105"
                                     style={challenge.imageUrl ? { backgroundImage: `url(${challenge.imageUrl})` } : {}}
                                 ></div>
 
