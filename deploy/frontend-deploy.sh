@@ -46,7 +46,7 @@ docker run -d \
   --restart unless-stopped \
   -p ${PORT}:${INTERNAL_PORT} \
   --network ${NETWORK} \
-  --health-cmd="wget --quiet --tries=1 --spider http://localhost/ || exit 1" \
+  --health-cmd="wget --quiet --tries=1 --spider http://127.0.0.1/ || exit 1" \
   --health-interval=30s \
   --health-timeout=3s \
   --health-retries=3 \
