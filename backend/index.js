@@ -23,6 +23,9 @@ const app = express();
 
 const PORT = process.env.PORT || 5000;
 
+// Trust proxy - IMPORTANT for nginx reverse proxy
+app.set('trust proxy', 1);
+
 connectDb();
 
 // Security middleware
