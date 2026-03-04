@@ -13,7 +13,8 @@ export const sendCookies = async (userId, res) => {
             maxAge: COOKIE_MAX_AGE,
             httpOnly: true, // Prevent XSS attacks
             sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
-            secure: process.env.NODE_ENV === "production" // HTTPS only in production
+            secure: process.env.NODE_ENV === "production", // HTTPS only in production
+            domain: process.env.NODE_ENV === "production" ? '.gridsports.showgrid.ai' : 'localhost' // Allow cross-subdomain cookies
         };
 
         res.cookie(COOKIE_NAME, token, cookieOptions);
