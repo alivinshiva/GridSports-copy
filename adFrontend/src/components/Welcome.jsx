@@ -38,10 +38,10 @@ const Welcome = () => {
             <div className="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-2xl p-10 text-white shadow-2xl relative overflow-hidden">
                 <div className="relative z-10">
                     <h1 className="text-4xl md:text-5xl font-extrabold mb-4 tracking-tight">
-                        Welcome back, Sushant!
+                        Welcome back, Admin!
                     </h1>
                     <p className="text-blue-100 text-lg md:text-xl max-w-2xl">
-                        Here's what's happening in your Grid Sports ecosystem today.
+                        Here's what's happening in your ShowGrid ecosystem today.
                     </p>
                 </div>
                 <div className="absolute right-0 top-0 h-full w-1/3 bg-white opacity-5 transform skew-x-12 translate-x-12"></div>

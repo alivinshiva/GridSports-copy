@@ -52,7 +52,6 @@ const TribePointsForm = () => {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    tribe: formData.tribeName,
                     tribeName: formData.tribeName,
                     points: formData.points
                 }),
@@ -67,11 +66,18 @@ const TribePointsForm = () => {
                 });
                 setFormData(prev => ({ ...prev, points: '' })); // Reset points field
 
-                // Update local tribes array with new points
+                // Update local tribes array with new points or add newly created tribe
                 if (result.data) {
-                    setTribes(prev => prev.map(t =>
-                        t.name === result.data.name ? { ...t, totalPoints: result.data.totalPoints } : t
-                    ));
+                    setTribes(prev => {
+                        const tribeExists = prev.find(t => t.name === result.data.name);
+                        if (tribeExists) {
+                            return prev.map(t =>
+                                t.name === result.data.name ? { ...t, totalPoints: result.data.totalPoints } : t
+                            );
+                        } else {
+                            return [...prev, result.data];
+                        }
+                    });
                 }
             } else {
                 setStatus({

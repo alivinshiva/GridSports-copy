@@ -1,5 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import logoText from "../../assets/logo.png";
 import { useEffect, useState } from "react";
 import { getUserNotifications } from "../../services/notificationService";
 
@@ -62,9 +63,9 @@ export function HomeHeader() {
                         )}
                     </Link>
 
-                    {/* Center: App Name (Hidden on Mobile to save space if needed, optionally shown) */}
+                    {/* Center: App Logo + Name */}
                     <Link to="/" className="flex items-center gap-2 absolute left-1/2 -translate-x-1/2">
-                        <h1 className="text-xl font-extrabold tracking-tight text-white drop-shadow-md">Grid Sports</h1>
+                        <img src={logoText} alt="SHOWGRID" className="h-4 md:h-5 object-contain drop-shadow-md" />
                     </Link>
 
                     {/* Right: Profile */}
@@ -79,8 +80,11 @@ export function HomeHeader() {
 
                 {/* --- DESKTOP LAYOUT (hidden md:flex) --- */}
                 <div className="hidden md:flex items-center justify-between w-full h-full relative">
-                    {/* Left: App Logo/Empty depending on Figma. Leaving it empty to match centered nav and clear UI */}
+                    {/* Left: App Logo */}
                     <div className="flex-1 flex items-center justify-start h-full">
+                        <Link to="/" className="flex items-center gap-2 transition-opacity hover:opacity-80">
+                            <img src={logoText} alt="SHOWGRID" className="h-5 hidden lg:block object-contain drop-shadow-md" />
+                        </Link>
                     </div>
 
                     {/* Center: Navigation Links */}

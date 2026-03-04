@@ -4,6 +4,7 @@ import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 import LeaderboardTable from "@/components/raceboard/LeaderboardTable";
 import { getCreatorLeaderboard, getRankerLeaderboard, getTribeLeaderboard, getCurrentUserRank } from "@/services/leaderboardService";
 import { User, Users, Star, ChevronUp, ChevronDown } from "lucide-react";
+import { Helmet } from "react-helmet-async";
 
 // Helper function to render rank with arrow
 const renderRankWithChange = (row) => {
@@ -33,14 +34,14 @@ const creatorsColumns = [
         key: "name", label: "CREATOR", render: (row) => (
             <div className="flex items-center gap-2 sm:gap-4 w-full">
                 {row.avatar ? (
-                    <div className="size-6 sm:size-10 rounded-full bg-cover bg-center shrink-0" style={{ backgroundImage: `url('${row.avatar}')` }}></div>
+                    <div className="hidden sm:block size-10 rounded-full bg-cover bg-center shrink-0" style={{ backgroundImage: `url('${row.avatar}')` }}></div>
                 ) : (
-                    <div className={`size-6 sm:size-10 rounded-full bg-gradient-to-br ${row.color || "from-gray-500 to-gray-800"} flex shrink-0 items-center justify-center text-[10px] sm:text-sm font-bold text-white shadow-sm border border-white/20`}>
+                    <div className={`hidden sm:flex size-10 rounded-full bg-gradient-to-br ${row.color || "from-gray-500 to-gray-800"} shrink-0 items-center justify-center text-sm font-bold text-white shadow-sm border border-white/20`}>
                         {row.name ? row.name.charAt(0).toUpperCase() : ''}
                     </div>
                 )}
                 <div className="flex flex-col justify-center min-w-0 pr-2">
-                    <span className={`text-[12px] sm:text-[15px] leading-tight text-white font-medium truncate w-[100px] sm:w-auto`}>{row.name}</span>
+                    <span className={`text-[12px] sm:text-[15px] leading-tight text-white font-medium break-words sm:truncate sm:w-auto`}>{row.name}</span>
                     {/* Mobile-only tribe indicator merged under name */}
                     <div className="flex sm:hidden items-center gap-1.5 mt-1">
                         <div className={`size-2 rounded-full bg-gradient-to-br ${row.color || "from-gray-500 to-gray-800"}`}></div>
@@ -76,7 +77,41 @@ const tribesColumns = [
     { key: "points", label: "POINTS", align: "center", render: (row) => <span className={`text-[12px] sm:text-[15px] ${row.isHighlighted ? 'text-white font-normal' : 'text-white font-normal'}`}>{row.points}</span> },
 ];
 
-const ratersColumns = creatorsColumns; // reuse UI style
+const ratersColumns = [
+    {
+        key: "rank", label: "RANK", render: (row) => renderRankWithChange(row)
+    },
+    {
+        key: "name", label: "RATER", render: (row) => (
+            <div className="flex items-center gap-2 sm:gap-4 w-full">
+                {row.avatar ? (
+                    <div className="hidden sm:block size-10 rounded-full bg-cover bg-center shrink-0" style={{ backgroundImage: `url('${row.avatar}')` }}></div>
+                ) : (
+                    <div className={`hidden sm:flex size-10 rounded-full bg-gradient-to-br ${row.color || "from-gray-500 to-gray-800"} shrink-0 items-center justify-center text-sm font-bold text-white shadow-sm border border-white/20`}>
+                        {row.name ? row.name.charAt(0).toUpperCase() : ''}
+                    </div>
+                )}
+                <div className="flex flex-col justify-center min-w-0 pr-2">
+                    <span className={`text-[12px] sm:text-[15px] leading-tight text-white font-medium break-words sm:truncate sm:w-auto`}>{row.name}</span>
+                    {/* Mobile-only tribe indicator merged under name */}
+                    <div className="flex sm:hidden items-center gap-1.5 mt-1">
+                        <div className={`size-2 rounded-full bg-gradient-to-br ${row.color || "from-gray-500 to-gray-800"}`}></div>
+                        <span className={`text-[9px] uppercase tracking-wider text-white font-medium leading-tight truncate`}>{row.tribe}</span>
+                    </div>
+                </div>
+            </div>
+        )
+    },
+    {
+        key: "tribe", label: "TRIBE", hideOnMobile: true, render: (row) => (
+            <div className="flex items-center gap-2">
+                <div className={`size-3 rounded-full bg-gradient-to-br ${row.color || "from-gray-500 to-gray-800"}`}></div>
+                <span className={`text-[13px] uppercase tracking-wider text-white font-medium`}>{row.tribe}</span>
+            </div>
+        )
+    },
+    { key: "points", label: "SCORE", align: "center", render: (row) => <span className={`text-[14px] sm:text-[15px] ${row.isHighlighted ? 'text-white font-normal' : 'text-white font-normal'}`}>{row.points}</span> },
+];
 
 const DefaultTribesColorMap = {
     "ORANGE TRIBE": "from-[#E78230] to-[#0B0B0F]",
@@ -154,7 +189,7 @@ export default function Raceboard() {
                 rank: currentRank,
                 userId: userId,
                 name: c.name || `User ${currentRank}`,
-                points: c.points ? c.points.toLocaleString() : "0",
+                points: c.points ? Math.round(c.points).toLocaleString() : "0",
                 avatar: c.avatar || null,
                 tribe: c.tribe || "No Tribe",
                 color: DefaultTribesColorMap[c.tribe] || "from-[#434343] to-[#000000]",
@@ -443,13 +478,17 @@ export default function Raceboard() {
 
     return (
         <AuthenticatedLayout>
+            <Helmet>
+                <title>Raceboard | SHOWGRID</title>
+                <meta name="description" content="View the SHOWGRID leaderboard for creators, raters, and tribes." />
+            </Helmet>
             <div className="max-w-[1000px] mx-auto px-0 sm:px-4 py-10 pb-32 pt-20">
                 {/* Header Card */}
-                <div className="bg-[#181920] rounded-2xl mx-1 sm:mx-0 p-4 md:p-6 mb-6 flex flex-wrap items-center justify-between gap-4 md:gap-6 border border-white/5 shadow-2xl">
-                    <h2 className="text-[20px] md:text-3xl font-medium tracking-wide text-[#3b82f6] px-2 leading-none">Leaderboard</h2>
+                <div className="bg-[#181920] rounded-2xl mx-1 sm:mx-0 p-4 md:p-6 mb-6 flex flex-wrap items-center justify-between gap-4 border border-white/5 shadow-2xl">
+                    <h2 className="text-[20px] md:text-3xl font-medium tracking-wide text-[#3b82f6] px-2 leading-none hidden sm:block">Leaderboard</h2>
 
                     {/* Segmented Control Pill */}
-                    <div className="flex bg-[#32323a] p-1.5 rounded-full w-auto max-w-full overflow-x-auto h-[46px] items-center">
+                    <div className="flex bg-[#32323a] p-1.5 rounded-full w-full sm:w-auto overflow-x-auto h-[46px] items-center justify-between sm:justify-start">
                         {[
                             { id: 'creators', label: 'creators', icon: User },
                             { id: 'tribes', label: 'tribes', icon: Users },
@@ -458,13 +497,13 @@ export default function Raceboard() {
                             <button
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id)}
-                                className={`px-4 md:px-6 h-full rounded-full flex items-center justify-center gap-2 transition-all min-w-[60px] md:min-w-[100px] ${activeTab === tab.id
+                                className={`flex-1 sm:flex-none px-4 md:px-6 h-full rounded-full flex items-center justify-center gap-2 transition-all min-w-[80px] md:min-w-[100px] ${activeTab === tab.id
                                     ? "bg-gradient-to-r from-[#70b1ff] to-[#59d5e0] shadow-[0_0_15px_rgba(112,177,255,0.3)] text-white"
                                     : "text-white/70 hover:text-white"
                                     }`}
                             >
-                                <tab.icon size={16} className="shrink-0" />
-                                <span className="text-[13px] md:text-sm font-semibold capitalize hidden sm:inline-block">
+                                <tab.icon size={16} className="shrink-0 hidden sm:block" />
+                                <span className="text-[13px] md:text-sm font-semibold capitalize">
                                     {tab.label}
                                 </span>
                             </button>

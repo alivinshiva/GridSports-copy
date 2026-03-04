@@ -1,22 +1,54 @@
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, Trophy, Video, Camera, Users } from "lucide-react";
-import logo from "../assets/logo1.svg";
+import { ArrowRight, Trophy, UserPlus, Shield, Calendar, UploadCloud, TrendingUp, CheckCircle } from "lucide-react";
+import logoText from "../assets/logo.png";
+import f1_car from "../assets/f1_car.png";
+import { getAllHeroes } from "../services/heroService";
 
 export function LandingPage() {
+    const [heroes, setHeroes] = useState([]);
+    const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+    // Fetch heroes on mount
+    useEffect(() => {
+        const fetchHeroes = async () => {
+            try {
+                const response = await getAllHeroes();
+                if (response.success && response.data && response.data.length > 0) {
+                    setHeroes(response.data);
+                }
+            } catch (error) {
+                console.error("Failed to load heroes:", error);
+            }
+        };
+        fetchHeroes();
+    }, []);
+
+    // Slide interval logic
+    useEffect(() => {
+        if (heroes.length > 1) {
+            const interval = setInterval(() => {
+                setCurrentImageIndex((prevIndex) => (prevIndex + 1) % heroes.length);
+            }, 4000); // 4 seconds per slide
+            return () => clearInterval(interval);
+        }
+    }, [heroes]);
     return (
         <div className="min-h-screen bg-neutral-950 text-white font-sans flex flex-col">
             {/* Header */}
-            <header className="sticky top-0 z-50 bg-black/80 backdrop-blur-md border-b border-gray-800">
-                <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <header className="sticky top-0 z-50 bg-black/80 backdrop-blur-md border-b border-gray-800 transition-all">
+                <div className="max-w-7xl mx-auto px-4 md:px-6 h-20 flex items-center justify-between">
                     <div className="flex items-center space-x-3">
                         {/* Logo / Brand Name */}
-                        <img src={logo} alt="GridSports Logo" className="w-16 h-16 drop-shadow-lg" />
+                        <Link to="/" className="flex items-center gap-2 md:gap-3 hover:opacity-80 transition-opacity">
+                            <img src={logoText} alt="SHOWGRID" className="h-5 md:h-6 drop-shadow-md object-contain" />
+                        </Link>
                     </div>
 
                     {/* Login Button */}
                     <Link
                         to="/login"
-                        className="bg-white text-black hover:bg-gray-200 font-semibold py-2.5 px-10 rounded-full transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(255,255,255,0.3)] text-center"
+                        className="bg-white text-black hover:bg-gray-200 font-semibold py-2 px-6 md:py-2.5 md:px-10 rounded-full transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(255,255,255,0.3)] text-center text-sm md:text-base"
                     >
                         Login
                     </Link>
@@ -56,85 +88,156 @@ export function LandingPage() {
                         </div>
                     </div>
 
-                    {/* Hero Image */}
-                    <div className="relative group perspective-1000">
-                        {/* Abstract background blobs */}
+                    {/* Right column (Visuals / Sliders) */}
+                    <div className="flex-1 relative w-full max-w-lg md:max-w-none perspective-1000">
+                        {/* Glow Behind */}
                         <div className="absolute -inset-4 bg-gradient-to-r from-cyan-600 to-blue-600 rounded-full blur-3xl opacity-20 group-hover:opacity-30 transition-opacity duration-700"></div>
 
-                        <img
-                            src="https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&q=80&w=2070"
-                            alt="F1 Car"
-                            className="relative w-full rounded-3xl shadow-2xl border border-gray-800 transform transition-transform duration-700 group-hover:scale-[1.02] group-hover:rotate-1"
-                        />
-                        {/* Card Reflection/Gloss */}
-                        <div className="absolute inset-0 rounded-3xl bg-gradient-to-tr from-white/5 to-transparent pointer-events-none"></div>
+                        {/* Image Container */}
+                        <div className="relative w-full aspect-[4/3] md:aspect-video rounded-3xl shadow-2xl border border-gray-800 overflow-hidden transform transition-transform duration-700 group-hover:scale-[1.02] group-hover:rotate-1 bg-neutral-900 group">
+
+                            {/* Slide transition logic */}
+                            {heroes.length > 0 ? (
+                                heroes.map((hero, index) => (
+                                    <img
+                                        key={hero._id}
+                                        src={hero.imageUrl}
+                                        alt={hero.name}
+                                        className={`absolute inset-0 w-full h-full object-cover transition-all duration-1000 ease-in-out ${index === currentImageIndex
+                                            ? "opacity-100 translate-y-0 scale-100"
+                                            : index < currentImageIndex
+                                                ? "opacity-0 -translate-y-full scale-105" // slides up and fades out
+                                                : "opacity-0 translate-y-full scale-105"  // slides down and fades out (if moving backward)
+                                            }`}
+                                    />
+                                ))
+                            ) : (
+                                <img
+                                    src={f1_car}
+                                    alt="Default Car"
+                                    className="absolute inset-0 w-full h-full object-cover"
+                                />
+                            )}
+
+                            {/* Overlay Gradient (bottom up) */}
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none"></div>
+
+                            {/* Card Reflection/Gloss */}
+                            <div className="absolute inset-0 rounded-3xl border focus:outline-none pointer-events-none border-white/10 mix-blend-overlay"></div>
+
+                            {/* Text Overlay info based on current hero */}
+                            {heroes.length > 0 && (
+                                <div className="absolute bottom-6 left-6 right-6">
+                                    <h3 className="text-xl md:text-2xl font-bold text-white tracking-widest uppercase transition-all duration-500 transform translate-y-0 opacity-100">{heroes[currentImageIndex]?.name}</h3>
+                                    <p className="text-sm md:text-base text-gray-300 transition-all duration-500 transform translate-y-0 opacity-100 delay-100">{heroes[currentImageIndex]?.location}</p>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
             </section>
 
-            {/* Rules Section */}
+            {/* Features Section */}
             <section className="bg-neutral-900/50 py-24 px-6 border-y border-gray-800">
                 <div className="max-w-7xl mx-auto">
                     <div className="text-center mb-16">
                         <h2 className="text-3xl md:text-5xl font-bold mb-4">How It Works</h2>
-                        <p className="text-gray-400 text-lg">Master the grid in three simple steps.</p>
+                        <p className="text-gray-400 text-lg">Your journey to the top of the grid.</p>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                        {/* Step 1 */}
-                        <div className="bg-black/40 p-8 rounded-3xl border border-gray-800 hover:border-cyan-500/50 transition-colors group">
-                            <div className="w-14 h-14 bg-gray-800 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-cyan-500/20 group-hover:text-cyan-400 transition-colors">
-                                <Video className="w-7 h-7" />
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        {/* Feature 1 */}
+                        <div className="bg-black/40 p-8 rounded-3xl border border-gray-800 hover:border-cyan-500/50 hover:shadow-[0_0_20px_rgba(6,182,212,0.15)] transition-all duration-300 group flex flex-col">
+                            <div className="w-14 h-14 bg-gray-800 rounded-2xl flex items-center justify-center mb-6 relative overflow-hidden transition-all">
+                                <div className="absolute inset-0 bg-gradient-to-br from-cyan-500 to-blue-500 opacity-0 group-hover:opacity-20 transition-opacity"></div>
+                                <UserPlus className="w-7 h-7 text-white group-hover:text-cyan-400 relative z-10 transition-colors" />
                             </div>
-                            <h3 className="text-xl font-bold mb-3">1. Join Challenges</h3>
-                            <p className="text-gray-400 leading-relaxed">
-                                Choose from diverse weekly challenges: photo submissions, video predictions, or quick quizzes based on the race weekend.
-                            </p>
+                            <h3 className="text-xl md:text-2xl font-bold mb-3">1. Create Your Account</h3>
+                            <p className="text-gray-400 mb-6 text-[15px] leading-relaxed">Sign up in seconds with email or social login. No complex forms, just your racing spirit.</p>
+                            <ul className="text-[15px] text-gray-400 space-y-2 mt-auto">
+                                <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-cyan-500" /> Quick registration</li>
+                                <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-blue-500" /> Email verification</li>
+                                <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-cyan-500" /> Profile customization</li>
+                            </ul>
                         </div>
 
-                        {/* Step 2 */}
-                        <div className="bg-black/40 p-8 rounded-3xl border border-gray-800 hover:border-cyan-500/50 transition-colors group">
-                            <div className="w-14 h-14 bg-gray-800 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-cyan-500/20 group-hover:text-cyan-400 transition-colors">
-                                <Trophy className="w-7 h-7" />
+                        {/* Feature 2 */}
+                        <div className="bg-black/40 p-8 rounded-3xl border border-gray-800 hover:border-blue-500/50 hover:shadow-[0_0_20px_rgba(59,130,246,0.15)] transition-all duration-300 group flex flex-col">
+                            <div className="w-14 h-14 bg-gray-800 rounded-2xl flex items-center justify-center mb-6 relative overflow-hidden transition-all">
+                                <div className="absolute inset-0 bg-gradient-to-br from-cyan-500 to-blue-500 opacity-0 group-hover:opacity-20 transition-opacity"></div>
+                                <Shield className="w-7 h-7 text-white group-hover:text-cyan-400 relative z-10 transition-colors" />
                             </div>
-                            <h3 className="text-xl font-bold mb-3">2. Earn Points</h3>
-                            <p className="text-gray-400 leading-relaxed">
-                                Get rated by the community and earn points. Climb the global leaderboard and dominate your tribe.
-                            </p>
+                            <h3 className="text-xl md:text-2xl font-bold mb-3">2. Choose Your Tribe</h3>
+                            <p className="text-gray-400 mb-6 text-[15px] leading-relaxed">Select from 11 F1-inspired racing tribes. Each tribe has unique colors and fierce competition.</p>
+                            <ul className="text-[15px] text-gray-400 space-y-2 mt-auto">
+                                <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-cyan-500" /> 11 unique tribes</li>
+                                <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-blue-500" /> Team colors & identity</li>
+                                <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-cyan-500" /> Tribe-specific leaderboards</li>
+                            </ul>
                         </div>
 
-                        {/* Step 3 */}
-                        <div className="bg-black/40 p-8 rounded-3xl border border-gray-800 hover:border-cyan-500/50 transition-colors group">
-                            <div className="w-14 h-14 bg-gray-800 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-cyan-500/20 group-hover:text-cyan-400 transition-colors">
-                                <Users className="w-7 h-7" />
+                        {/* Feature 3 */}
+                        <div className="bg-black/40 p-8 rounded-3xl border border-gray-800 hover:border-cyan-500/50 hover:shadow-[0_0_20px_rgba(6,182,212,0.15)] transition-all duration-300 group flex flex-col">
+                            <div className="w-14 h-14 bg-gray-800 rounded-2xl flex items-center justify-center mb-6 relative overflow-hidden transition-all">
+                                <div className="absolute inset-0 bg-gradient-to-br from-cyan-500 to-blue-500 opacity-0 group-hover:opacity-20 transition-opacity"></div>
+                                <Calendar className="w-7 h-7 text-white group-hover:text-cyan-400 relative z-10 transition-colors" />
                             </div>
-                            <h3 className="text-xl font-bold mb-3">3. Win the Season</h3>
-                            <p className="text-gray-400 leading-relaxed">
-                                Accumulate points across the 2026 season. Top players win exclusive merchandise and VIP experiences.
-                            </p>
+                            <h3 className="text-xl md:text-2xl font-bold mb-3">3. Weekend Challenges</h3>
+                            <p className="text-gray-400 mb-6 text-[15px] leading-relaxed">Every Fri-Sun, new challenges drop. Activities range from fitness tracking to skill showcases.</p>
+                            <ul className="text-[15px] text-gray-400 space-y-2 mt-auto">
+                                <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-cyan-500" /> 3-day challenge periods</li>
+                                <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-blue-500" /> Multiple challenge types</li>
+                                <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-cyan-500" /> Varying difficulty levels</li>
+                            </ul>
+                        </div>
+
+                        {/* Feature 4 */}
+                        <div className="bg-black/40 p-8 rounded-3xl border border-gray-800 hover:border-blue-500/50 hover:shadow-[0_0_20px_rgba(59,130,246,0.15)] transition-all duration-300 group flex flex-col">
+                            <div className="w-14 h-14 bg-gray-800 rounded-2xl flex items-center justify-center mb-6 relative overflow-hidden transition-all">
+                                <div className="absolute inset-0 bg-gradient-to-br from-cyan-500 to-blue-500 opacity-0 group-hover:opacity-20 transition-opacity"></div>
+                                <UploadCloud className="w-7 h-7 text-white group-hover:text-cyan-400 relative z-10 transition-colors" />
+                            </div>
+                            <h3 className="text-xl md:text-2xl font-bold mb-3">4. Submit Your Proof</h3>
+                            <p className="text-gray-400 mb-6 text-[15px] leading-relaxed">Complete challenges and submit photos, videos, or activity data as proof.</p>
+                            <ul className="text-[15px] text-gray-400 space-y-2 mt-auto">
+                                <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-cyan-500" /> Photo submissions</li>
+                                <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-blue-500" /> Video uploads</li>
+                                <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-cyan-500" /> Activity tracking sync</li>
+                            </ul>
+                        </div>
+
+                        {/* Feature 5 */}
+                        <div className="bg-black/40 p-8 rounded-3xl border border-gray-800 hover:border-cyan-500/50 hover:shadow-[0_0_20px_rgba(6,182,212,0.15)] transition-all duration-300 group flex flex-col">
+                            <div className="w-14 h-14 bg-gray-800 rounded-2xl flex items-center justify-center mb-6 relative overflow-hidden transition-all">
+                                <div className="absolute inset-0 bg-gradient-to-br from-cyan-500 to-blue-500 opacity-0 group-hover:opacity-20 transition-opacity"></div>
+                                <TrendingUp className="w-7 h-7 text-white group-hover:text-cyan-400 relative z-10 transition-colors" />
+                            </div>
+                            <h3 className="text-xl md:text-2xl font-bold mb-3">5. Earn Points & Rank Up</h3>
+                            <p className="text-gray-400 mb-6 text-[15px] leading-relaxed">Get instant points for submissions. Climb personal and tribe leaderboards.</p>
+                            <ul className="text-[15px] text-gray-400 space-y-2 mt-auto">
+                                <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-cyan-500" /> Real-time point updates</li>
+                                <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-blue-500" /> Multiple leaderboards</li>
+                                <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-cyan-500" /> Rank progression</li>
+                            </ul>
+                        </div>
+
+                        {/* Feature 6 */}
+                        <div className="bg-black/40 p-8 rounded-3xl border border-gray-800 hover:border-blue-500/50 hover:shadow-[0_0_20px_rgba(59,130,246,0.15)] transition-all duration-300 group flex flex-col">
+                            <div className="w-14 h-14 bg-gray-800 rounded-2xl flex items-center justify-center mb-6 relative overflow-hidden transition-all">
+                                <div className="absolute inset-0 bg-gradient-to-br from-cyan-500 to-blue-500 opacity-0 group-hover:opacity-20 transition-opacity"></div>
+                                <Trophy className="w-7 h-7 text-white group-hover:text-cyan-400 relative z-10 transition-colors" />
+                            </div>
+                            <h3 className="text-xl md:text-2xl font-bold mb-3">6. Win Rewards</h3>
+                            <p className="text-gray-400 mb-6 text-[15px] leading-relaxed">Top performers earn badges, achievements, and exclusive recognition.</p>
+                            <ul className="text-[15px] text-gray-400 space-y-2 mt-auto">
+                                <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-cyan-500" /> Weekly winners</li>
+                                <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-blue-500" /> Achievement badges</li>
+                                <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-cyan-500" /> Hall of fame</li>
+                            </ul>
                         </div>
                     </div>
                 </div>
             </section>
-
-            {/* Footer */}
-            <footer className="bg-neutral-950 py-12 px-6 border-t border-gray-800">
-                <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
-                    <div className="flex items-center space-x-2">
-                        <img src={logo} alt="GridSports Logo" className="w-12 h-12 drop-shadow-md" />
-                    </div>
-
-                    <div className="flex space-x-6 text-sm text-gray-500">
-                        <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
-                        <a href="#" className="hover:text-white transition-colors">Terms of Service</a>
-                        <a href="#" className="hover:text-white transition-colors">Contact</a>
-                    </div>
-
-                    <div className="text-gray-600 text-sm">
-                        &copy; 2026 Grid Sports. All rights reserved.
-                    </div>
-                </div>
-            </footer>
         </div>
     );
 }

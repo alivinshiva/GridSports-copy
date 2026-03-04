@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ShieldCheck, ArrowRight } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import { Helmet } from "react-helmet-async";
 
 export function OTPPage() {
     const [otp, setOtp] = useState(["", "", "", ""]);
@@ -83,6 +84,10 @@ export function OTPPage() {
 
     return (
         <div className="min-h-screen bg-racing-black flex items-center justify-center px-4 relative overflow-hidden">
+            <Helmet>
+                <title>Verify OTP | SHOWGRID</title>
+                <meta name="description" content="Verify your phone number with your OTP code to enter SHOWGRID." />
+            </Helmet>
             {/* Background Glow */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-cyan-500/10 rounded-full blur-[120px] pointer-events-none" />
 

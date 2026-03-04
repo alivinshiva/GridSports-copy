@@ -70,15 +70,34 @@ export const addSubmissionController = async (req, res) => {
             return res.status(400).json({ success: false, message: "You have already uploaded a submission for this challenge" });
         };
 
+        // const challangeStatus = await challengeModel.findById(challenge);
+
+        // if (challangeStatus.status === 'CLOSED') {
+        //     return res.status(400).json({ success: false, message: "Challenge is closed" });
+        // };
+
+        // if (challangeStatus.status === 'UPCOMING') {
+        //     return res.status(400).json({ success: false, message: "Challenge is upcoming" });
+        // };
+
+
         const challangeStatus = await challengeModel.findById(challenge);
 
+        if (!challangeStatus) {
+            if (req.file?.filename) await cloudinary.uploader.destroy(req.file.filename);
+            return res.status(404).json({ success: false, message: "Challenge not found" });
+        }
+
         if (challangeStatus.status === 'CLOSED') {
+            if (req.file?.filename) await cloudinary.uploader.destroy(req.file.filename);
             return res.status(400).json({ success: false, message: "Challenge is closed" });
-        };
+        }
 
         if (challangeStatus.status === 'UPCOMING') {
+            if (req.file?.filename) await cloudinary.uploader.destroy(req.file.filename);
             return res.status(400).json({ success: false, message: "Challenge is upcoming" });
-        };
+        }
+
 
         const mediaUrl = req.file.path;
         const mediaType = req.file.mimetype.startsWith('video') ? 'video' : 'image';

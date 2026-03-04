@@ -4,6 +4,7 @@ import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 import { getUserNotifications, markNotificationRead, deleteNotification } from "@/services/notificationService";
 import { Bell, Trash2, ArrowRight, Trophy, Flag, AlertCircle } from "lucide-react";
 import { motion } from "framer-motion";
+import { Helmet } from "react-helmet-async";
 
 export default function Notifications() {
     const navigate = useNavigate();
@@ -68,6 +69,10 @@ export default function Notifications() {
 
     return (
         <AuthenticatedLayout>
+            <Helmet>
+                <title>Notifications | SHOWGRID</title>
+                <meta name="description" content="View your SHOWGRID alerts and updates." />
+            </Helmet>
             <div className="flex flex-col min-h-screen">
                 <div className="max-w-3xl mx-auto w-full py-4 md:py-8 px-3 sm:px-4 flex flex-col gap-4 md:gap-6">
                     <div className="flex items-center gap-2 md:gap-3 border-b border-white/10 pb-3 md:pb-4">

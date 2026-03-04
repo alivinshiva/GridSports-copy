@@ -4,6 +4,7 @@ import { Check, Clock, MapPin, X, Share, Copy, Facebook, Instagram, MessageCircl
 import { useAuth } from "@/context/AuthContext";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 import { getSingleSubmission } from "@/services/submissionService";
+import { Helmet } from "react-helmet-async";
 
 const TRIBE_COLORS = {
     "ORANGE TRIBE": "#1E1E1E",
@@ -107,7 +108,7 @@ export default function UploadSuccess() {
 
     const handleShare = async (platform) => {
         const shareUrl = `${window.location.origin}/challenge/feed/${submissionId || ""}`;
-        const text = `Check out my entry for ${challengeName || "the challenge"} on GridSports!`;
+        const text = `Check out my entry for ${challengeName || "the challenge"} on SHOWGRID!`;
 
         if (platform === "copy") {
             try {
@@ -180,6 +181,10 @@ export default function UploadSuccess() {
 
     return (
         <AuthenticatedLayout>
+            <Helmet>
+                <title>Upload Successful | SHOWGRID</title>
+                <meta name="description" content="Your challenge entry was successfully uploaded to SHOWGRID." />
+            </Helmet>
             <div className="flex-grow flex flex-col items-center justify-center px-4 py-12 md:py-24 w-full relative">
 
                 {/* Share Modal */}

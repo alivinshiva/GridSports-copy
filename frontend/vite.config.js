@@ -11,8 +11,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'robots.txt', 'apple-touch-icon.png'],
       manifest: {
-        name: 'Grid Sports',
-        short_name: 'GridSports',
+        name: 'SHOWGRID',
+        short_name: 'SHOWGRID',
         description: 'Premium Sports Challenge Experiences',
         theme_color: '#F59E0B',
         icons: [

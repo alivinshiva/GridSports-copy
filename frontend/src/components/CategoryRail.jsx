@@ -41,7 +41,7 @@ export function CategoryRail() {
                             <p className="text-gray-300 text-sm md:text-base">{f1Category.type}</p>
                         </div>
                         <div className="absolute top-4 right-4 md:top-6 md:right-6">
-                            <img src={logo} alt="GridSports" className="w-8 h-8 opacity-90 drop-shadow-md" />
+                            <img src={logo} alt="SHOWGRID" className="w-8 h-8 opacity-90 drop-shadow-md" />
                         </div>
                     </motion.div>
                 </Link>

@@ -5,6 +5,7 @@ import { addSubmission } from "@/services/submissionService";
 import { getChallengeById } from "@/services/challengeService";
 import { motion } from "framer-motion";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
+import { Helmet } from "react-helmet-async";
 
 export default function UploadChallenge() {
     const navigate = useNavigate();
@@ -26,7 +27,6 @@ export default function UploadChallenge() {
     const [challenge, setChallenge] = useState(null);
 
     useEffect(() => {
-        window.scrollTo(0, 0);
         const fetchChallenge = async () => {
             try {
                 const response = await getChallengeById(challengeId);
@@ -203,6 +203,10 @@ export default function UploadChallenge() {
 
     return (
         <AuthenticatedLayout>
+            <Helmet>
+                <title>{challenge ? `Upload to ${challenge.name}` : "Upload Challenge"} | SHOWGRID</title>
+                <meta name="description" content="Upload your photo or video entry for the SHOWGRID racing challenge." />
+            </Helmet>
             {/* Success Popup Modal */}
             {showSuccess && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-300">

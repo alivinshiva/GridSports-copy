@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Phone, Lock, ArrowRight, Eye, EyeOff } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import logo from "../assets/logo1.svg";
+import { Helmet } from "react-helmet-async";
 
 // Login does NOT require OTP - direct login after credential check
 
@@ -36,6 +37,10 @@ export function LoginPage() {
 
     return (
         <div className="min-h-screen bg-racing-black flex items-center justify-center px-4 relative overflow-hidden">
+            <Helmet>
+                <title>Login | SHOWGRID</title>
+                <meta name="description" content="Login to SHOWGRID to track your racing journey and unlock challenges." />
+            </Helmet>
             {/* Background Glow */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-cyan-500/10 rounded-full blur-[120px] pointer-events-none" />
 
@@ -47,7 +52,7 @@ export function LoginPage() {
             >
                 {/* Logo / Title */}
                 <div className="text-center mb-10 flex flex-col items-center">
-                    <img src={logo} alt="GridSports Logo" className="w-32 h-32 mb-4 drop-shadow-[0_0_15px_rgba(6,182,212,0.3)]" />
+                    <img src={logo} alt="SHOWGRID Logo" className="w-32 h-32 mb-4 drop-shadow-[0_0_15px_rgba(6,182,212,0.3)]" />
                     <p className="text-gray-400">Welcome back, Racer</p>
                 </div>
 

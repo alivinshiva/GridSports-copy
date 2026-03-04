@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 import { ChallengeCard } from "@/components/race/ChallengeCard";
 import { Clock, Lock } from "lucide-react";
+import { Helmet } from "react-helmet-async";
 
 export default function RaceDetails() {
     const { raceId } = useParams();
@@ -33,6 +34,10 @@ export default function RaceDetails() {
 
     return (
         <AuthenticatedLayout>
+            <Helmet>
+                <title>{race.name} | SHOWGRID</title>
+                <meta name="description" content={`View details and rules for ${race.name} on SHOWGRID.`} />
+            </Helmet>
             <div className="flex flex-1 justify-center py-5">
                 <div className="layout-content-container flex flex-col max-w-[1024px] flex-1 px-4 md:px-10">
 

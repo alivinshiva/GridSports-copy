@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Phone, Lock, ArrowRight, ArrowLeft, KeyRound, CheckCircle2, Eye, EyeOff } from "lucide-react";
 import logo from "../assets/logo1.svg";
+import { Helmet } from "react-helmet-async";
 
 export function ForgotPasswordPage() {
     const [step, setStep] = useState(1); // 1: Phone, 2: OTP & New Password, 3: Success
@@ -78,6 +79,10 @@ export function ForgotPasswordPage() {
 
     return (
         <div className="min-h-screen bg-racing-black flex items-center justify-center px-4 relative overflow-hidden">
+            <Helmet>
+                <title>Forgot Password | SHOWGRID</title>
+                <meta name="description" content="Recover your SHOWGRID account password." />
+            </Helmet>
             {/* Background Glow */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-cyan-500/10 rounded-full blur-[120px] pointer-events-none" />
 
@@ -89,7 +94,7 @@ export function ForgotPasswordPage() {
             >
                 {/* Logo / Title */}
                 <div className="text-center mb-10 flex flex-col items-center">
-                    <img src={logo} alt="GridSports Logo" className="w-32 h-32 mb-4 drop-shadow-[0_0_15px_rgba(6,182,212,0.3)]" />
+                    <img src={logo} alt="SHOWGRID Logo" className="w-32 h-32 mb-4 drop-shadow-[0_0_15px_rgba(6,182,212,0.3)]" />
                     <p className="text-gray-400">
                         {step === 1 && "Recover your account"}
                         {step === 2 && "Reset your password"}
