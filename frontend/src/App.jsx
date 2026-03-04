@@ -22,6 +22,7 @@ import PrivacyPolicy from "@/pages/PrivacyPolicy";
 import TermsOfService from "@/pages/TermsOfService";
 import Disclaimer from "@/pages/Disclaimer";
 import { GlobalFooter } from "@/components/GlobalFooter";
+import ScrollToTop from "@/components/ScrollToTop";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 
 // Protects routes: must be logged in AND have chosen a tribe
@@ -65,6 +66,7 @@ function App() {
   return (
     <AuthProvider>
       <Router>
+        <ScrollToTop />
         <Routes>
           <Route path="/signup" element={<GuestRoute><SignupPage /></GuestRoute>} />
           <Route path="/login" element={<GuestRoute><LoginPage /></GuestRoute>} />

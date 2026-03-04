@@ -7,7 +7,6 @@ import logo from '../assets/logo1.svg';
 
 export default function PrivacyPolicy() {
     useEffect(() => {
-        window.scrollTo(0, 0);
     }, []);
 
     return (

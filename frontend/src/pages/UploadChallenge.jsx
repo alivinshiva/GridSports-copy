@@ -27,7 +27,6 @@ export default function UploadChallenge() {
     const [challenge, setChallenge] = useState(null);
 
     useEffect(() => {
-        window.scrollTo(0, 0);
         const fetchChallenge = async () => {
             try {
                 const response = await getChallengeById(challengeId);
